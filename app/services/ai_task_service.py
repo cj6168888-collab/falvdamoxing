@@ -116,9 +116,85 @@ class AITaskExecutor:
 
 
 class ThreadedAITaskExecutor(AITaskExecutor):
+    """Executes tasks in a daemon thread (default for development)."""
+
     def submit(self, func: Callable[[], None]) -> None:
         thread = threading.Thread(target=func, daemon=True)
         thread.start()
+
+
+class CeleryTaskExecutor(AITaskExecutor):
+    """Dispatches async AI tasks to Celery workers.
+
+    Falls back to threading when the Celery broker is unreachable so the
+    system keeps working during development without Redis / RabbitMQ.
+    """
+
+    _threaded_fallback = ThreadedAITaskExecutor()
+
+    _ROUTE_MAP: Dict[str, str] = {
+        "adversarial": "legal_ai.adversarial",
+        "senior_analysis": "legal_ai.senior_analysis",
+        "report_generate": "legal_ai.report_generate",
+        "document_generate": "legal_ai.document_generate",
+    }
+
+    def __init__(self) -> None:
+        self._celery_available: Optional[bool] = None
+
+    def _ping_broker(self) -> bool:
+        """Check whether the Celery broker is reachable."""
+        if self._celery_available is not None:
+            return self._celery_available
+        try:
+            from app.celery_app import celery_app
+
+            if celery_app is None:
+                self._celery_available = False
+                return False
+
+            conn = celery_app.broker_connection()
+            conn.ensure_connection(max_retries=1, timeout=2)
+            conn.release()
+            self._celery_available = True
+        except Exception:
+            self._celery_available = False
+        return self._celery_available
+
+    def submit(self, func: Callable[[], None]) -> None:
+        self._threaded_fallback.submit(func)
+
+
+celery_task_executor = CeleryTaskExecutor()
+
+
+def dispatch_task_to_celery(task_id: str, task: AITaskData) -> bool:
+    """Route the task to the appropriate Celery queue.
+
+    Returns True when the task was accepted by the broker; False otherwise.
+    """
+    task_type = task.get("type", "")
+    route_name = celery_task_executor._ROUTE_MAP.get(task_type)
+
+    if not route_name or not celery_task_executor._ping_broker():
+        return False
+
+    try:
+        from app.celery_app import celery_app
+
+        celery_app.send_task(
+            route_name,
+            args=(task_id, dict(task)),
+            queue="celery",
+        )
+        ai_task_registry.update_task(
+            task_id,
+            status="queued",
+            message=f"Task dispatched to Celery ({route_name}).",
+        )
+        return True
+    except Exception:
+        return False
 
 
 ai_task_registry = InMemoryAITaskRegistry()
@@ -197,7 +273,16 @@ def register_task_handler(task_type: str):
 
 
 def execute_registered_task(task_id: str, task: AITaskData, handler: AITaskHandler) -> None:
-    update_task(task_id, status="running", progress=0.0, message="Task started.")
+    """Execute a registered AI task.
+
+    When a Celery broker is reachable the task is dispatched to a worker;
+    otherwise it falls back to a background thread so the system stays
+    usable during development without Redis / RabbitMQ.
+    """
+    if dispatch_task_to_celery(task_id, task):
+        return
+
+    update_task(task_id, status="running", progress=0.0, message="Task started (thread).")
 
     def run_task():
         try:
