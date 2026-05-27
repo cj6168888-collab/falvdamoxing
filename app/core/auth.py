@@ -89,3 +89,19 @@ def require_role(*roles):
             )
         return current_user
     return role_checker
+
+
+async def check_ai_quota(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> User:
+    """验证当前租户的 AI 配额，配额耗尽时返回 429。"""
+    from app.services.quota_service import quota_service
+
+    quota = quota_service.check_quota(db, current_user.tenant_id)
+    if not quota["allowed"]:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=quota["message"],
+        )
+    return current_user
