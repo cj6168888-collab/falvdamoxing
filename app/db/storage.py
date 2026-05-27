@@ -1,6 +1,14 @@
 """
-数据存储模块 - 更新版
-所有功能关联项目
+数据存储模块 — 已弃用 (DEPRECATED)
+
+此模块为旧版存储层，使用原始 sqlite3 连接独立的 law_assistant.db。
+新代码请使用 SQLAlchemy ORM 模型（app/models/）和 app/db/database.py。
+
+合同 API → 已迁移至 app/models/contract.py + ORM
+借款 API → 已迁移至 app/models/loan.py + ORM
+项目相关 → 使用 app/models/project.py 中的 ProjectContract 等模型
+
+此文件仅保留以支持可能的旧数据读取，不再用于新功能。
 """
 import sqlite3
 import json

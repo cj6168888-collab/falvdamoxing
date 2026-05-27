@@ -1,5 +1,7 @@
 -- ============================================================
 -- 法律大模型辅助系统 - PostgreSQL 数据库初始化脚本
+-- ⚠️ 已过时 (DEPRECATED)— 表结构与当前 ORM 模型不匹配
+-- 请使用 app/db/migrate_all.py 进行数据库初始化/migration
 -- 用途: docker-compose.prod.yml 中 postgres 服务的初始化
 -- 使用: docker-compose up -d postgres 自动执行
 -- ============================================================

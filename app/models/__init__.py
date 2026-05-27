@@ -39,6 +39,7 @@ from app.models.evidence import (
     EvidenceFact,
     EvidenceDuplicateCheck,
     EvidenceKeywordIndex,
+    EvidenceAnalysisRecord,
     EvidenceSourceType,
     EvidenceType as EvidenceTypeEnum,
     EvidenceSourceParty,
@@ -130,3 +131,7 @@ from app.models.user import User, UserRole
 from app.models.api_key import APIKey
 from app.models.sms_verification import SMSVerificationCode
 from app.models.ai_audit import AIRetrievalAudit
+
+# 合同与借款
+from app.models.contract import Contract
+from app.models.loan import Loan

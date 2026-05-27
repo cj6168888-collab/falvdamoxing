@@ -1,8 +1,7 @@
 """
 法律知识库 SQLAlchemy 模型
 """
-from sqlalchemy import Column, String, Integer, Text, Boolean, Date, DateTime, JSON, BigInteger, ForeignKey, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Integer, Text, Boolean, Date, DateTime, JSON
 from sqlalchemy.sql import func
 import uuid
 from app.db.database import Base

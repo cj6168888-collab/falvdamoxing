@@ -462,46 +462,131 @@ class EvidenceNavigator:
         evidence: List[EvidenceItem],
         gaps: List[EvidenceGap]
     ) -> List[str]:
-        """生成关键发现"""
+        findings = self._rule_critical_findings(evidence, gaps)
+        if self.llm:
+            try:
+                llm_findings = self._llm_critical_findings(evidence, gaps)
+                if llm_findings:
+                    return llm_findings
+            except Exception:
+                pass
+        return findings
+
+    def _rule_critical_findings(
+        self,
+        evidence: List[EvidenceItem],
+        gaps: List[EvidenceGap]
+    ) -> List[str]:
+        """规则引擎生成关键发现（LLM 不可用时的回退）"""
         findings = []
-        
-        # 分析证据强度
+
         weak_evidence = [e for e in evidence if e.strength < 0.5]
         if weak_evidence:
             findings.append(f"⚠️ 有 {len(weak_evidence)} 份证据证明力较弱，需要补强")
-        
-        # 分析关键缺口
+
         critical_gaps = [g for g in gaps if g.severity == EvidenceGapSeverity.CRITICAL]
         if critical_gaps:
             findings.append(f"🔴 存在 {len(critical_gaps)} 个致命证据缺口，必须补齐")
-        
-        # 分析证据类型
+
         type_counts = self._get_type_distribution(evidence)
         if "书面证据" not in type_counts:
             findings.append("🔴 缺少书面证据，合同关系难以证明")
-        
+
         return findings
+
+    def _llm_critical_findings(
+        self,
+        evidence: List[EvidenceItem],
+        gaps: List[EvidenceGap]
+    ) -> List[str]:
+        """使用 LLM 生成深度关键发现"""
+        evidence_summary = "\n".join([
+            f"- {e.name}（{e.evidence_type}，证明力: {e.strength:.0%}）: {e.description}"
+            for e in evidence[:20]
+        ]) or "暂无已提交证据"
+
+        gap_summary = "\n".join([
+            f"- [{g.severity.value}] {g.missing_type}: {g.risk_description or g.proves_fact}"
+            for g in gaps[:15]
+        ]) or "暂无已识别缺口"
+
+        prompt = f"""你是资深诉讼律师，请基于以下案件证据状态，给出3-5条关键发现。
+
+【已提交证据】
+{evidence_summary}
+
+【证据缺口】
+{gap_summary}
+
+要求：
+1. 每条发现必须具体、可操作
+2. 关注证据链的逻辑断裂点
+3. 指出最致命的薄弱环节
+4. 每条约30字以内
+5. 直接输出发现列表，每行一条，以"- "开头"""
+
+        try:
+            response = self.llm.chat([
+                {"role": "system", "content": "你是严谨的诉讼策略专家，只基于给定信息分析。"},
+                {"role": "user", "content": prompt}
+            ])
+            lines = [l.strip("- ").strip() for l in response.split("\n") if l.strip().startswith("-")]
+            return lines[:5] if lines else []
+        except Exception:
+            return []
     
     def _generate_actions(self, gaps: List[EvidenceGap]) -> List[str]:
-        """生成立即行动建议"""
-        actions = []
-        
-        # 按严重程度排序
         sorted_gaps = sorted(
-            gaps, 
+            gaps,
             key=lambda x: (
                 0 if x.severity == EvidenceGapSeverity.CRITICAL else 1,
                 0 if x.importance == "高" else 1
             )
         )
-        
-        for i, gap in enumerate(sorted_gaps[:3], 1):
+
+        actions = []
+        for i, gap in enumerate(sorted_gaps[:5], 1):
+            step = gap.how_to_obtain[0] if gap.how_to_obtain else "请尽快收集"
             if gap.severity == EvidenceGapSeverity.CRITICAL:
-                actions.append(f"{i}. 【紧急】{gap.missing_type}：{gap.how_to_obtain[0] if gap.how_to_obtain else '请尽快收集'}")
+                actions.append(f"{i}. 【紧急】{gap.missing_type}：{step}")
             else:
-                actions.append(f"{i}. {gap.missing_type}：{gap.how_to_obtain[0] if gap.how_to_obtain else '建议收集'}")
-        
+                actions.append(f"{i}. {gap.missing_type}：{step}")
+
+        if self.llm and len(sorted_gaps) >= 2:
+            try:
+                enhanced = self._llm_action_plan(sorted_gaps[:5])
+                if enhanced:
+                    return enhanced
+            except Exception:
+                pass
         return actions
+
+    def _llm_action_plan(self, gaps: List[EvidenceGap]) -> List[str]:
+        gap_text = "\n".join([
+            f"- [{g.severity.value}] {g.missing_type}: 影响 {g.proves_fact}。可行性: {g.feasibility}。替代方案: {', '.join(g.alternative_evidence[:2]) or '无'}"
+            for g in gaps
+        ])
+
+        prompt = f"""你是诉讼策略专家。请基于以下证据缺口，生成3-5条具体的行动建议。
+
+【证据缺口】
+{gap_text}
+
+要求：
+1. 每条建议按优先级排序，最紧急的排第一
+2. 建议必须具体可执行（包含获取方式）
+3. 说明每项行动的时间紧迫性
+4. 以"- "开头的列表输出"""
+
+        try:
+            response = self.llm.chat([
+                {"role": "system", "content": "你是诉讼策略专家，提供可执行的证据收集建议。"},
+                {"role": "user", "content": prompt}
+            ])
+            lines = [l.strip("- ").strip() for l in response.split("\n") if l.strip().startswith("-")]
+            return lines[:5] if lines else []
+        except Exception:
+            return []
     
     # ==================== 引导问答系统 ====================
     
