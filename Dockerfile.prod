@@ -1,0 +1,43 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+ARG INSTALL_OPTIONAL_ML=false
+ARG INSTALL_WORKER=false
+
+RUN if [ "$INSTALL_OPTIONAL_ML" = "true" ]; then \
+        apt-get update \
+        && apt-get install -y --no-install-recommends \
+        gcc \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        libgomp1 \
+        && rm -rf /var/lib/apt/lists/*; \
+    fi
+
+COPY requirements-core.txt requirements-optional.txt requirements-worker.txt ./
+
+RUN pip install --upgrade pip \
+    && pip install -r requirements-core.txt \
+    && if [ "$INSTALL_OPTIONAL_ML" = "true" ]; then pip install -r requirements-optional.txt; fi \
+    && if [ "$INSTALL_WORKER" = "true" ]; then pip install -r requirements-worker.txt; fi
+
+COPY app ./app
+COPY migrations ./migrations
+COPY scripts ./scripts
+COPY pytest.ini ./
+
+RUN mkdir -p data/chroma data/files
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5).read()" || exit 1
+
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY:-4}"]

@@ -1,0 +1,138 @@
+{
+  "timestamp": "2026-03-25T13:56:08.928417",
+  "summary": {
+    "total": 13,
+    "passed": 8,
+    "failed": 6,
+    "pass_rate": "61.5%"
+  },
+  "errors": [
+    {
+      "test": "获取API文档页面",
+      "endpoint": "/docs",
+      "error": "Expecting value: line 2 column 5 (char 5)"
+    },
+    {
+      "test": "创建新项目",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取项目列表",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "创建新案件",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取案件列表",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "生成会议纪要",
+      "endpoint": "/api/meetings/generate-minutes",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    }
+  ],
+  "details": [
+    {
+      "test": "获取系统根信息",
+      "status": "PASS",
+      "endpoint": "/",
+      "response": {
+        "name": "法律大模型辅助系统 API",
+        "version": "1.0.0",
+        "status": "running"
+      }
+    },
+    {
+      "test": "健康检查",
+      "status": "PASS",
+      "endpoint": "/health",
+      "response": {
+        "status": "healthy"
+      }
+    },
+    {
+      "test": "创建新项目",
+      "status": "FAIL",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取项目列表",
+      "status": "FAIL",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取项目统计",
+      "status": "PASS",
+      "endpoint": "/api/projects/stats/summary",
+      "response": {
+        "total": 1,
+        "active": 1,
+        "disputes": 0,
+        "completed": 0,
+        "favorites": 0
+      }
+    },
+    {
+      "test": "创建新案件",
+      "status": "FAIL",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取案件列表",
+      "status": "FAIL",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "保存会议记录",
+      "status": "PASS",
+      "endpoint": "/api/meetings/records",
+      "response": {
+        "success": true,
+        "message": "会议记录已保存",
+        "session_id": "1774418160.769285"
+      }
+    },
+    {
+      "test": "获取会议记录列表",
+      "status": "PASS",
+      "endpoint": "/api/meetings/records",
+      "response": []
+    },
+    {
+      "test": "生成会议纪要",
+      "status": "FAIL",
+      "endpoint": "/api/meetings/generate-minutes",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "从会议生成合同",
+      "status": "PASS",
+      "endpoint": "/api/meetings/generate-contract",
+      "response": {
+        "contract": "\n# 合作合同\n\n合同编号：__________\n\n签订日期：2026-03-25\n\n签订地点：__________\n\n---\n\n## 甲方（一方）：\n名称：__________\n地址：__________\n法定代表人：__________\n联系电话：__________\n\n## 乙方（另一方）：\n名称：__________\n地址：__________\n法定代表人：__________\n联系电话：__________\n\n---\n\n## 鉴于\n\n1. 甲乙双方于2026-03-25就合作项目进行了友好协商；\n2. 双方在平等、自愿、公平的基础上达成合作意向；\n3. 甲乙双方均具有签署和履行本合同的资格和能力。\n\n现经双方协商一致，就合作项目达成如下协议：\n\n---\n\n## 第一条 合作内容\n\n（待补充）\n\n---\n\n## 第二条 双方权利义务\n\n### 甲方权利义务：\n1.\n2.\n3.\n\n### 乙方权利义务：\n1.\n2.\n3.\n\n---\n\n## 第三条 合作期限\n\n本合同自双方签字盖章之日起生效，有效期为____年。\n\n---\n\n## 第四条 违约责任\n\n1. 如一方违反本合同的约定，守约方有权要求违约方承担相应的违约责任；\n2. 违约方应当赔偿守约方因此遭受的全部损失。\n\n---\n\n## 第五条 争议解决\n\n本合同在履行过程中如发生争议，双方应当友好协商解决；协商不成的，任一方可向有管辖权的人民法院提起诉讼。\n\n---\n\n## 第六条 其他约定\n\n1. 本合同一式两份，甲乙双方各执一份，具有同等法律效力；\n2. 本合同未尽事宜，双方可另行签订补充协议，补充协议与本合同具有同等法律效力；\n3. 本合同自双方签字盖章之日起生效。\n\n---\n\n## 附件\n\n1.\n2.\n\n---\n\n甲方（签章）：________________  乙方（签章）：________________\n\n日期：________________  日期：________________\n",
+        "contract_type": "合作合同",
+        "summary": "合同草案已生成，请在正式签署前仔细审核并根据实际情况进行调整。"
+      }
+    },
+    {
+      "test": "生成会议决议",
+      "status": "PASS",
+      "endpoint": "/api/meetings/generate-resolution",
+      "response": {
+        "resolution": "\n# 董事会决议决议\n\n会议编号：__________\n会议日期：2026-03-25\n会议类型：董事会\n\n---\n\n## 参会人员\n\n全体董事\n\n---\n\n## 会议议题\n\n董事会决议\n\n---\n\n## 决议事项\n\n### 决议第1项\n同意按新方案执行\n\n\n---\n\n## 表决结果\n\n□ 同意：____人  □ 反对：____人  □ 弃权：____人\n\n---\n\n## 执行安排\n\n| 序号 | 执行事项 | 责任人 | 完成期限 |\n|------|---------|--------|---------|\n| 1 | | | |\n| 2 | | | |\n\n---\n\n## 备注\n\n（无）\n\n---\n\n主持人：________________  记录人：________________\n日期：________________\n",
+        "summary": "会议决议已生成，请根据实际情况补充完整。"
+      }
+    }
+  ]
+}

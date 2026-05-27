@@ -1,0 +1,42 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+streamlit==1.41.0
+sqlalchemy==2.0.35
+psycopg2-binary>=2.9.9
+dashscope==1.25.15
+openai==1.57.0
+python-multipart==0.0.12
+PyPDF2==3.0.1
+PyMuPDF==1.25.2
+python-docx==1.1.2
+chromadb==1.5.3  # ChromaDB 1.5.x (2026-03 最新)，支持高级搜索 API
+redis==5.2.0
+python-dotenv==1.0.1
+pydantic>=2.10.0,<3.0.0
+pydantic[email]>=2.10.0,<3.0.0
+pydantic-settings>=2.6.0,<3.0.0
+httpx==0.28.1
+aiofiles==24.1.0
+paddleocr==2.9.1
+paddlepaddle>=3.0.0
+pytesseract==0.3.13
+Pillow>=10.4.0
+reportlab>=4.2.5
+sentence-transformers>=3.0.1
+markdown>=3.7
+# ===== 第四阶段新增依赖 =====
+prometheus-client>=0.20.0
+python-json-logger>=2.0.7
+structlog>=24.4.0
+# ===== 第五阶段新增依赖（业务功能增强） =====
+# biz-3: 动态节假日获取（含农历节日和调休工作日）
+chinese-calendar>=1.9.0
+# biz-10: PDF导出支持
+weasyprint>=60.0; platform_system != "Windows"
+# biz-11: JWT鉴权
+PyJWT>=2.8.0
+# biz-15: LLM工具调用能力（LangChain）
+langchain>=0.3.0
+langchain-core>=0.3.0
+# ===== 证据文件夹监控 =====
+watchdog>=4.0.0

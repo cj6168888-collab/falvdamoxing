@@ -1,0 +1,110 @@
+# Docker Compose 监控栈
+# 使用方式: docker-compose -f docker-compose.monitoring.yml --profile monitoring up -d
+
+version: "3.8"
+
+services:
+  # ==================== Prometheus 监控 ====================
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: legal-ai-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    profiles:
+      - monitoring
+
+  # ==================== Grafana 可视化 ====================
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: legal-ai-grafana
+    restart: unless-stopped
+    ports:
+      - "3030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3030
+    volumes:
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
+
+  # ==================== Node Exporter（系统指标） ====================
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: legal-ai-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+    profiles:
+      - monitoring
+
+  # ==================== Redis Exporter（Redis 指标） ====================
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: legal-ai-redis-exporter
+    restart: unless-stopped
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "9121:9121"
+    networks:
+      - monitoring
+    profiles:
+      - monitoring
+
+  # ==================== Alertmanager（告警管理） ====================
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: legal-ai-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./config/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    networks:
+      - monitoring
+    profiles:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:

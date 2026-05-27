@@ -1,0 +1,8 @@
+name: legal-ai
+
+services:
+  nginx:
+    volumes:
+      - ./config/nginx/nginx.https.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx

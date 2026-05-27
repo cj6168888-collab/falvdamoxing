@@ -1,0 +1,4360 @@
+{
+  "timestamp": "2026-03-25T17:15:05.445888",
+  "summary": {
+    "total": 114,
+    "passed": 107,
+    "failed": 8,
+    "pass_rate": "93.9%"
+  },
+  "errors": [
+    {
+      "test": "获取API文档页面",
+      "endpoint": "/docs",
+      "error": "Expecting value: line 2 column 5 (char 5)"
+    },
+    {
+      "test": "获取项目列表",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取案件列表",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "检查证据完整性",
+      "endpoint": "/api/evidence/check-completeness",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "创建函件",
+      "endpoint": "/api/时间把控/case/6/letters",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "一键生成完整分析",
+      "endpoint": "/api/对抗性分析/case/6/full-analysis",
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=60)"
+    },
+    {
+      "test": "添加行动方案",
+      "endpoint": "/api/对抗性分析/analysis/8/actions",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "上传并处理文档",
+      "endpoint": "/api/v2/assistant/upload",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    }
+  ],
+  "details": [
+    {
+      "test": "获取系统根信息",
+      "status": "PASS",
+      "endpoint": "/",
+      "response": {
+        "name": "法律大模型辅助系统 API",
+        "version": "1.0.0",
+        "status": "running"
+      }
+    },
+    {
+      "test": "健康检查",
+      "status": "PASS",
+      "endpoint": "/health",
+      "response": {
+        "status": "healthy"
+      }
+    },
+    {
+      "test": "创建新项目",
+      "status": "PASS",
+      "endpoint": "/api/projects/",
+      "response": {
+        "id": 6,
+        "message": "项目创建成功"
+      }
+    },
+    {
+      "test": "获取项目列表",
+      "status": "FAIL",
+      "endpoint": "/api/projects/",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取项目统计",
+      "status": "PASS",
+      "endpoint": "/api/projects/stats/summary",
+      "response": {
+        "total": 5,
+        "active": 5,
+        "disputes": 0,
+        "completed": 0,
+        "favorites": 0
+      }
+    },
+    {
+      "test": "获取项目详情",
+      "status": "PASS",
+      "endpoint": "/api/projects/6",
+      "response": {
+        "id": 6,
+        "name": "测试项目_170453",
+        "project_type": "other",
+        "description": "这是一个用于系统测试的测试项目",
+        "user_role": "business",
+        "counterpart_name": "测试对手公司",
+        "counterpart_type": "企业",
+        "counterpart_contact": null,
+        "start_date": null,
+        "expected_end_date": null,
+        "actual_end_date": null,
+        "status": "planning",
+        "current_phase": "initiation",
+        "amount": "1000000",
+        "currency": "CNY",
+        "risk_level": "low",
+        "risk_factors": null,
+        "progress": 0.0,
+        "legal_analysis": null,
+        "legal_advice": null,
+        "contract_review": null,
+        "is_favorite": false,
+        "tags": null,
+        "notes": null,
+        "created_at": "2026-03-25T09:04:55.279759",
+        "updated_at": "2026-03-25T09:04:55.279759"
+      }
+    },
+    {
+      "test": "更新项目",
+      "status": "PASS",
+      "endpoint": "/api/projects/6",
+      "response": {
+        "id": 6,
+        "message": "项目更新成功"
+      }
+    },
+    {
+      "test": "切换收藏状态",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/favorite",
+      "response": {
+        "id": 6,
+        "is_favorite": true,
+        "message": "收藏状态已更新"
+      }
+    },
+    {
+      "test": "添加项目文档",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/documents",
+      "response": {
+        "id": 2,
+        "message": "文档添加成功"
+      }
+    },
+    {
+      "test": "获取项目文档列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/documents",
+      "response": [
+        {
+          "id": 2,
+          "doc_type": "合同",
+          "name": "测试合同.pdf",
+          "description": "测试合同文档",
+          "source": "self_drafted",
+          "content": null,
+          "content_summary": null,
+          "ai_review": null,
+          "status": "draft",
+          "version": "1.0",
+          "created_at": "2026-03-25T09:05:07.760862"
+        }
+      ]
+    },
+    {
+      "test": "添加往来记录",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/communications",
+      "response": {
+        "id": 2,
+        "message": "往来记录添加成功"
+      }
+    },
+    {
+      "test": "获取往来记录列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/communications",
+      "response": [
+        {
+          "id": 2,
+          "communication_type": "email",
+          "direction": "outgoing",
+          "subject": "测试邮件主题",
+          "content": "这是测试邮件内容",
+          "counterpart_name": "测试对手",
+          "communication_date": null,
+          "ai_summary": null,
+          "evidence_value": "low",
+          "is_key_evidence": false,
+          "created_at": "2026-03-25T09:05:11.874530"
+        }
+      ]
+    },
+    {
+      "test": "添加里程碑",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/milestones",
+      "response": {
+        "id": 2,
+        "message": "里程碑添加成功"
+      }
+    },
+    {
+      "test": "获取里程碑列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/milestones",
+      "response": [
+        {
+          "id": 2,
+          "name": "合同签约",
+          "description": "完成合同签署",
+          "milestone_type": "签约",
+          "phase": "signing",
+          "planned_date": null,
+          "actual_date": null,
+          "status": "pending",
+          "ai_reminder": null,
+          "legal_tips": null,
+          "order": 0
+        }
+      ]
+    },
+    {
+      "test": "添加证据材料",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/evidence",
+      "response": {
+        "id": 2,
+        "message": "证据材料添加成功"
+      }
+    },
+    {
+      "test": "获取证据列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/evidence",
+      "response": [
+        {
+          "id": 2,
+          "evidence_type": "书面证据",
+          "name": "测试证据.pdf",
+          "description": "测试证据材料",
+          "source": "己方提供",
+          "content": null,
+          "content_summary": null,
+          "probative_value": "medium",
+          "authenticity": "unknown",
+          "ai_analysis": null,
+          "status": "collected",
+          "is_key_evidence": false,
+          "completeness": 0.5,
+          "created_at": "2026-03-25T09:05:20.116012"
+        }
+      ]
+    },
+    {
+      "test": "添加合同",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/contracts",
+      "response": {
+        "id": 2,
+        "message": "合同添加成功"
+      }
+    },
+    {
+      "test": "获取合同列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/contracts",
+      "response": [
+        {
+          "id": 2,
+          "contract_name": "主合同",
+          "contract_type": "合作协议",
+          "party_a": "我方公司",
+          "party_b": "对手公司",
+          "amount": "1000000",
+          "signing_date": null,
+          "effective_date": null,
+          "expiration_date": null,
+          "status": "draft",
+          "ai_review": null,
+          "risk_level": "medium",
+          "performance_status": null,
+          "created_at": "2026-03-25T09:05:24.255301"
+        }
+      ]
+    },
+    {
+      "test": "添加风险记录",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/risks",
+      "response": {
+        "id": 2,
+        "message": "风险记录添加成功"
+      }
+    },
+    {
+      "test": "获取风险列表",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/risks",
+      "response": [
+        {
+          "id": 2,
+          "risk_type": "合同风险",
+          "title": "对手可能违约",
+          "description": "需要关注对手履约情况",
+          "severity": "high",
+          "probability": "medium",
+          "impact": "high",
+          "status": "identified",
+          "mitigation_plan": null,
+          "preventive_measures": null,
+          "is_monitored": true,
+          "created_at": "2026-03-25T09:05:28.401110"
+        }
+      ]
+    },
+    {
+      "test": "创建新案件",
+      "status": "PASS",
+      "endpoint": "/api/cases",
+      "response": {
+        "id": 6,
+        "case_number": null,
+        "title": "测试案件_170530",
+        "case_type": "民事",
+        "status": "收案",
+        "plaintiff": "张三",
+        "defendant": "李四公司",
+        "third_party": null,
+        "cause": "合同纠纷",
+        "claim_amount": "500000",
+        "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+        "summary": null,
+        "background": null,
+        "supplement": null,
+        "primary_cause": null,
+        "legal_analysis": null,
+        "strategy_suggestion": null,
+        "filed_date": null,
+        "trial_date": null,
+        "judgment_date": null,
+        "deadline": null,
+        "closure_result": null,
+        "closure_type": null,
+        "closure_amount": null,
+        "closure_date": null,
+        "is_transferred_to_execution": false,
+        "execution_case_number": null,
+        "execution_status": null,
+        "execution_progress": 0.0,
+        "closure_notes": null,
+        "is_archived": false,
+        "created_at": "2026-03-25T09:05:32.508313",
+        "updated_at": "2026-03-25T09:05:32.508313"
+      }
+    },
+    {
+      "test": "获取案件列表",
+      "status": "FAIL",
+      "endpoint": "/api/cases",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取案件详情",
+      "status": "PASS",
+      "endpoint": "/api/cases/6",
+      "response": {
+        "id": 6,
+        "case_number": null,
+        "title": "测试案件_170530",
+        "case_type": "民事",
+        "status": "收案",
+        "plaintiff": "张三",
+        "defendant": "李四公司",
+        "third_party": null,
+        "cause": "合同纠纷",
+        "claim_amount": "500000",
+        "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+        "summary": null,
+        "background": null,
+        "supplement": null,
+        "primary_cause": null,
+        "legal_analysis": null,
+        "strategy_suggestion": null,
+        "filed_date": null,
+        "trial_date": null,
+        "judgment_date": null,
+        "deadline": null,
+        "closure_result": null,
+        "closure_type": null,
+        "closure_amount": null,
+        "closure_date": null,
+        "is_transferred_to_execution": false,
+        "execution_case_number": null,
+        "execution_status": null,
+        "execution_progress": 0.0,
+        "closure_notes": null,
+        "is_archived": false,
+        "created_at": "2026-03-25T09:05:32.508313",
+        "updated_at": "2026-03-25T09:05:32.508313"
+      }
+    },
+    {
+      "test": "更新案件",
+      "status": "PASS",
+      "endpoint": "/api/cases/6",
+      "response": {
+        "id": 6,
+        "case_number": null,
+        "title": "测试案件_170530",
+        "case_type": "民事",
+        "status": "审查中",
+        "plaintiff": "张三",
+        "defendant": "李四公司",
+        "third_party": null,
+        "cause": "合同纠纷",
+        "claim_amount": "500000",
+        "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+        "summary": null,
+        "background": null,
+        "supplement": "补充说明：对方多次催款未果。",
+        "primary_cause": null,
+        "legal_analysis": null,
+        "strategy_suggestion": null,
+        "filed_date": "2026-03-25T17:05:36.658014",
+        "trial_date": null,
+        "judgment_date": null,
+        "deadline": null,
+        "closure_result": null,
+        "closure_type": null,
+        "closure_amount": null,
+        "closure_date": null,
+        "is_transferred_to_execution": false,
+        "execution_case_number": null,
+        "execution_status": null,
+        "execution_progress": 0.0,
+        "closure_notes": null,
+        "is_archived": false,
+        "created_at": "2026-03-25T09:05:32.508313",
+        "updated_at": "2026-03-25T09:05:38.718156"
+      }
+    },
+    {
+      "test": "AI案件分析",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/analyze",
+      "response": {
+        "analysis": "## 一、案件事实  \n本案为**买卖合同纠纷**，涉及**货款拖欠问题**。原告主张被告未按约定支付货款共计50万元，且经多次催款未果。案件类型为民事诉讼，诉讼金额为50万元。\n\n## 二、法律关系  \n1. **买卖合同关系**：原被告之间存在合法有效的买卖合同关系，原告已履行交货义务，被告应依约支付货款。  \n2. **债权债务关系**：原告享有对被告的债权，被告负有支付义务。  \n3. **违约责任**：若被告未按时付款，构成违约，需承担违约责任（如赔偿损失、支付利息等）。  \n4. **可能存在的反诉关系**：若被告提出反诉，可能涉及产品质量、交付瑕疵等问题，形成反诉与主诉的牵连关系。\n\n## 三、争议焦点  \n1. 原告是否已完全履行合同义务？  \n2. 被告是否存在违约行为？  \n3. 是否存在合同解除或变更的情形？  \n4. 被告是否提出反诉？若有，反诉内容为何？  \n5. 原告主张的50万元货款是否合理？是否存在计算错误或证据不足？\n\n## 四、证据评估  \n1. **合同文本**：证明双方存在买卖关系及付款条款。  \n2. **发货凭证/物流单据**：证明原告已履行交货义务。  \n3. **对账单/催款函**：证明被告未支付货款及原告催款行为。  \n4. **银行转账记录**：如有部分付款，可证明付款情况。  \n5. **被告的回应或抗辩材料**：用于分析其立场和可能的反诉理由。  \n\n**风险点**：若原告无法提供完整证据链，可能面临举证不利的风险；若被告提出反诉，可能影响主诉的审理进程。\n\n## 五、法律依据  \n1. 《中华人民共和国民法典》第577条（违约责任）  \n2. 《中华人民共和国民法典》第584条（损害赔偿）  \n3. 《中华人民共和国民事诉讼法》第122条（起诉条件）  \n4. 《最高人民法院关于审理买卖合同纠纷案件适用法律问题的解释》  \n5. 若涉及反诉，适用《民事诉讼法》第140条关于反诉的规定\n\n## 六、突破口与风险  \n### 突破口：  \n1. **合同履行证据充分**：如发货凭证、对账单等，可直接支持原告主张。  \n2. **被告未提出有效抗辩**：若被告未提供反诉或抗辩证据，原告胜诉可能性大。  \n3. **逾期利息主张合理**：若合同中约定逾期付款利息，可主张违约金或利息。  \n4. **对方多次催款记录**：可证明原告已尽到催收义务，被告存在恶意拖欠行为。\n\n### 风险：  \n1. **证据不足**：若无明确的发货、验收、付款记录，可能难以认定合同履行情况。  \n2. **被告反诉**：若被告提出质量问题、未按期交货等反诉，将增加案件复杂性。  \n3. **时效问题**：若原告主张权利超过诉讼时效，可能丧失胜诉权。  \n4. **被告经济状况差**：即使胜诉，也可能面临执行难的问题。\n\n## 七、策略建议  \n### 1. 合同履行证据的补充与固定  \n- 收集并整理所有交易往来邮件、微信聊天记录、送货单、签收单等。  \n- 如有必要，申请法院调取银行流水、物流信息等辅助证据。\n\n### 2. 明确诉讼请求，区分主诉与反诉  \n- 主诉：要求被告支付货款50万元及逾期利息。  \n- 若被告提出反诉，应提前准备应对方案，如反驳反诉请求、提起反诉等。\n\n### 3. 利用催款记录强化主张  \n- 提交催款函、短信、微信、电话录音等证据，证明原告已积极主张权利，被告存在恶意拖欠行为。\n\n### 4. 考虑调解或和解  \n- 若被告有还款意愿但资金紧张，可协商分期付款或以物抵债等方式解决，降低诉讼成本。\n\n### 5. 关注诉讼时效  \n- 确保在诉讼时效内提起诉讼，避免因时效问题导致败诉。\n\n### 6. 准备应对反诉  \n- 若被告可能提出反诉，应提前调查其可能的抗辩理由（如质量瑕疵、未按时交货等），做好答辩准备。\n\n---\n\n如需进一步细化每条法律线索或制定具体诉讼策略，可提供更多案件细节。"
+      }
+    },
+    {
+      "test": "获取策略建议",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/strategy",
+      "response": {
+        "strategy": "根据您提供的案件信息及分析，作为资深诉讼律师，我将从**诉讼方向、证据策略、关键风险、行动建议**四个维度，提供简洁实用的诉讼策略建议：\n\n---\n\n## 一、诉讼方向\n\n### 1. **明确主诉核心**\n- 主要诉求为：**要求被告支付货款50万元及逾期利息**。\n- 若合同中约定违约金或逾期利息计算方式，应明确主张。\n\n### 2. **预判被告可能抗辩点**\n- 被告可能以“货物质量不合格”、“未按期交货”等提出反诉。\n- 建议在起诉状中**提前回应潜在抗辩**，如说明已履行合同义务、货物符合标准等。\n\n### 3. **考虑是否申请财产保全**\n- 若担心被告转移资产，可向法院申请**财产保全**，防止判决后难以执行。\n\n---\n\n## 二、证据策略\n\n### 1. **构建完整证据链**\n- **合同文本**（证明双方存在买卖关系）  \n- **发货凭证/物流单据**（证明已交付货物）  \n- **对账单、催款函、微信/短信记录**（证明原告已催收、被告未付款）  \n- **银行转账记录**（如有部分付款，证明付款事实）  \n- **验收单或签收单**（证明货物已验收）\n\n### 2. **补充证据途径**\n- 如无书面证据，可收集**聊天记录、邮件、录音、证人证言**等电子或视听证据。  \n- 必要时申请法院调取**银行流水、物流信息、第三方平台交易记录**等辅助证据。\n\n### 3. **证据形式合规性**\n- 所有证据需具备**真实性、合法性、关联性**，特别是电子证据需注意取证方式（如公证、原始载体保存）。\n\n---\n\n## 三、关键风险\n\n### 1. **举证责任与证据不足风险**\n- 若无法证明已履行交货义务或被告未付款，可能面临败诉风险。\n\n### 2. **反诉风险**\n- 若被告提出反诉（如质量问题、交货延迟），将增加诉讼复杂度和成本。\n\n### 3. **诉讼时效风险**\n- 若原告未在法定诉讼时效内主张权利，可能丧失胜诉权（一般为3年）。\n\n### 4. **执行难风险**\n- 即使胜诉，若被告无财产可供执行，实际执行可能困难。\n\n---\n\n## 四、行动建议\n\n### 1. **立即整理并固定证据**\n- 汇总所有相关证据材料，形成完整的证据清单，准备提交法院。\n\n### 2. **撰写起诉状，明确诉讼请求**\n- 明确主张货款金额、利息计算方式、法律依据（如《民法典》第577条、第584条）。\n\n### 3. **评估是否申请财产保全**\n- 若存在被告转移资产风险，及时向法院申请财产保全。\n\n### 4. **准备应对反诉预案**\n- 提前调查被告可能的反诉理由（如质量问题、交货问题），准备好答辩意见和反诉准备。\n\n### 5. **考虑调解或和解方案**\n- 若被告有一定还款意愿，可尝试通过**调解或分期付款协议**解决纠纷，节省诉讼成本。\n\n### 6. **关注诉讼时效**\n- 确认原告主张权利的时间是否在诉讼时效内，必要时可通过催款函等方式中断时效。\n\n---\n\n如需进一步制定具体诉讼文书（如起诉状、答辩状、反诉状）或证据清单模板，可继续提供案件细节，我可协助完善。"
+      }
+    },
+    {
+      "test": "案件智能问答",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/ask",
+      "response": {
+        "answer": "案件的关键点是：被告拖欠货款，原告多次催收未果，双方存在买卖合同关系。"
+      }
+    },
+    {
+      "test": "获取证据补充建议",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/evidence-suggestions",
+      "response": {
+        "suggestions": "### **证据补充建议（针对“测试案件_170530”）**\n\n---\n\n## 一、现有证据评估\n\n| 证据类型 | 现有情况 | 证明力分析 |\n|----------|-----------|-------------|\n| **合同文本** | 假设已有，但未明确是否为书面形式 | 若为书面合同，具有较高证明力；若为口头协议，则需其他证据佐证。应核实合同签订时间、双方签字或盖章情况。 |\n| **发货凭证/物流单据** | 未提及具体是否有 | 若无相关记录，将难以证明原告已履行交货义务，可能影响主诉成立。 |\n| **对账单/催款函** | 假设存在部分催款记录 | 能证明原告曾主张权利，但需确保其合法性和真实性，如加盖公章或由被告确认。 |\n| **银行转账记录** | 未提及是否提供 | 若有部分付款记录，可证明被告曾支付部分款项，有助于计算欠款金额。 |\n| **被告的回应或抗辩材料** | 未提及 | 若无，可能无法预判被告抗辩方向，增加诉讼不确定性。 |\n\n**结论：**  \n目前证据链不完整，缺乏关键性证据（如发货凭证、完整对账单、银行流水等），可能导致举证不足，影响法院对案件事实的认定。\n\n---\n\n## 二、缺失证据清单\n\n| 缺失证据类型 | 说明 | 作用 |\n|---------------|------|------|\n| **书面买卖合同** | 未明确是否已提交 | 明确双方权利义务及付款条款，是基础证据 |\n| **发货单/签收单** | 未提供 | 证明原告已履行交货义务 |\n| **完整的对账单或结算单** | 未提供 | 证明货款总额、已付款项、尚欠金额 |\n| **银行转账凭证** | 未提供 | 证明被告已付款情况，用于核对欠款 |\n| **催款函/短信/微信聊天记录** | 仅部分存在 | 证明原告已积极催款，避免时效问题 |\n| **被告的书面回应或抗辩意见** | 未提供 | 用于预判被告可能提出的反诉或抗辩理由 |\n| **货物质量验收报告** | 未提及 | 若被告提出质量问题，需准备反驳证据 |\n\n---\n\n## 三、证据收集方法\n\n| 证据类型 | 收集方式 |\n|----------|-----------|\n| **书面买卖合同** | 向原告调查取证，要求其提供原始合同文本或电子版本 |\n| **发货单/签收单** | 通过原告调取内部物流记录、仓库出库单、快递公司系统信息 |\n| **对账单/结算单** | 要求原告提供与被告之间的对账记录，包括电子邮件、传真、纸质对账单等 |\n| **银行转账凭证** | 申请法院调取原被告之间的银行流水记录，或由原告提供银行出具的交易明细 |\n| **催款函/短信/微信记录** | 由原告提供相关通信内容，并建议进行公证或电子存证 |\n| **被告的回应或抗辩材料** | 通过法院送达程序获取，或在庭审中要求被告提交 |\n| **货物质量验收报告** | 由原告提供，如无则需准备答辩材料，以应对可能的反诉 |\n\n---\n\n## 四、证据链完善建议\n\n为形成完整的证据链条，建议按照以下逻辑顺序进行证据补充：\n\n### 1. **证明合同关系成立**\n- 提供书面买卖合同（或电子版）\n- 证明合同签署过程（如签字、盖章、授权委托书等）\n\n### 2. **证明原告已履行合同义务**\n- 提供发货单、物流单、签收单\n- 提供货物验收报告或客户签收确认单（如有）\n\n### 3. **证明被告未支付货款**\n- 提供对账单、结算单、发票等\n- 提供银行转账记录（若有部分付款）\n\n### 4. **证明原告已尽催款义务**\n- 提供催款函、邮件、短信、微信记录等\n- 可考虑申请公证机关对沟通内容进行公证\n\n### 5. **证明被告违约行为**\n- 结合上述证据，证明被告未按约付款，构成违约\n\n### 6. **应对可能的反诉**\n- 预先准备货物质量、交付时间等证据\n- 如有反诉风险，提前制定答辩策略和反诉准备\n\n---\n\n## 五、风险提示\n\n| 风险点 | 影响 | 建议 |\n|--------|------|------|\n| **证据不足** | 法院可能不予采信，导致败诉 | 必须补全发货、对账、催款等核心证据 |\n| **诉讼时效问题** | 若超过三年诉讼时效，原告主张可能被驳回 | 确认最后一次催款时间，确保在时效内起诉 |\n| **被告提出反诉** | 案件复杂化，增加诉讼成本和时间 | 提前准备反诉应对材料，必要时提起反诉 |\n| **执行难** | 即使胜诉，也可能面临被告无财产可供执行 | 建议申请财产保全，或在判决后及时申请强制执行 |\n| **证据真实性存疑** | 如微信记录未经公证，可能被质疑真实性 | 建议对关键证据进行公证或电子存证 |\n\n---\n\n## 六、建议行动步骤\n\n1. **立即整理现有证据**，并列出缺失清单。\n2. **指导原告开展证据收集工作**，特别是发货、对账、催款等核心环节。\n3. **申请法院调取银行流水**，辅助确认付款情况。\n4. **对关键沟通内容（如催款短信、微信）进行公证或电子存证**。\n5. **准备反诉应对方案**，以防被告提出质量或交付瑕疵等抗辩。\n6. **关注诉讼时效**，确保在有效期内完成立案。\n\n---\n\n如需进一步协助制作证据清单、起草催款函、制定反诉应对策略或准备法庭陈述材料，请继续提供案件细节或法律文书。"
+      }
+    },
+    {
+      "test": "案件对话聊天",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/chat",
+      "response": {
+        "id": 4,
+        "role": "assistant",
+        "content": "根据您提供的案件基本信息，本案是一起合同纠纷案件。原告是张三，被告是李四公司。为了更准确地分析该案件的法律关系，我们需要了解以下信息：\n\n1. 合同的具体内容：包括但不限于双方的权利义务、履行方式、违约责任等。\n2. 争议焦点：即双方因何事产生分歧，例如是否按照约定支付款项、是否按时交付货物或提供服务等。\n3. 违约情况：如果存在违约行为，需要明确是哪一方违约以及具体的违约情形。\n\n基于现有信息，我们可以初步判断出该案涉及《中华人民共和国民法典》中关于合同的规定。根据《民法典》第四百六十五条：“依法成立的合同，受法律保护。”这意味着只要合同符合法律规定且双方意思表示真实，则合同对当事人具有约束力。\n\n然而，由于缺少具体细节（如合同条款、履约过程中的实际问题等），目前无法给出更加详细的法律分析。建议补充完整相关信息后再次咨询，以便获得更具针对性的意见。",
+        "created_at": "2026-03-25T09:06:51.905773"
+      }
+    },
+    {
+      "test": "获取聊天历史",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/chat/history",
+      "response": [
+        {
+          "content": "请分析一下这个案件的法律关系",
+          "id": 3,
+          "case_id": 6,
+          "role": "user",
+          "created_at": "2026-03-25T09:06:38.204756"
+        },
+        {
+          "content": "根据您提供的案件基本信息，本案是一起合同纠纷案件。原告是张三，被告是李四公司。为了更准确地分析该案件的法律关系，我们需要了解以下信息：\n\n1. 合同的具体内容：包括但不限于双方的权利义务、履行方式、违约责任等。\n2. 争议焦点：即双方因何事产生分歧，例如是否按照约定支付款项、是否按时交付货物或提供服务等。\n3. 违约情况：如果存在违约行为，需要明确是哪一方违约以及具体的违约情形。\n\n基于现有信息，我们可以初步判断出该案涉及《中华人民共和国民法典》中关于合同的规定。根据《民法典》第四百六十五条：“依法成立的合同，受法律保护。”这意味着只要合同符合法律规定且双方意思表示真实，则合同对当事人具有约束力。\n\n然而，由于缺少具体细节（如合同条款、履约过程中的实际问题等），目前无法给出更加详细的法律分析。建议补充完整相关信息后再次咨询，以便获得更具针对性的意见。",
+          "id": 4,
+          "case_id": 6,
+          "role": "assistant",
+          "created_at": "2026-03-25T09:06:51.905773"
+        }
+      ]
+    },
+    {
+      "test": "获取案件文档列表",
+      "status": "PASS",
+      "endpoint": "/api/documents/case/6",
+      "response": []
+    },
+    {
+      "test": "获取文书模板列表",
+      "status": "PASS",
+      "endpoint": "/api/documents/templates/list",
+      "response": [
+        {
+          "type": "起诉状",
+          "name": "民事起诉状",
+          "description": "用于向法院提起民事诉讼的正式文书"
+        },
+        {
+          "type": "答辩状",
+          "name": "民事答辩状",
+          "description": "被告针对原告起诉进行回应的文书"
+        },
+        {
+          "type": "上诉状",
+          "name": "民事上诉状",
+          "description": "对一审判决不服时向上级法院提起上诉的文书"
+        },
+        {
+          "type": "代理词",
+          "name": "代理词",
+          "description": "代理人在庭审中发表的意见文书"
+        },
+        {
+          "type": "强制执行申请书",
+          "name": "强制执行申请书",
+          "description": "判决生效后申请强制执行的文书"
+        },
+        {
+          "type": "证据目录",
+          "name": "证据目录",
+          "description": "整理和提交证据的清单文书"
+        },
+        {
+          "type": "财产保全申请书",
+          "name": "财产保全申请书",
+          "description": "申请法院冻结/查封财产的文书"
+        },
+        {
+          "type": "管辖权异议申请书",
+          "name": "管辖权异议申请书",
+          "description": "对案件管辖权提出异议的文书"
+        }
+      ]
+    },
+    {
+      "test": "生成起诉状",
+      "status": "PASS",
+      "endpoint": "/api/documents/generate",
+      "response": {
+        "document_type": "起诉状",
+        "content": "**法律文书要点摘要（简洁版）**\n\n---\n\n**案件名称**：测试案件_170530  \n**案件类型**：民事  \n**原告**：张三  \n**被告**：李四公司  \n**案由**：合同纠纷  \n**诉讼金额**：500,000元  \n\n---\n\n### 一、案件事实  \n原告主张被告拖欠货款50万元，经多次催收未果，构成违约。\n\n---\n\n### 二、法律关系  \n1. 买卖合同关系成立，原告已履行交货义务。  \n2. 原告享有债权，被告应支付货款。  \n3. 被告若未按时付款，需承担违约责任。  \n4. 若被告反诉，可能涉及质量问题或交付瑕疵。\n\n---\n\n### 三、争议焦点  \n1. 原告是否已履行合同义务？  \n2. 被告是否存在违约行为？  \n3. 是否存在合同解除或变更？  \n4. 被告是否提出反诉？  \n5. 原告主张的50万元是否合理？\n\n---\n\n### 四、证据要点  \n- 合同文本  \n- 发货凭证、物流单据  \n- 对账单、催款函  \n- 银行转账记录  \n- 被告抗辩材料\n\n---\n\n### 五、法律依据  \n- 《民法典》第577条、第584条  \n- 《民事诉讼法》第122条、第140条  \n- 《买卖合同司法解释》\n\n---\n\n### 六、突破口  \n- 合同履行证据充分  \n- 被告未有效抗辩  \n- 逾期利息主张合理  \n- 多次催款记录可证明被告恶意拖欠\n\n---\n\n### 七、风险提示  \n- 证据不足可能导致败诉  \n- 被告反诉将增加复杂性  \n- 诉讼时效问题  \n- 执行难度大（如被告无财产）\n\n---\n\n### 八、策略建议  \n1. 补充并固定合同履行证据（如聊天记录、送货单等）。  \n2. 明确主诉请求（支付货款及利息），准备应对反诉。  \n3. 提交催款记录强化主张。  \n4. 考虑调解或分期还款方案。  \n5. 确保在诉讼时效内起诉。  \n6. 预判被告可能的反诉理由并提前准备答辩。\n\n--- \n\n如需进一步撰写起诉状、答辩状或其他法律文书，请提供具体信息。"
+      }
+    },
+    {
+      "test": "生成答辩状",
+      "status": "PASS",
+      "endpoint": "/api/documents/generate",
+      "response": {
+        "document_type": "答辩状",
+        "content": "**民事起诉状（简要版）**\n\n**原告**：张三  \n**被告**：李四公司  \n\n**案由**：买卖合同纠纷  \n**诉讼金额**：500,000元  \n\n**事实与理由**：  \n原、被告之间存在合法有效的买卖合同关系，原告已按约履行交货义务，但被告未按约定支付货款共计50万元，经多次催收仍未支付。被告的行为已构成违约，依法应承担相应的法律责任。\n\n**诉讼请求**：  \n1. 判令被告支付拖欠货款人民币500,000元；  \n2. 判令被告支付逾期付款利息（按同期银行贷款利率计算，自应付之日起至实际清偿之日止）；  \n3. 本案诉讼费用由被告承担。\n\n**证据及依据**：  \n1. 买卖合同复印件；  \n2. 发货凭证、物流单据；  \n3. 对账单、催款函等书面材料；  \n4. 相关法律依据：《民法典》第577条、第584条，《民事诉讼法》第122条等。\n\n**风险提示**：  \n若证据不足或被告提出反诉，可能影响案件审理结果。建议补充相关证据并做好应对准备。\n\n**此致**  \n××人民法院  \n\n具状人：张三  \n日期：2025年4月5日"
+      }
+    },
+    {
+      "test": "提交证据",
+      "status": "PASS",
+      "endpoint": "/api/evidence/submit/6",
+      "response": {
+        "id": 40,
+        "name": "银行转账流水.pdf",
+        "message": "证据已提交"
+      }
+    },
+    {
+      "test": "获取案件证据列表",
+      "status": "PASS",
+      "endpoint": "/api/evidence/case/6",
+      "response": [
+        {
+          "id": 40,
+          "name": "银行转账流水.pdf",
+          "evidence_type": "书证",
+          "content": "证明内容：2024年1月15日转账50000元",
+          "source": "已上传文档",
+          "proof_point": "证明被告收到货款",
+          "custody": "待确定",
+          "authenticity": "待核实",
+          "legitimacy": "待核实",
+          "relevance": "待核实",
+          "created_at": "2026-03-25 09:07:15.423724"
+        }
+      ]
+    },
+    {
+      "test": "检查证据完整性",
+      "status": "FAIL",
+      "endpoint": "/api/evidence/check-completeness",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "生成证据册",
+      "status": "PASS",
+      "endpoint": "/api/evidence/generate-book/6",
+      "response": {
+        "cover": "\n╔══════════════════════════════════════════════════════════════╗\n║                                                              ║\n║                    【民事案件证据册】                          ║\n║                                                              ║\n╠══════════════════════════════════════════════════════════════╣\n║                                                              ║\n║  案号：None                                        ║\n║                                                              ║\n║  案由：合同纠纷                                          ║\n║                                                              ║\n║  证据提交人：                                     ║\n║                                                              ║\n║  提交日期：2026年03月25日                                     ║\n║                                                              ║\n║  证据总数：0 件                                ║\n║                                                              ║\n╠══════════════════════════════════════════════════════════════╣\n║                                                              ║\n║  当事人信息                                                   ║\n║  ─────────────────────────────────────────────────────────  ║\n║  原告/上诉人：                                    ║\n║                                                              ║\n║  被告/被上诉人：                                   ║\n║                                                              ║\n╚══════════════════════════════════════════════════════════════╝\n        ",
+        "table_of_contents": "\n═══════════════════════════════════════════════════════════════\n                         【证据目录】\n═══════════════════════════════════════════════════════════════\n\n序号 | 证据名称           | 证据类型    | 证明目的         | 页码\n-----|--------------------|-------------|------------------|-----\n   1 | 银行转账流水.pdf        | 书证         | 证明被告收到货款       |  2\n\n─────────────────────────────────────────────────────────────────\n\n说明：\n1. 本证据册共 1 件证据，按上述顺序编排。\n2. 每份证据材料后附证据说明，详细列明证据来源、证明内容。\n3. 证据按\"三性\"（真实性、合法性、关联性）要求整理。\n",
+        "summary": "\n────────────────────────────────────────────────────────────\n                    证据汇总说明\n────────────────────────────────────────────────────────────\n\n一、证据基本情况\n\n本证据册共包含 1 份证据，具体构成如下：\n\n  书证：1 份\n\n二、证据体系说明\n\n本证据册按照以下逻辑组织：\n\n1. 【主体证据】证明当事人主体资格\n2. 【事实证据】证明案件基本事实\n3. 【损失证据】证明损失金额\n4. 【其他证据】补充证明相关事实\n\n三、证据关联性说明\n\n各证据之间相互印证，形成完整证据链：\n  • 银行转账流水.pdf → 证明 → 证明被告收到货款\n\n四、证据效力说明\n\n本证据册中的证据均符合以下要求：\n  ✓ 证据来源合法\n  ✓ 证据形式合法\n  ✓ 证据内容真实\n  ✓ 与案件事实具有关联性\n\n【证据提交人签名】\n\n____________________\n\n日期：____________________\n\n",
+        "evidence_count": 1,
+        "markdown_content": "# 民事案件证据册\n\n**案号**：None                                        ║\n\n**提交日期**：2026年03月25日\n\n**证据总数**：1 件\n\n\n## 证据目录\n\n| 序号 | 证据名称 | 证据类型 | 证明目的 |\n|------|----------|----------|----------|\n| 1 | 银行转账流水.pdf | 书证 | 证明被告收到货款 |\n\n## 证据详情\n\n\n### 第 1 份：银行转账流水.pdf\n\n- **证据类型**：书证\n- **证据来源**：已上传文档\n- **举证方**：\n- **证明目的**：证明被告收到货款\n- **内容摘要**：证明内容：2024年1月15日转账50000元\n\n## 证据汇总\n\n\n────────────────────────────────────────────────────────────\n                    证据汇总说明\n────────────────────────────────────────────────────────────\n\n一、证据基本情况\n\n本证据册共包含 1 份证据，具体构成如下：\n\n  书证：1 份\n\n二、证据体系说明\n\n本证据册按照以下逻辑组织：\n\n1. 【主体证据】证明当事人主体资格\n2. 【事实证据】证明案件基本事实\n3. 【损失证据】证明损失金额\n4. 【其他证据】补充证明相关事实\n\n三、证据关联性说明\n\n各证据之间相互印证，形成完整证据链：\n  • 银行转账流水.pdf → 证明 → 证明被告收到货款\n\n四、证据效力说明\n\n本证据册中的证据均符合以下要求：\n  ✓ 证据来源合法\n  ✓ 证据形式合法\n  ✓ 证据内容真实\n  ✓ 与案件事实具有关联性\n\n【证据提交人签名】\n\n____________________\n\n日期：____________________\n\n"
+      }
+    },
+    {
+      "test": "导出证据册",
+      "status": "PASS",
+      "endpoint": "/api/evidence/export-book/6",
+      "response": {
+        "format": "markdown",
+        "content": "# 民事案件证据册\n\n**案号**：None                                        ║\n\n**提交日期**：2026年03月25日\n\n**证据总数**：1 件\n\n\n## 证据目录\n\n| 序号 | 证据名称 | 证据类型 | 证明目的 |\n|------|----------|----------|----------|\n| 1 | 银行转账流水.pdf | 书证 | 证明被告收到货款 |\n\n## 证据详情\n\n\n### 第 1 份：银行转账流水.pdf\n\n- **证据类型**：书证\n- **证据来源**：已上传文档\n- **举证方**：\n- **证明目的**：证明被告收到货款\n- **内容摘要**：证明内容：2024年1月15日转账50000元\n\n## 证据汇总\n\n\n────────────────────────────────────────────────────────────\n                    证据汇总说明\n────────────────────────────────────────────────────────────\n\n一、证据基本情况\n\n本证据册共包含 1 份证据，具体构成如下：\n\n  书证：1 份\n\n二、证据体系说明\n\n本证据册按照以下逻辑组织：\n\n1. 【主体证据】证明当事人主体资格\n2. 【事实证据】证明案件基本事实\n3. 【损失证据】证明损失金额\n4. 【其他证据】补充证明相关事实\n\n三、证据关联性说明\n\n各证据之间相互印证，形成完整证据链：\n  • 银行转账流水.pdf → 证明 → 证明被告收到货款\n\n四、证据效力说明\n\n本证据册中的证据均符合以下要求：\n  ✓ 证据来源合法\n  ✓ 证据形式合法\n  ✓ 证据内容真实\n  ✓ 与案件事实具有关联性\n\n【证据提交人签名】\n\n____________________\n\n日期：____________________\n\n"
+      }
+    },
+    {
+      "test": "从文本提取证据",
+      "status": "PASS",
+      "endpoint": "/api/evidence/extract-from-text?text=2024年1月15日，被告向原告转账50000元",
+      "response": {
+        "extracted": [],
+        "count": 0
+      }
+    },
+    {
+      "test": "创建函件",
+      "status": "FAIL",
+      "endpoint": "/api/时间把控/case/6/letters",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取函件列表",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/letters",
+      "response": []
+    },
+    {
+      "test": "获取标准期限列表",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/standard-deadlines",
+      "response": {
+        "civil_litigation_appeal": {
+          "name": "民事判决上诉期限",
+          "days": 15,
+          "category": "上诉",
+          "basis": "《民事诉讼法》第170条",
+          "description": "不服一审判决的，上诉期限为判决书送达之日起15日内"
+        },
+        "civil_litigation_petition": {
+          "name": "民事裁定上诉期限",
+          "days": 10,
+          "category": "上诉",
+          "basis": "《民事诉讼法》第170条",
+          "description": "不服一审裁定的，上诉期限为裁定书送达之日起10日内"
+        },
+        "execution_application": {
+          "name": "执行申请期限",
+          "days": 2,
+          "duration_type": "年",
+          "category": "执行",
+          "basis": "《民事诉讼法》第246条",
+          "description": "申请执行的期限为2年，从法律文书规定履行期间的最后一日起计算"
+        },
+        "property_preservation": {
+          "name": "财产保全期限",
+          "days": 5,
+          "category": "保全",
+          "basis": "《民事诉讼法》第100条",
+          "description": "利害关系人可以在提起诉讼前申请财产保全，应当在48小时内作出裁定"
+        },
+        "contract_dispute_response": {
+          "name": "合同纠纷答辩期限",
+          "days": 15,
+          "category": "答辩",
+          "basis": "《民事诉讼法》第125条",
+          "description": "被告收到起诉状副本后，应当在15日内提出答辩状"
+        },
+        "evidence_presentation": {
+          "name": "举证期限",
+          "days": 30,
+          "category": "举证",
+          "basis": "《民事诉讼法》第68条",
+          "description": "当事人应当在举证期限内提供证据，简易程序一般不超过15日"
+        },
+        "reconsideration": {
+          "name": "复议申请期限",
+          "days": 5,
+          "category": "复议",
+          "basis": "《民事诉讼法》第105条",
+          "description": "当事人对财产保全裁定不服的，可以申请复议一次，申请应当在裁定送达之日起5日内提出"
+        },
+        "criminal_appeal": {
+          "name": "刑事判决上诉期限",
+          "days": 10,
+          "category": "上诉",
+          "basis": "《刑事诉讼法》第230条",
+          "description": "不服一审判决的上诉期限为10日，不服裁定的上诉期限为5日"
+        },
+        "criminal_prosecution": {
+          "name": "公诉案件审查起诉期限",
+          "days": 30,
+          "category": "起诉",
+          "basis": "《刑事诉讼法》第172条",
+          "description": "人民检察院审查起诉期限为1个月，重大复杂案件可延长15日"
+        },
+        "administrative_appeal": {
+          "name": "行政诉讼起诉期限",
+          "days": 6,
+          "duration_type": "月",
+          "category": "起诉",
+          "basis": "《行政诉讼法》第46条",
+          "description": "直接提起行政诉讼的期限为6个月，复议后起诉的15日内"
+        },
+        "administrative_reconsideration": {
+          "name": "行政复议申请期限",
+          "days": 60,
+          "category": "复议",
+          "basis": "《行政复议法》第20条",
+          "description": "公民、法人或其他组织应当在知道具体行政行为之日起60日内申请行政复议"
+        },
+        "arbitration": {
+          "name": "仲裁申请期限",
+          "days": 4,
+          "duration_type": "月",
+          "category": "仲裁",
+          "basis": "《仲裁法》第74条",
+          "description": "仲裁时效适用相关民事法律的規定，一般为4年"
+        },
+        "lawyer_letter_response": {
+          "name": "律师函回复建议期限",
+          "days": 7,
+          "category": "函件",
+          "basis": "实务惯例",
+          "description": "收到律师函后，建议在7日内回复或委托律师处理"
+        },
+        "demand_letter_response": {
+          "name": "催告函回复期限",
+          "days": 15,
+          "category": "函件",
+          "basis": "实务惯例",
+          "description": "收到催告函后，如不及时回复，可能被视为默认"
+        }
+      }
+    },
+    {
+      "test": "创建法律期限",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/deadlines",
+      "response": {
+        "description": "当事人对自己提出的主张应当及时提供证据",
+        "extension_days": null,
+        "start_date": "2026-03-25T17:07:47.937185",
+        "related_event": null,
+        "case_id": 6,
+        "deadline_date": "2026-04-09T17:07:47.937185",
+        "related_document_id": null,
+        "deadline_type": "答辩期限",
+        "id": 2,
+        "extended_deadline": null,
+        "ai_suggestions": null,
+        "deadline_name": "举证期限",
+        "status": "pending",
+        "risk_warning": null,
+        "deadline_category": "程序性期限",
+        "is_mandatory": true,
+        "completion_checklist": null,
+        "legal_basis": "《民事诉讼法》第65条",
+        "can_extend": true,
+        "created_at": "2026-03-25T09:07:49.999964",
+        "duration_days": 15,
+        "updated_at": "2026-03-25T09:07:49.999964"
+      }
+    },
+    {
+      "test": "获取期限列表",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/deadlines",
+      "response": [
+        {
+          "id": 2,
+          "期限类型": "答辩期限",
+          "期限名称": "举证期限",
+          "分类": "程序性期限",
+          "法律依据": "《民事诉讼法》第65条",
+          "期限天数": 15,
+          "说明": "当事人对自己提出的主张应当及时提供证据",
+          "起算日期": "2026-03-25T17:07:47.937185",
+          "截止日期": "2026-04-09T17:07:47.937185",
+          "状态": "pending",
+          "是否强制": true,
+          "可否展期": true,
+          "关联事件": null
+        }
+      ]
+    },
+    {
+      "test": "生成智能里程碑",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/generate-milestones",
+      "response": {
+        "case_id": 6,
+        "milestones": [
+          {
+            "id": 127,
+            "name": "初步法律咨询",
+            "description": "了解案情，评估诉讼可行性",
+            "expected_date": "2026-03-28T17:05:36.658014",
+            "ai_tip": "首次咨询需携带全部证据材料，包括合同、往来函件、转账记录等。",
+            "is_completed": false,
+            "phase": "pre_litigation"
+          },
+          {
+            "id": 128,
+            "name": "证据收集整理",
+            "description": "整理现有证据，查找缺失证据",
+            "expected_date": "2026-04-04T17:05:36.658014",
+            "ai_tip": "按照证据目录分类整理，注明证据来源和证明目的。申请法院调取证据的，应在举证期限内提出。",
+            "is_completed": false,
+            "phase": "pre_litigation"
+          },
+          {
+            "id": 129,
+            "name": "委托代理",
+            "description": "确定代理律师，签订委托合同",
+            "expected_date": "2026-04-05T17:05:36.658014",
+            "ai_tip": "委托律师后，授权委托书需明确代理权限（一般代理/特别授权）。",
+            "is_completed": false,
+            "phase": "pre_litigation"
+          },
+          {
+            "id": 130,
+            "name": "确定诉讼请求",
+            "description": "明确诉讼请求和金额",
+            "expected_date": "2026-04-08T17:05:36.658014",
+            "ai_tip": "诉讼请求应具体明确，金额应有计算依据。注意是否有利息、违约金等主张。",
+            "is_completed": false,
+            "phase": "pre_litigation"
+          },
+          {
+            "id": 131,
+            "name": "发送律师函（如需）",
+            "description": "诉前协商或固定证据",
+            "expected_date": "2026-04-23T17:05:36.658014",
+            "ai_tip": "律师函可促使对方主动协商，同时中断诉讼时效。",
+            "is_completed": false,
+            "phase": "pre_litigation"
+          },
+          {
+            "id": 132,
+            "name": "准备立案材料",
+            "description": "起草起诉状，整理证据目录",
+            "expected_date": "2026-04-28T17:05:36.658014",
+            "ai_tip": "起诉状需包含：当事人信息、诉讼请求、事实与理由、证据目录。份数为被告人数+1。",
+            "is_completed": false,
+            "phase": "filing"
+          },
+          {
+            "id": 133,
+            "name": "提交立案",
+            "description": "向法院提交全部材料",
+            "expected_date": "2026-04-29T17:05:36.658014",
+            "ai_tip": "网上立案或现场立案，保留材料收件凭证。注意诉讼时效是否即将届满。",
+            "is_completed": false,
+            "phase": "filing"
+          },
+          {
+            "id": 134,
+            "name": "法院受理",
+            "description": "收到受理通知书",
+            "expected_date": "2026-05-06T17:05:36.658014",
+            "ai_tip": "受理后7日内缴纳诉讼费，逾期按撤诉处理。",
+            "is_completed": false,
+            "phase": "filing"
+          },
+          {
+            "id": 135,
+            "name": "缴纳诉讼费",
+            "description": "按规定缴纳案件受理费",
+            "expected_date": "2026-05-13T17:05:36.658014",
+            "ai_tip": "诉讼费计算标准：财产案件按标的额计算，非财产案件按件计算。可申请缓减免交。",
+            "is_completed": false,
+            "phase": "filing"
+          },
+          {
+            "id": 136,
+            "name": "收到应诉通知",
+            "description": "收到法院送达的起诉状副本",
+            "expected_date": "2026-05-14T17:05:36.658014",
+            "ai_tip": "核实送达回证上的日期，这是计算答辩期限的起点。",
+            "is_completed": false,
+            "phase": "defense"
+          },
+          {
+            "id": 137,
+            "name": "起草答辩状",
+            "description": "针对原告起诉进行答辩",
+            "expected_date": "2026-05-29T17:05:36.658014",
+            "ai_tip": "答辩状应在收到起诉状之日起15日内提交。不提交答辩不影响开庭。",
+            "is_completed": false,
+            "phase": "defense"
+          },
+          {
+            "id": 138,
+            "name": "提交答辩状",
+            "description": "向法院提交答辩状",
+            "expected_date": "2026-06-13T17:05:36.658014",
+            "ai_tip": "提交答辩状的同时可申请查阅原告证据，提交证据交换申请。",
+            "is_completed": false,
+            "phase": "defense"
+          },
+          {
+            "id": 139,
+            "name": "证据交换",
+            "description": "与对方交换证据",
+            "expected_date": "2026-07-13T17:05:36.658014",
+            "ai_tip": "证据应在举证期限内提交，逾期可能不被采纳。申请法院调查取证的，应书面提出申请。",
+            "is_completed": false,
+            "phase": "evidence"
+          },
+          {
+            "id": 140,
+            "name": "质证意见准备",
+            "description": "准备对对方证据的质证意见",
+            "expected_date": "2026-07-20T17:05:36.658014",
+            "ai_tip": "质证意见应围绕证据的三性（真实性、合法性、关联性）展开。",
+            "is_completed": false,
+            "phase": "evidence"
+          },
+          {
+            "id": 141,
+            "name": "补充证据（如需）",
+            "description": "针对新情况补充证据",
+            "expected_date": "2026-08-04T17:05:36.658014",
+            "ai_tip": "补充证据应有正当理由，如出现新证据或对方提交新证据需要质证。",
+            "is_completed": false,
+            "phase": "evidence"
+          },
+          {
+            "id": 142,
+            "name": "收到开庭通知",
+            "description": "法院送达开庭传票",
+            "expected_date": "2026-08-09T17:05:36.658014",
+            "ai_tip": "确认开庭时间地点，准备授权委托书和出庭人员身份证件。",
+            "is_completed": false,
+            "phase": "trial"
+          },
+          {
+            "id": 143,
+            "name": "庭审准备",
+            "description": "准备庭审提纲，模拟法庭",
+            "expected_date": "2026-08-16T17:05:36.658014",
+            "ai_tip": "准备证据原件、证人出庭申请（如有）、代理词初稿。提前到达法院。",
+            "is_completed": false,
+            "phase": "trial"
+          },
+          {
+            "id": 144,
+            "name": "第一次开庭",
+            "description": "参加第一次庭审",
+            "expected_date": "2026-08-17T17:05:36.658014",
+            "ai_tip": "陈述时抓住重点，法官提问如实回答，对对方证据及时质证。庭审后关注是否需要补充材料。",
+            "is_completed": false,
+            "phase": "trial"
+          },
+          {
+            "id": 145,
+            "name": "后续开庭（如有）",
+            "description": "补充证据或调解",
+            "expected_date": "2026-09-16T17:05:36.658014",
+            "ai_tip": "调解贯穿始终，可根据情况考虑调解方案。调解成功可节省时间和费用。",
+            "is_completed": false,
+            "phase": "trial"
+          },
+          {
+            "id": 146,
+            "name": "等待判决",
+            "description": "庭审结束后等待判决",
+            "expected_date": "2026-10-16T17:05:36.658014",
+            "ai_tip": "普通程序应在立案之日起6个月内审结，简易程序3个月。关注是否需要补充材料。",
+            "is_completed": false,
+            "phase": "judgment"
+          },
+          {
+            "id": 147,
+            "name": "收到判决",
+            "description": "领取判决书",
+            "expected_date": "2026-10-21T17:05:36.658014",
+            "ai_tip": "核对判决书内容是否有笔误，收到判决后立即计算上诉期限。",
+            "is_completed": false,
+            "phase": "judgment"
+          },
+          {
+            "id": 148,
+            "name": "上诉决策",
+            "description": "决定是否上诉",
+            "expected_date": "2026-11-05T17:05:36.658014",
+            "ai_tip": "不服一审判决应在15日内上诉。上诉需提交上诉状和上诉费。",
+            "is_completed": false,
+            "phase": "judgment"
+          },
+          {
+            "id": 149,
+            "name": "判决生效",
+            "description": "上诉期满或二审判决",
+            "expected_date": "2026-11-20T17:05:36.658014",
+            "ai_tip": "二审判决为终审判决，送达即生效。一审判决15日无人上诉生效。",
+            "is_completed": false,
+            "phase": "execution"
+          },
+          {
+            "id": 150,
+            "name": "履行期限届满",
+            "description": "对方自动履行的期限",
+            "expected_date": "2026-11-30T17:05:36.658014",
+            "ai_tip": "判决一般会给付义务方10日以内的自动履行期限。",
+            "is_completed": false,
+            "phase": "execution"
+          },
+          {
+            "id": 151,
+            "name": "申请执行",
+            "description": "向法院申请强制执行",
+            "expected_date": "2028-11-29T17:05:36.658014",
+            "ai_tip": "执行申请期限为2年，从履行期届满之日起计算。超期将丧失申请权！",
+            "is_completed": false,
+            "phase": "execution"
+          }
+        ],
+        "phase": "pre_litigation"
+      }
+    },
+    {
+      "test": "获取里程碑",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/milestones",
+      "response": [
+        {
+          "id": 127,
+          "event_name": "初步法律咨询",
+          "event_description": "了解案情，评估诉讼可行性",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.465263",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-03-28T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "首次咨询需携带全部证据材料，包括合同、往来函件、转账记录等。"
+        },
+        {
+          "id": 128,
+          "event_name": "证据收集整理",
+          "event_description": "整理现有证据，查找缺失证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.468281",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-04T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "按照证据目录分类整理，注明证据来源和证明目的。申请法院调取证据的，应在举证期限内提出。"
+        },
+        {
+          "id": 129,
+          "event_name": "委托代理",
+          "event_description": "确定代理律师，签订委托合同",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.469277",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-05T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "委托律师后，授权委托书需明确代理权限（一般代理/特别授权）。"
+        },
+        {
+          "id": 130,
+          "event_name": "确定诉讼请求",
+          "event_description": "明确诉讼请求和金额",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.469277",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-08T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "诉讼请求应具体明确，金额应有计算依据。注意是否有利息、违约金等主张。"
+        },
+        {
+          "id": 131,
+          "event_name": "发送律师函（如需）",
+          "event_description": "诉前协商或固定证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-23T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "律师函可促使对方主动协商，同时中断诉讼时效。"
+        },
+        {
+          "id": 132,
+          "event_name": "准备立案材料",
+          "event_description": "起草起诉状，整理证据目录",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-28T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "起诉状需包含：当事人信息、诉讼请求、事实与理由、证据目录。份数为被告人数+1。"
+        },
+        {
+          "id": 133,
+          "event_name": "提交立案",
+          "event_description": "向法院提交全部材料",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "网上立案或现场立案，保留材料收件凭证。注意诉讼时效是否即将届满。"
+        },
+        {
+          "id": 134,
+          "event_name": "法院受理",
+          "event_description": "收到受理通知书",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471255",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-06T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "受理后7日内缴纳诉讼费，逾期按撤诉处理。"
+        },
+        {
+          "id": 135,
+          "event_name": "缴纳诉讼费",
+          "event_description": "按规定缴纳案件受理费",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "诉讼费计算标准：财产案件按标的额计算，非财产案件按件计算。可申请缓减免交。"
+        },
+        {
+          "id": 136,
+          "event_name": "收到应诉通知",
+          "event_description": "收到法院送达的起诉状副本",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-14T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "核实送达回证上的日期，这是计算答辩期限的起点。"
+        },
+        {
+          "id": 137,
+          "event_name": "起草答辩状",
+          "event_description": "针对原告起诉进行答辩",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "答辩状应在收到起诉状之日起15日内提交。不提交答辩不影响开庭。"
+        },
+        {
+          "id": 138,
+          "event_name": "提交答辩状",
+          "event_description": "向法院提交答辩状",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.472846",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-06-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "提交答辩状的同时可申请查阅原告证据，提交证据交换申请。"
+        },
+        {
+          "id": 139,
+          "event_name": "证据交换",
+          "event_description": "与对方交换证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.472846",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-07-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "证据应在举证期限内提交，逾期可能不被采纳。申请法院调查取证的，应书面提出申请。"
+        },
+        {
+          "id": 140,
+          "event_name": "质证意见准备",
+          "event_description": "准备对对方证据的质证意见",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-07-20T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "质证意见应围绕证据的三性（真实性、合法性、关联性）展开。"
+        },
+        {
+          "id": 141,
+          "event_name": "补充证据（如需）",
+          "event_description": "针对新情况补充证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-04T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "补充证据应有正当理由，如出现新证据或对方提交新证据需要质证。"
+        },
+        {
+          "id": 142,
+          "event_name": "收到开庭通知",
+          "event_description": "法院送达开庭传票",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-09T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "确认开庭时间地点，准备授权委托书和出庭人员身份证件。"
+        },
+        {
+          "id": 143,
+          "event_name": "庭审准备",
+          "event_description": "准备庭审提纲，模拟法庭",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "准备证据原件、证人出庭申请（如有）、代理词初稿。提前到达法院。"
+        },
+        {
+          "id": 144,
+          "event_name": "第一次开庭",
+          "event_description": "参加第一次庭审",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.475288",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-17T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "陈述时抓住重点，法官提问如实回答，对对方证据及时质证。庭审后关注是否需要补充材料。"
+        },
+        {
+          "id": 145,
+          "event_name": "后续开庭（如有）",
+          "event_description": "补充证据或调解",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.475288",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-09-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "调解贯穿始终，可根据情况考虑调解方案。调解成功可节省时间和费用。"
+        },
+        {
+          "id": 146,
+          "event_name": "等待判决",
+          "event_description": "庭审结束后等待判决",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.476303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-10-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "普通程序应在立案之日起6个月内审结，简易程序3个月。关注是否需要补充材料。"
+        },
+        {
+          "id": 147,
+          "event_name": "收到判决",
+          "event_description": "领取判决书",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.476303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-10-21T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "核对判决书内容是否有笔误，收到判决后立即计算上诉期限。"
+        },
+        {
+          "id": 148,
+          "event_name": "上诉决策",
+          "event_description": "决定是否上诉",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.477303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-05T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "不服一审判决应在15日内上诉。上诉需提交上诉状和上诉费。"
+        },
+        {
+          "id": 149,
+          "event_name": "判决生效",
+          "event_description": "上诉期满或二审判决",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.478305",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-20T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "二审判决为终审判决，送达即生效。一审判决15日无人上诉生效。"
+        },
+        {
+          "id": 150,
+          "event_name": "履行期限届满",
+          "event_description": "对方自动履行的期限",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.479302",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-30T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "判决一般会给付义务方10日以内的自动履行期限。"
+        },
+        {
+          "id": 151,
+          "event_name": "申请执行",
+          "event_description": "向法院申请强制执行",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.480856",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2028-11-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "执行申请期限为2年，从履行期届满之日起计算。超期将丧失申请权！"
+        }
+      ]
+    },
+    {
+      "test": "获取紧迫性报告",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/urgency-report",
+      "response": {
+        "today": "2026-03-25T17:08:50.614736",
+        "critical": [
+          {
+            "name": "初步法律咨询",
+            "expected_date": "2026-03-28T17:05:36.658014",
+            "is_completed": false,
+            "days_remaining": 2,
+            "urgency_level": "high"
+          }
+        ],
+        "important": [],
+        "upcoming": [
+          {
+            "name": "证据收集整理",
+            "expected_date": "2026-04-04T17:05:36.658014",
+            "is_completed": false,
+            "days_remaining": 9,
+            "urgency_level": "low"
+          },
+          {
+            "name": "委托代理",
+            "expected_date": "2026-04-05T17:05:36.658014",
+            "is_completed": false,
+            "days_remaining": 10,
+            "urgency_level": "low"
+          },
+          {
+            "name": "确定诉讼请求",
+            "expected_date": "2026-04-08T17:05:36.658014",
+            "is_completed": false,
+            "days_remaining": 13,
+            "urgency_level": "low"
+          },
+          {
+            "name": "发送律师函（如需）",
+            "expected_date": "2026-04-23T17:05:36.658014",
+            "is_completed": false,
+            "days_remaining": 28,
+            "urgency_level": "low"
+          }
+        ],
+        "completed": [],
+        "summary": "紧急事项：初步法律咨询，请立即处理！"
+      }
+    },
+    {
+      "test": "创建时间线事件",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/timeline",
+      "response": {
+        "id": 152,
+        "event_name": "正式立案",
+        "event_description": "案件正式立案",
+        "related_letter_id": null,
+        "related_milestone_id": null,
+        "is_milestone": true,
+        "created_at": "2026-03-25T09:08:52.666474",
+        "case_id": 6,
+        "event_type": "立案",
+        "event_date": "2026-03-25T17:08:50.617735",
+        "related_deadline_id": null,
+        "related_document_id": null,
+        "importance": "important",
+        "ai_summary": null
+      }
+    },
+    {
+      "test": "获取时间线",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/timeline",
+      "response": [
+        {
+          "id": 151,
+          "event_name": "申请执行",
+          "event_description": "向法院申请强制执行",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.480856",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2028-11-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "执行申请期限为2年，从履行期届满之日起计算。超期将丧失申请权！"
+        },
+        {
+          "id": 150,
+          "event_name": "履行期限届满",
+          "event_description": "对方自动履行的期限",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.479302",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-30T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "判决一般会给付义务方10日以内的自动履行期限。"
+        },
+        {
+          "id": 149,
+          "event_name": "判决生效",
+          "event_description": "上诉期满或二审判决",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.478305",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-20T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "二审判决为终审判决，送达即生效。一审判决15日无人上诉生效。"
+        },
+        {
+          "id": 148,
+          "event_name": "上诉决策",
+          "event_description": "决定是否上诉",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.477303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-11-05T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "不服一审判决应在15日内上诉。上诉需提交上诉状和上诉费。"
+        },
+        {
+          "id": 147,
+          "event_name": "收到判决",
+          "event_description": "领取判决书",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.476303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-10-21T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "核对判决书内容是否有笔误，收到判决后立即计算上诉期限。"
+        },
+        {
+          "id": 146,
+          "event_name": "等待判决",
+          "event_description": "庭审结束后等待判决",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.476303",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-10-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "普通程序应在立案之日起6个月内审结，简易程序3个月。关注是否需要补充材料。"
+        },
+        {
+          "id": 145,
+          "event_name": "后续开庭（如有）",
+          "event_description": "补充证据或调解",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.475288",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-09-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "调解贯穿始终，可根据情况考虑调解方案。调解成功可节省时间和费用。"
+        },
+        {
+          "id": 144,
+          "event_name": "第一次开庭",
+          "event_description": "参加第一次庭审",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.475288",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-17T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "陈述时抓住重点，法官提问如实回答，对对方证据及时质证。庭审后关注是否需要补充材料。"
+        },
+        {
+          "id": 143,
+          "event_name": "庭审准备",
+          "event_description": "准备庭审提纲，模拟法庭",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-16T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "准备证据原件、证人出庭申请（如有）、代理词初稿。提前到达法院。"
+        },
+        {
+          "id": 142,
+          "event_name": "收到开庭通知",
+          "event_description": "法院送达开庭传票",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-09T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "确认开庭时间地点，准备授权委托书和出庭人员身份证件。"
+        },
+        {
+          "id": 141,
+          "event_name": "补充证据（如需）",
+          "event_description": "针对新情况补充证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-08-04T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "补充证据应有正当理由，如出现新证据或对方提交新证据需要质证。"
+        },
+        {
+          "id": 140,
+          "event_name": "质证意见准备",
+          "event_description": "准备对对方证据的质证意见",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.473779",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-07-20T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "质证意见应围绕证据的三性（真实性、合法性、关联性）展开。"
+        },
+        {
+          "id": 139,
+          "event_name": "证据交换",
+          "event_description": "与对方交换证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.472846",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-07-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "证据应在举证期限内提交，逾期可能不被采纳。申请法院调查取证的，应书面提出申请。"
+        },
+        {
+          "id": 138,
+          "event_name": "提交答辩状",
+          "event_description": "向法院提交答辩状",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.472846",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-06-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "提交答辩状的同时可申请查阅原告证据，提交证据交换申请。"
+        },
+        {
+          "id": 137,
+          "event_name": "起草答辩状",
+          "event_description": "针对原告起诉进行答辩",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "答辩状应在收到起诉状之日起15日内提交。不提交答辩不影响开庭。"
+        },
+        {
+          "id": 136,
+          "event_name": "收到应诉通知",
+          "event_description": "收到法院送达的起诉状副本",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-14T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "核实送达回证上的日期，这是计算答辩期限的起点。"
+        },
+        {
+          "id": 135,
+          "event_name": "缴纳诉讼费",
+          "event_description": "按规定缴纳案件受理费",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471766",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-13T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "诉讼费计算标准：财产案件按标的额计算，非财产案件按件计算。可申请缓减免交。"
+        },
+        {
+          "id": 134,
+          "event_name": "法院受理",
+          "event_description": "收到受理通知书",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.471255",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-05-06T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "受理后7日内缴纳诉讼费，逾期按撤诉处理。"
+        },
+        {
+          "id": 133,
+          "event_name": "提交立案",
+          "event_description": "向法院提交全部材料",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-29T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "网上立案或现场立案，保留材料收件凭证。注意诉讼时效是否即将届满。"
+        },
+        {
+          "id": 132,
+          "event_name": "准备立案材料",
+          "event_description": "起草起诉状，整理证据目录",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-28T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "起诉状需包含：当事人信息、诉讼请求、事实与理由、证据目录。份数为被告人数+1。"
+        },
+        {
+          "id": 131,
+          "event_name": "发送律师函（如需）",
+          "event_description": "诉前协商或固定证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.470265",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-23T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "律师函可促使对方主动协商，同时中断诉讼时效。"
+        },
+        {
+          "id": 130,
+          "event_name": "确定诉讼请求",
+          "event_description": "明确诉讼请求和金额",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.469277",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-08T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "诉讼请求应具体明确，金额应有计算依据。注意是否有利息、违约金等主张。"
+        },
+        {
+          "id": 129,
+          "event_name": "委托代理",
+          "event_description": "确定代理律师，签订委托合同",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.469277",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-05T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "normal",
+          "ai_summary": "委托律师后，授权委托书需明确代理权限（一般代理/特别授权）。"
+        },
+        {
+          "id": 128,
+          "event_name": "证据收集整理",
+          "event_description": "整理现有证据，查找缺失证据",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.468281",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-04-04T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "按照证据目录分类整理，注明证据来源和证明目的。申请法院调取证据的，应在举证期限内提出。"
+        },
+        {
+          "id": 127,
+          "event_name": "初步法律咨询",
+          "event_description": "了解案情，评估诉讼可行性",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:46.465263",
+          "case_id": 6,
+          "event_type": "milestone",
+          "event_date": "2026-03-28T17:05:36.658014",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": "首次咨询需携带全部证据材料，包括合同、往来函件、转账记录等。"
+        },
+        {
+          "id": 152,
+          "event_name": "正式立案",
+          "event_description": "案件正式立案",
+          "related_letter_id": null,
+          "related_milestone_id": null,
+          "is_milestone": true,
+          "created_at": "2026-03-25T09:08:52.666474",
+          "case_id": 6,
+          "event_type": "立案",
+          "event_date": "2026-03-25T17:08:50.617735",
+          "related_deadline_id": null,
+          "related_document_id": null,
+          "importance": "important",
+          "ai_summary": null
+        }
+      ]
+    },
+    {
+      "test": "获取律师级检查清单",
+      "status": "PASS",
+      "endpoint": "/api/时间把控/case/6/checklist",
+      "response": {
+        "case_info": {
+          "title": "测试案件_170530",
+          "case_type": "民事",
+          "cause": "合同纠纷",
+          "plaintiff": "张三",
+          "defendant": "李四公司",
+          "claim_amount": "500000",
+          "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。"
+        },
+        "phases": [
+          {
+            "name": "证据准备",
+            "items": [
+              {
+                "desc": "整理所有书面合同原件",
+                "check": "has_contract"
+              },
+              {
+                "desc": "收集付款凭证（转账记录、发票）",
+                "check": "has_payment_proof"
+              },
+              {
+                "desc": "整理往来函件和聊天记录",
+                "check": "has_correspondence"
+              },
+              {
+                "desc": "准备证人名单（如有证人）",
+                "check": "has_witnesses"
+              }
+            ]
+          },
+          {
+            "name": "起诉材料",
+            "items": [
+              {
+                "desc": "起草起诉状（份数=被告数+1）",
+                "check": "has_complaint"
+              },
+              {
+                "desc": "准备证据目录",
+                "check": "has_evidence_list"
+              },
+              {
+                "desc": "准备证据复印件",
+                "check": "has_evidence_copies"
+              },
+              {
+                "desc": "当事人身份证明",
+                "check": "has_identity_proof"
+              }
+            ]
+          }
+        ],
+        "deadlines": [
+          {
+            "name": "诉讼时效",
+            "description": "一般民事纠纷诉讼时效为3年",
+            "action": "确认纠纷发生时间是否在时效内"
+          },
+          {
+            "name": "举证期限",
+            "description": "一般在30日内提交证据",
+            "action": "注意法院送达的举证通知书"
+          }
+        ],
+        "warnings": [
+          "诉讼费需在收到缴费通知后7日内缴纳",
+          "证据原件需妥善保管，庭审时必须携带",
+          "如有证人出庭，需提前向法院申请",
+          "地址变更需及时通知法院，否则可能缺席判决",
+          "调解贯穿全程，可考虑合适的调解方案"
+        ]
+      }
+    },
+    {
+      "test": "保存会议记录",
+      "status": "PASS",
+      "endpoint": "/api/meetings/records",
+      "response": {
+        "success": true,
+        "message": "会议记录已保存",
+        "session_id": "1774429738.86922"
+      }
+    },
+    {
+      "test": "获取会议记录列表",
+      "status": "PASS",
+      "endpoint": "/api/meetings/records",
+      "response": []
+    },
+    {
+      "test": "生成会议纪要",
+      "status": "PASS",
+      "endpoint": "/api/meetings/generate-minutes",
+      "response": {
+        "minutes": "\n# 会议纪要\n\n## 基本信息\n- **会议类型**：协商会议\n- **会议主题**：合同履行问题讨论\n- **会议日期**：2026-03-25\n- **我方角色**：甲方\n\n## 参会人员\n张三、李四\n\n## 会议背景\n**我方立场/诉求：**\n要求按合同约定支付货款\n\n**对方立场/诉求（推测）：**\n资金周转困难，请求延期\n\n## 会议记录\n\n### 第1项：分析记录 [10:00]\n\n**分析内容：**\n对方确实存在资金困难\n\n**建议：**\n可考虑分期付款方案\n\n\n## 会议结论\n（待补充）\n\n## 下一步行动\n1.\n2.\n3.\n\n---\n纪要生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n",
+        "summary": "会议纪要已生成，请查看详细内容并进行必要的修改和补充。"
+      }
+    },
+    {
+      "test": "从会议生成合同",
+      "status": "PASS",
+      "endpoint": "/api/meetings/generate-contract",
+      "response": {
+        "contract": "\n# 合作合同\n\n合同编号：__________\n\n签订日期：2026-03-25\n\n签订地点：__________\n\n---\n\n## 甲方（一方）：\n名称：__________\n地址：__________\n法定代表人：__________\n联系电话：__________\n\n## 乙方（另一方）：\n名称：__________\n地址：__________\n法定代表人：__________\n联系电话：__________\n\n---\n\n## 鉴于\n\n1. 甲乙双方于2026-03-25就合作项目进行了友好协商；\n2. 双方在平等、自愿、公平的基础上达成合作意向；\n3. 甲乙双方均具有签署和履行本合同的资格和能力。\n\n现经双方协商一致，就合作项目达成如下协议：\n\n---\n\n## 第一条 合作内容\n\n（待补充）\n\n---\n\n## 第二条 双方权利义务\n\n### 甲方权利义务：\n1.\n2.\n3.\n\n### 乙方权利义务：\n1.\n2.\n3.\n\n---\n\n## 第三条 合作期限\n\n本合同自双方签字盖章之日起生效，有效期为____年。\n\n---\n\n## 第四条 违约责任\n\n1. 如一方违反本合同的约定，守约方有权要求违约方承担相应的违约责任；\n2. 违约方应当赔偿守约方因此遭受的全部损失。\n\n---\n\n## 第五条 争议解决\n\n本合同在履行过程中如发生争议，双方应当友好协商解决；协商不成的，任一方可向有管辖权的人民法院提起诉讼。\n\n---\n\n## 第六条 其他约定\n\n1. 本合同一式两份，甲乙双方各执一份，具有同等法律效力；\n2. 本合同未尽事宜，双方可另行签订补充协议，补充协议与本合同具有同等法律效力；\n3. 本合同自双方签字盖章之日起生效。\n\n---\n\n## 附件\n\n1.\n2.\n\n---\n\n甲方（签章）：________________  乙方（签章）：________________\n\n日期：________________  日期：________________\n",
+        "contract_type": "合作合同",
+        "summary": "合同草案已生成，请在正式签署前仔细审核并根据实际情况进行调整。"
+      }
+    },
+    {
+      "test": "生成会议决议",
+      "status": "PASS",
+      "endpoint": "/api/meetings/generate-resolution",
+      "response": {
+        "resolution": "\n# 董事会决议决议\n\n会议编号：__________\n会议日期：2026-03-25\n会议类型：董事会\n\n---\n\n## 参会人员\n\n全体董事\n\n---\n\n## 会议议题\n\n董事会决议\n\n---\n\n## 决议事项\n\n### 决议第1项\n同意按新方案执行\n\n\n---\n\n## 表决结果\n\n□ 同意：____人  □ 反对：____人  □ 弃权：____人\n\n---\n\n## 执行安排\n\n| 序号 | 执行事项 | 责任人 | 完成期限 |\n|------|---------|--------|---------|\n| 1 | | | |\n| 2 | | | |\n\n---\n\n## 备注\n\n（无）\n\n---\n\n主持人：________________  记录人：________________\n日期：________________\n",
+        "summary": "会议决议已生成，请根据实际情况补充完整。"
+      }
+    },
+    {
+      "test": "创建对抗性分析",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/analysis",
+      "response": {
+        "id": 8,
+        "our_strengths": null,
+        "evidence_matrix_summary": null,
+        "auto_tasks": null,
+        "case_id": 6,
+        "our_weaknesses": null,
+        "possible_scenarios": null,
+        "task_progress": null,
+        "opponent_strengths": null,
+        "scenario_probabilities": null,
+        "is_current": true,
+        "analysis_phase": "协商",
+        "opponent_weaknesses": null,
+        "overall_strategy": null,
+        "title": "对抗性分析_170907",
+        "opponent_likely_actions": null,
+        "immediate_actions": null,
+        "confidence_score": null,
+        "opponent_name": "李四公司",
+        "opponent_evidence_predictions": null,
+        "contingency_plans": null,
+        "created_at": "2026-03-25T09:09:09.109572",
+        "opponent_type": "企业",
+        "opponent_attack_angles": null,
+        "risk_assessment": null,
+        "updated_at": "2026-03-25T09:09:09.109572",
+        "opponent_strength": "中等",
+        "risk_mitigation": null
+      }
+    },
+    {
+      "test": "获取分析列表",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/analyses",
+      "response": [
+        {
+          "id": 8,
+          "our_strengths": null,
+          "evidence_matrix_summary": null,
+          "auto_tasks": null,
+          "case_id": 6,
+          "our_weaknesses": null,
+          "possible_scenarios": null,
+          "task_progress": null,
+          "opponent_strengths": null,
+          "scenario_probabilities": null,
+          "is_current": true,
+          "analysis_phase": "协商",
+          "opponent_weaknesses": null,
+          "overall_strategy": null,
+          "title": "对抗性分析_170907",
+          "opponent_likely_actions": null,
+          "immediate_actions": null,
+          "confidence_score": null,
+          "opponent_name": "李四公司",
+          "opponent_evidence_predictions": null,
+          "contingency_plans": null,
+          "created_at": "2026-03-25T09:09:09.109572",
+          "opponent_type": "企业",
+          "opponent_attack_angles": null,
+          "risk_assessment": null,
+          "updated_at": "2026-03-25T09:09:09.109572",
+          "opponent_strength": "中等",
+          "risk_mitigation": null
+        }
+      ]
+    },
+    {
+      "test": "生成对手分析",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/opponent-analysis",
+      "response": {
+        "analysis": "## 一、对手画像\n\n### 1.1 当事人背景分析  \n- **对方类型**：企业（李四公司）  \n- **经济实力和资源评估**：根据案件金额50万元，推测该公司具备一定规模，可能为中型或小型企业，但具体财务状况需进一步调查。若其为上市公司或有融资渠道，抗风险能力较强。  \n- **与我方的历史关系**：根据案由“买卖合同纠纷”，推测双方曾有业务往来，可能是长期合作客户或供应商，也可能是初次合作后产生矛盾。  \n- **过往诉讼/纠纷记录**：未提供信息，但作为被告，可能存在其他类似纠纷，尤其在合同履行、货款支付方面。\n\n### 1.2 利益诉求分析  \n- **核心利益诉求**：要求原告张三支付拖欠的货款50万元，并可能主张违约金或利息。  \n- **底线在哪里**：如果李四公司是实际履约方，其底线可能是获得全部欠款；若其存在履约瑕疵，则可能试图通过反诉降低赔偿责任。  \n- **是否有隐藏诉求**：可能希望借此机会重新谈判合同条款，或通过诉讼施压以达成其他非法律目的（如商业合作条件调整、品牌声誉维护等）。\n\n### 1.3 对方可能的心理状态  \n- **是愤怒报复型还是理性计算型**：更可能为**理性计算型**，即希望通过法律手段追回款项，而非情绪化对抗。  \n- **是否愿意调解**：取决于其对诉讼成本和结果的预估。若其认为胜算较高，可能倾向于打官司；若担心败诉或执行难度大，可能更愿意调解。  \n- **对诉讼结果的承受能力**：若其现金流紧张，可能急于结案；若资金链健康，可能更注重程序和证据准备。\n\n---\n\n## 二、对手证据预测\n\n### 2.1 对方必然持有的证据  \n- 合同原件或电子版合同  \n- 送货单、发货凭证、签收记录  \n- 货款支付记录（如转账凭证、银行流水）  \n- 沟通记录（如微信、邮件、电话录音等）  \n- 催款函或律师函（如有）\n\n### 2.2 对方可能获取的证据  \n- 第三方物流信息（如快递公司提供的签收记录）  \n- 公司内部账目或财务报表（如能证明已付款部分）  \n- 客户证言（如其他交易伙伴作证）  \n- 可能存在的“陷阱证据”：如伪造的付款凭证、篡改的聊天记录（需警惕）  \n\n### 2.3 对方证据的弱点  \n- 证据链是否完整：若无完整的付款记录或合同签署流程，可能无法证明已履行义务  \n- 真实性存疑的证据：如未经过公证的聊天记录、未经核实的证人证言  \n- 可能被质疑的证据：如单方出具的催款通知、未经对方确认的账单\n\n---\n\n## 三、对手攻击策略预测\n\n### 3.1 可能的攻击角度  \n- **从合同履行角度切入**：强调原告未按约定支付货款，构成根本违约  \n- **法律依据选择**：引用《民法典》第577条（违约责任）、第585条（违约金）  \n- **诉讼请求设计**：要求支付货款50万元+违约金+诉讼费用，可能提出财产保全申请\n\n### 3.2 可能的程序性手段  \n- **管辖权异议**：若原告所在地法院不利于被告，可能提出异议  \n- **申请追加第三人**：若有第三方参与交易（如中间商），可能试图引入  \n- **申请财产保全**：防止原告转移资产  \n- **申请延期/中止**：如声称需要补充证据、等待审计报告等  \n- **申请调查取证**：要求调取银行流水、物流信息等\n\n### 3.3 可能的反诉  \n- **是否可能提起反诉**：极有可能，尤其是若原告存在履约瑕疵（如货物质量不合格、数量不符）  \n- **反诉方向**：主张原告未按合同交付合格货物，要求赔偿损失或解除合同\n\n---\n\n## 四、对方的弱点与机会\n\n### 4.1 对方的事实弱点  \n- 若其未能提供完整合同或无法证明已履行交货义务  \n- 若其付款记录不清晰，或存在多笔支付未明确对应订单  \n- 若其在沟通中承认部分违约行为（如延迟发货、质量争议）\n\n### 4.2 对方的法律弱点  \n- 若其未及时行使权利（如未在合理期限内催款）  \n- 若其提交的证据形式不合法（如未经过公证的电子数据）  \n- 若其反诉缺乏事实基础，或证据不足\n\n### 4.3 对方可能犯的错误  \n- 过度自信导致疏漏：如忽略关键证据的收集  \n- 情绪化决策：如在庭审中过度攻击原告，引发法官反感  \n- 证据准备不充分：如未准备好合同原件、付款凭证等核心材料\n\n---\n\n## 五、风险预警\n\n### 5.1 对我方最不利的情景  \n- 李四公司掌握完整合同及付款记录，且原告存在明显履约瑕疵  \n- 法院支持李四公司的全部诉讼请求，甚至启动财产保全  \n- 原告因证据不足被认定违约，承担高额赔偿\n\n### 5.2 需要高度警惕的情况  \n- **证据突袭**：对方在开庭前突然提交关键证据（如新的付款凭证）  \n- **程序陷阱**：如对方提出管辖权异议拖延时间，或申请财产保全冻结我方账户  \n- **舆论风险**：若对方通过媒体或社交平台炒作案件，可能影响我方商业信誉\n\n---\n\n## 六、应对建议\n\n### 6.1 如何瓦解对方攻势  \n- **提前准备证据清单**：整理所有交易记录、合同、付款凭证、沟通记录等，确保完整性  \n- **主动联系对方**：尝试在诉讼前进行协商，争取达成和解协议，避免进入对抗阶段  \n- **强化证据合法性**：对电子证据进行公证，对重要文件进行签字确认，避免被质疑真实性\n\n### 6.2 如何利用对方弱点  \n- **针对对方反诉**：若其提出反诉，可提前准备相关证据（如货物质量检测报告、运输记录等）  \n- **指出对方证据缺陷**：在答辩状中明确指出对方证据链不完整、真实性存疑等问题  \n- **利用程序规则反击**：如对方滥用管辖权异议，可申请法院驳回并追究其恶意诉讼责任\n\n### 6.3 如何避免落入陷阱  \n- **谨慎应诉**：不轻易承认对方主张，避免在庭前陈述中留下漏洞  \n- **监控对方动向**：关注对方是否申请财产保全、是否提交新证据  \n- **保持冷静应对舆论**：若对方散布不实信息，可通过官方声明澄清，必要时采取法律手段维权\n\n---\n\n**结论**：李四公司作为被告，具备一定的法律意识和证据准备能力，但其核心诉求仍聚焦于货款回收。我方需做好全面证据准备，同时积极寻求调解或反制策略，以最大限度降低风险、维护自身权益。"
+      }
+    },
+    {
+      "test": "生成证据矩阵",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/evidence-matrix",
+      "response": {
+        "analysis": "# 证据攻防矩阵分析报告  \n**案件名称：测试案件_170530**  \n**案由：合同纠纷**  \n**诉讼金额：500,000元**\n\n---\n\n## 一、证据概览\n\n### 1.1 我方证据清单\n\n| 序号 | 证据名称 | 类型 | 证明力(1-10) | 状态 | 风险等级 |\n|------|----------|------|--------------|------|-----------|\n| 1    | 银行转账流水.pdf | 书证 | 8 | 完整 | 中 |\n\n### 1.2 对方可能证据清单\n\n| 序号 | 证据名称 | 类型 | 对方持有可能性 | 我方应对准备 | 威胁等级 |\n|------|----------|------|----------------|--------------|-----------|\n| 1    | 合同原件/电子合同 | 书证 | 高 | 已备副本 | 高 |\n| 2    | 收货凭证或签收记录 | 书证 | 中 | 未收集 | 中 |\n| 3    | 货款未收到的陈述或录音 | 证人证言/视听资料 | 中 | 无 | 中 |\n\n---\n\n## 二、我方证据攻防分析\n\n### 2.1 证据名称：银行转账流水.pdf\n\n**基本信息**  \n- 证据类型：书证（银行出具）  \n- 证据来源：我方账户交易记录  \n- 内容摘要：显示我方向被告账户转入50万元，时间为2024年3月5日。\n\n**进攻价值分析**  \n- **能证明什么事实**：我方已按约支付50万元货款。  \n- **对我方有利程度**：9/10  \n- **与其他证据的关联**：与合同约定的付款时间、金额一致，构成完整付款链条。\n\n**防御价值分析**  \n- **能抵消对方的哪些证据**：可反驳“未收到款项”的主张，对抗对方对付款行为的否认。  \n- **防御效果评估**：高，直接证明付款事实，削弱对方抗辩基础。\n\n**风险提示**  \n- **证据本身的弱点**：仅显示转账行为，无法证明该笔款项系用于本案合同项下。  \n- **对方可能的质疑**：是否为其他业务往来款项？是否存在其他债务关系？  \n- **可采性风险**：中（需结合其他证据形成完整链）\n\n**应对策略**  \n- **如何强化证据效力**：补充合同、发票等佐证材料，证明该笔款项用途。  \n- **如何应对对方质疑**：强调转账时间与合同履行时间的一致性，说明资金流向的合理性。  \n- **建议的呈现方式**：在庭审中将该证据与合同、发票并列出示，构建完整证据链。\n\n---\n\n## 三、对方证据攻防分析\n\n### 3.1 证据名称：合同原件/电子合同\n\n**威胁评估**  \n- 证据类型：书证  \n- 真实性可信度：9/10  \n- 对我方的威胁程度：9/10  \n\n**防御方案**  \n- **质疑其真实性**：如对方提交的是伪造合同，可通过比对签署时间、签字笔迹等方式质疑。  \n- **提出相反证据**：我方可提供合同草稿、沟通记录等反证。  \n- **质疑其关联性**：若合同内容与实际履行不一致，可主张其非真实履行依据。  \n- **质疑其合法性**：若合同存在欺诈、胁迫等情形，可申请无效或撤销。\n\n**反击策略**  \n- 若对方提交的合同与我方持有的版本不一致，可指出其中矛盾点，反向证明对方恶意篡改或虚假主张。\n\n---\n\n## 四、证据攻防矩阵图\n\n### 4.1 证据克制关系\n\n```\n[银行转账流水.pdf] ←克制→ [对方主张“未收到货款”]\n[银行转账流水.pdf] ←克制→ [对方主张“款项用于其他用途”]\n[合同原件] →被克制→ [银行转账流水.pdf + 其他付款凭证]\n```\n\n### 4.2 关键证据节点\n\n- **核心证据（失去则败诉）**：银行转账流水（证明付款事实）  \n- **辅助证据（增强证明力）**：合同、发票、沟通记录  \n- **风险证据（可能反噬）**：无明显风险证据，但需注意转账用途的解释问题\n\n---\n\n## 五、证据补充计划\n\n### 5.1 必须补充的证据\n\n| 证据名称 | 证明目的 | 获取难度 | 优先级 | 获取方法 |\n|----------|----------|----------|--------|----------|\n| 发票复印件 | 证明款项用途 | 低 | 高 | 从财务系统调取 |\n| 通话记录或聊天记录 | 证明双方合意 | 中 | 高 | 从通讯平台导出 |\n| 合同草稿或修改记录 | 证明合同真实性 | 低 | 中 | 从公司内部系统获取 |\n\n### 5.2 应避免出现的证据\n\n- **可能对我方不利的证据**：与第三方的债务协议、其他交易记录  \n- **需要提前销毁/撤回的证据（如有）**：无\n\n### 5.3 证据收集行动清单\n\n1. 提取并整理银行转账流水及相关财务凭证  \n2. 搜索并提取与对方的沟通记录（邮件、微信、短信等）  \n3. 调取合同签订前后的往来文件及修改痕迹  \n4. 制作证据目录并标注关键点，便于庭审展示\n\n---\n\n## 六、庭审证据策略\n\n### 6.1 举证顺序建议\n\n1. **先举**：银行转账流水（建立付款事实）  \n2. **再举**：合同原件（证明双方权利义务）  \n3. **最后举**：发票及其他辅助证据（强化付款用途）\n\n### 6.2 质证要点\n\n- **针对对方证据1（合同）**：质疑其真实性或完整性，指出与我方持有版本不一致之处。  \n- **针对对方证据2（收货凭证）**：质证其真实性、合法性和关联性，指出其未形成完整证据链。  \n- **针对对方证据3（录音）**：质疑其取证方式是否合法，是否有剪辑、诱导性提问等问题。\n\n### 6.3 证据突袭预案\n\n- **如果对方庭前不提交证据**：可申请延期审理或要求对方补充证据。  \n- **如果对方当庭提交新证据**：可申请延期质证，或立即提出异议，要求对方说明证据来源及合法性。  \n- **申请延期举证/质证的条件**：对方证据涉及关键事实，且未经合理通知，影响我方答辩权。\n\n---\n\n## 总结建议\n\n- **当前我方证据具有较强进攻性**，尤其是银行转账流水，是证明付款事实的核心证据。  \n- **需防范对方通过合同真实性、款项用途等角度进行攻击**，应提前准备反证材料。  \n- **建议尽快补充发票、沟通记录等辅助证据**，构建完整证据链，提升胜诉概率。\n\n--- \n\n如需进一步细化某类证据的质证意见或模拟庭审辩论策略，可继续提供信息。"
+      }
+    },
+    {
+      "test": "生成案件走向预测",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/scenario-prediction",
+      "response": {
+        "analysis": "# 测试案件_170530 案件走向预测分析报告\n\n---\n\n## 一、关键变量识别\n\n### 1.1 事实变量\n\n- **争议的核心事实**：张三与李四公司签订买卖合同，约定货物交付后支付货款，但李四公司未按约付款。\n- **确定的事实**：\n  - 存在书面买卖合同；\n  - 张三已履行交货义务；\n  - 李四公司尚未支付货款。\n- **存疑的事实**：\n  - 是否存在质量问题导致拒付；\n  - 货物是否实际交付；\n  - 李四公司是否有合法抗辩理由（如质量不符、未收到货物等）。\n- **关键时间节点**：\n  - 合同签订时间（假设为2024年1月）\n  - 货物交付时间（假设为2024年3月）\n  - 首次催款时间（2024年4月）\n  - 诉讼提起时间（2024年6月）\n\n---\n\n### 1.2 证据变量\n\n- **决定性证据**：\n  - 买卖合同原件；\n  - 货物交付凭证（如物流单据、签收记录）；\n  - 催款函及送达记录；\n  - 双方往来邮件或聊天记录。\n- **证据采信可能性**：\n  - 合同和交付凭证一般会被采信；\n  - 催款函若能证明有效送达，可作为催告依据；\n  - 若无明确的拒付理由，对方抗辩可能难以成立。\n- **证据链完整性**：\n  - 若有完整证据链，有利于原告主张；\n  - 若证据缺失（如无法证明交付），将削弱原告主张。\n\n---\n\n### 1.3 法律变量\n\n- **适用法律**：\n  - 《中华人民共和国民法典》第五百七十七条（违约责任）、第五百八十五条（违约金）；\n  - 《中华人民共和国民事诉讼法》关于举证责任的规定。\n- **法律条文理解**：\n  - 原告需证明合同成立、履行义务及被告违约；\n  - 被告若主张质量瑕疵，需提供相应证据。\n- **司法实践倾向**：\n  - 法院对合同纠纷中“谁主张、谁举证”原则较为严格；\n  - 对于逾期付款行为，通常倾向于支持债权人主张。\n\n---\n\n### 1.4 程序变量\n\n- **管辖法院/仲裁庭**：\n  - 假设为原告所在地基层法院；\n  - 若有仲裁条款，则可能进入仲裁程序。\n- **法官/仲裁员倾向**：\n  - 若为经验丰富的法官，可能更注重证据链条完整性；\n  - 若为新任法官，可能对举证责任认定更谨慎。\n- **程序进度变数**：\n  - 是否申请财产保全；\n  - 是否申请鉴定（如货物质量）；\n  - 是否进行调解。\n\n---\n\n### 1.5 外部变量\n\n- **舆论影响**：\n  - 若涉及知名企业或公众人物，可能引发关注；\n  - 但本案为普通民事纠纷，影响有限。\n- **政策变化**：\n  - 无明显相关政策变动；\n  - 但如出现新的司法解释，可能影响判决。\n- **经济环境**：\n  - 当前经济环境下，企业资金紧张，可能增加被告拖延还款的可能性；\n  - 但法院仍会依法裁判。\n\n---\n\n## 二、情景分支图\n\n```\n                    起点\n                      │\n           ┌──────────┼──────────┐\n           ▼          ▼          ▼\n      情景A       情景B       情景C\n    （最优）     （中性）    （最差）\n      │            │            │\n   ┌──┴──┐      ┌──┴──┐      ┌──┴──┐\n   ▼     ▼      ▼     ▼      ▼     ▼\n  A1    A2     B1    B2     C1    C2\n```\n\n---\n\n### 2.1 情景A：最优情景\n\n**触发条件**\n1. 李四公司无合理抗辩理由；\n2. 原告提交了完整的证据链；\n3. 法官/仲裁员倾向支持合同履行一方。\n\n**情景描述**  \n李四公司承认欠款，且无实质性抗辩理由。原告提供的证据充分，法院或仲裁庭迅速作出支持原告诉求的裁决。\n\n**概率评估**  \n- 概率：35%  \n- 置信度：高\n\n**结果预测**  \n- 胜诉可能性：90%  \n- 预估获偿：500,000元  \n- 时间成本：3-4个月（不含执行）\n\n**我方需要**  \n- 证据准备：确保所有交易凭证、催款记录、合同文本完整；  \n- 策略要点：主动提交证据，争取调解或快速审理。\n\n---\n\n### 2.2 情景B：中性情景\n\n**触发条件**  \n1. 李四公司提出质量异议，但未提供充分证据；  \n2. 原告证据基本完整，但部分细节存疑；  \n3. 法官/仲裁员采取中立态度。\n\n**情景描述**  \n李四公司提出质量异议，但未能提供有效证据。法院可能要求进一步举证或组织调解，案件处理周期较长。\n\n**概率评估**  \n- 概率：50%  \n- 置信度：中\n\n**结果预测**  \n- 胜诉可能性：70%  \n- 预估获偿：400,000元（扣除可能的质量争议）  \n- 时间成本：6-8个月（含调解、举证、开庭）\n\n**我方需要**  \n- 证据准备：补充货物交付时的质量检测报告或验收记录；  \n- 策略要点：推动调解，避免过度消耗资源。\n\n---\n\n### 2.3 情景C：最差情景\n\n**触发条件**  \n1. 李四公司提出有力抗辩（如货物质量严重问题）；  \n2. 原告证据链不完整，缺乏交付凭证；  \n3. 法官/仲裁员倾向保护企业抗辩权。\n\n**情景描述**  \n李四公司主张货物存在严重质量问题，原告无法提供有效证据证明其已履行合同义务。法院可能驳回原告诉请，或大幅减少赔偿金额。\n\n**概率评估**  \n- 概率：15%  \n- 置信度：低\n\n**结果预测**  \n- 胜诉可能性：30%  \n- 预估获偿：0元（或极低）  \n- 时间成本：12个月以上（含多次举证、鉴定、执行）\n\n**我方需要**  \n- 证据准备：尽快补充货物交付证据，包括物流信息、签收人身份、质检报告等；  \n- 策略要点：考虑撤诉或重新评估诉讼策略。\n\n---\n\n## 三、关键转折点\n\n| 事件 | 对情景A的影响 | 对情景B的影响 | 对情景C的影响 |\n|------|-------------|--------------|--------------|\n| 李四公司承认欠款 | ✅ 显著提升情景A概率 | ⚠️ 影响不大 | ❌ 降低情景C概率 |\n| 原告补充交付证据 | ✅ 提升情景A概率 | ⚠️ 提升情景B概率 | ⚠️ 提升情景B概率 |\n| 李四公司提出质量异议 | ❌ 降低情景A概率 | ✅ 提升情景B概率 | ✅ 提升情景C概率 |\n| 法官倾向支持原告 | ✅ 显著提升情景A | ⚠️ 提升情景B | ❌ 降低情景C |\n| 原告申请财产保全 | ✅ 有助于情景A | ⚠️ 有助于情景B | ⚠️ 有助于情景B |\n\n---\n\n## 四、预防性措施\n\n### 4.1 如何避免滑向情景C：\n\n- 尽快补充货物交付证据（如签收单、物流信息、质检报告）；\n- 避免与被告直接沟通，防止被其利用；\n- 在起诉前完成初步调查，了解被告经营状况。\n\n### 4.2 如何努力走向情景A：\n\n- 主动提交完整证据，争取法院认可；\n- 利用调解机制，提前达成和解；\n- 选择经验丰富、倾向支持债权人的法官或仲裁员。\n\n---\n\n## 五、动态监测清单\n\n### 4.1 需要持续关注的信号\n\n- [ ] 信号1：被告承认欠款（→ 情景A）  \n- [ ] 信号2：被告提出质量异议（→ 情景B/C）  \n- [ ] 信号3：原告补充证据成功（→ 情景A/B）  \n- [ ] 信号4：法院受理并安排开庭（→ 进入正式审理阶段）\n\n### 4.2 预警指标\n\n- **红色预警**：被告提出质量异议并申请鉴定（→ 情景C风险陡增）  \n- **黄色预警**：原告证据不完整（→ 情景B/C风险上升）  \n- **绿色信号**：被告承认欠款或接受调解（→ 情景A加速）\n\n---\n\n## 六、策略调整预案\n\n### 5.1 如果向不利方向发展\n\n- **何时考虑和解**：当证据不足或被告提出有力抗辩时；\n- **和解底线**：至少收回部分款项（如30万）；\n- **如何保留颜面**：通过调解协议明确责任，避免败诉标签。\n\n### 5.2 如果向有利方向发展\n\n- **如何扩大优势**：强化证据展示，推动法院快速裁决；\n- **是否加码诉讼请求**：如发现被告其他违约行为，可追加诉求；\n- **如何加速进程**：申请优先审理、财产保全、强制执行。\n\n### 5.3 如果陷入僵局\n\n- **如何打破僵局**：引入第三方调解机构、申请专家辅助人；\n- **是否转换策略**：如调解失败，可转为仲裁或申请强制执行。\n\n---\n\n## 七、综合评估\n\n### 6.1 综合胜诉概率\n\n基于所有情景的综合评估，**胜诉概率约为60%**，其中情景A（35%）和情景B（50%）占主导，情景C（15%）为小概率事件。\n\n### 6.2 建议策略路径\n\n```\n第一步：收集并完善证据 → 情景B\n第二步：推动调解或申请财产保全 → 情景A\n底线：确保证据完整，避免落入情景C\n```\n\n### 6.3 风险管理建议\n\n最重要的3件事：\n\n1. **全面收集证据**：尤其是货物交付和质量验收相关材料；\n2. **避免与被告私下沟通**：防止其获取更多信息或制造对抗；\n3. **及时申请财产保全**：防止被告转移资产，提高执行成功率。\n\n--- \n\n如需进一步细化某类证据或具体应对方案，欢迎继续提问。"
+      }
+    },
+    {
+      "test": "生成自动化行动方案",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/automated-plan",
+      "response": {
+        "plan": "## 一、阶段任务概览\n\n### 1.1 本阶段核心目标\n1. 评估与李四公司协商的可能性和价值  \n2. 准备有效的协商筹码，提升谈判地位  \n3. 制定清晰的协商策略和底线，确保不被轻易压价  \n\n### 1.2 任务分类\n- 【必须完成】- 不完成则严重影响案件  \n- 【建议完成】- 完成则增强优势  \n- 【可选完成】- 有余力时完成  \n\n---\n\n## 二、任务清单（按优先级排序）\n\n### 2.1 第一优先级任务（立即执行）\n\n**任务 1：评估协商可能性**\n- 任务描述：分析是否具备协商条件，判断对方是否有合作意愿。\n- 执行步骤：\n  1. 回顾案件材料，确认合同履行情况及争议焦点\n  2. 检查被告李四公司的经营状况和信用记录\n  3. 分析对方在类似案件中的协商历史和态度\n- 需要准备：案件材料、企业信用报告\n- 预计耗时：2小时\n- 难度评估：★\n- 完成后确认：完成评估报告并标记是否适合协商\n\n**任务 2：准备协商筹码**\n- 任务描述：整理我方可以用于谈判的“筹码”，包括证据、法律依据、替代方案等。\n- 执行步骤：\n  1. 梳理所有支持我方主张的证据\n  2. 整理相关法律法规及判例支持\n  3. 列出可能的让步空间和底线\n- 需要准备：案件材料、法律条文库、证据清单\n- 预计耗时：3小时\n- 难度评估：★★\n- 完成后确认：生成协商筹码清单并进行内部讨论\n\n### 2.2 第二优先级任务（本周内完成）\n\n**任务 3：制定协商策略**\n- 任务描述：根据前期评估，制定一套可行的协商策略和话术。\n- 执行步骤：\n  1. 确定我方的核心诉求和可让步点\n  2. 设计多套不同层级的协商方案（如：高、中、低）\n  3. 模拟协商场景，预演可能的对话\n- 需要准备：协商筹码清单、案件材料\n- 预计耗时：4小时\n- 难度评估：★★★\n- 完成后确认：生成协商策略文档并组织团队演练\n\n### 2.3 第三优先级任务（本月内完成）\n\n**任务 4：设定协商底线**\n- 任务描述：明确我方在协商中不可逾越的底线，防止被逼迫接受不合理条件。\n- 执行步骤：\n  1. 与客户沟通，确认其核心利益和心理预期\n  2. 结合法律风险和经济成本，设定最低可接受条件\n  3. 制定“红线”条款，明确哪些条件不能妥协\n- 需要准备：客户沟通记录、案件分析报告\n- 预计耗时：2小时\n- 难度评估：★\n- 完成后确认：生成协商底线清单并存档\n\n---\n\n## 三、一键操作指南\n\n### 3.1 立即可以做的事情\n\n#### 【操作1】启动初步协商意向\n- 点击：[联系人管理] → [添加新联系人]\n- 选择：[被告公司代表] → 姓名：李四；联系方式：13800000000\n- 确认：保存联系人信息\n- 预期结果：建立初步沟通渠道\n\n#### 【操作2】发送协商意向函（模板已准备）\n- 点击：[文书管理] → [新建文书]\n- 选择：[协商意向函模板]\n- 确认：填写必要信息（原告、被告、案由、金额等）\n- 预期结果：自动生成协商意向函并发送给被告\n\n### 3.2 需要准备后执行的事情\n\n#### 【准备项1】协商筹码清单\n- 需要准备：案件材料、证据清单、法律依据\n- 模板：[协商筹码清单模板]（见下文）\n- 示例：  \n| 序号 | 项目 | 内容 | 价值 |\n|------|------|------|------|\n| 1 | 合同条款 | 明确违约责任 | 强化我方立场 |\n| 2 | 证据材料 | 付款凭证、往来邮件 | 支持主张 |\n\n---\n\n## 三、自动生成内容（回复“生成”即可获取）\n\n1. [起诉状模板]  \n2. [答辩状模板]  \n3. [证据目录模板]  \n4. [质证意见模板]  \n5. [代理词模板]  \n\n---\n\n## 四、风险监控清单\n\n### 4.1 必须关注的风险信号\n- [ ] 信号1：对方拒绝沟通或态度强硬 → 应对：立即启动诉讼准备\n- [ ] 信号2：我方关键证据缺失 → 应对：补充取证或调整策略\n\n### 4.2 预警阈值\n- 期限预警：协商未在7天内取得进展 → 触发诉讼准备\n- 证据风险：关键证据未在3天内收集完整 → 触发补充调查\n- 程序风险：未及时发出正式协商函 → 触发重新发送\n\n---\n\n## 五、下一步预测\n\n### 5.1 如果一切顺利\n预计进入下一阶段：**调解/诉讼准备阶段**  \n预计时间：2周内  \n需要准备：诉讼立案材料、证据清单、律师函\n\n### 5.2 如果出现问题\n可能出现：协商破裂、对方拖延、证据不足  \n需要调整：转向诉讼流程，加强证据收集和法律论证\n\n### 5.3 需要紧急应对的情况\n紧急情况：对方突然提出严重不利条件  \n紧急应对：立即召开内部会议，重新评估底线并决定是否继续协商或直接诉讼\n\n---\n\n## 六、快速参考\n\n### 6.1 重要期限\n| 事项 | 期限 | 状态 |\n|------|------|------|\n| 协商意向函发送 | 2025-01-10 | 未发送 |\n| 协商策略制定完成 | 2025-01-12 | 未完成 |\n\n### 6.2 重要联系人\n| 角色 | 姓名 | 联系方式 | 备注 |\n|------|------|----------|------|\n| 原告 | 张三 | 13900000000 | 主要联系人 |\n| 被告代表 | 李四 | 13800000000 | 对方联系人 |\n\n### 6.3 重要文件\n| 文件 | 状态 | 存放位置 |\n|------|------|----------|\n| 案件材料 | 已整理 | 本地文件夹 |\n| 协商筹码清单 | 未完成 | 待生成 |\n| 协商策略文档 | 未完成 | 待生成 |\n\n--- \n\n如需生成以下内容，请回复“生成”：\n\n1. [起诉状模板]  \n2. [答辩状模板]  \n3. [证据目录模板]  \n4. [质证意见模板]  \n5. [代理词模板]"
+      }
+    },
+    {
+      "test": "获取分析详情",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/8",
+      "response": {
+        "id": 8,
+        "our_strengths": null,
+        "evidence_matrix_summary": null,
+        "auto_tasks": null,
+        "case_id": 6,
+        "our_weaknesses": null,
+        "possible_scenarios": null,
+        "task_progress": null,
+        "opponent_strengths": null,
+        "scenario_probabilities": null,
+        "is_current": true,
+        "analysis_phase": "协商",
+        "opponent_weaknesses": null,
+        "overall_strategy": null,
+        "title": "对抗性分析_170907",
+        "opponent_likely_actions": null,
+        "immediate_actions": null,
+        "confidence_score": null,
+        "opponent_name": "李四公司",
+        "opponent_evidence_predictions": null,
+        "contingency_plans": null,
+        "created_at": "2026-03-25T09:09:09.109572",
+        "opponent_type": "企业",
+        "opponent_attack_angles": null,
+        "risk_assessment": null,
+        "updated_at": "2026-03-25T09:09:09.109572",
+        "opponent_strength": "中等",
+        "risk_mitigation": null
+      }
+    },
+    {
+      "test": "添加证据项",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/analysis/8/evidence",
+      "response": {
+        "id": 1,
+        "content_summary": null,
+        "authenticity_confidence": null,
+        "is_verified": false,
+        "owner": "our",
+        "admissibility_risk": null,
+        "is_obtained": false,
+        "analysis_id": 8,
+        "is_in_our_possession": true,
+        "offensive_value": null,
+        "obtain_method": null,
+        "is_in_opponent_possession": false,
+        "defensive_value": null,
+        "sort_order": 0,
+        "name": "转账凭证",
+        "possession_probability": null,
+        "counter_evidence": null,
+        "evidence_type": "书证",
+        "role": "进攻性",
+        "counter_by_evidence": null,
+        "created_at": "2026-03-25T09:12:08.135804",
+        "source": "银行出具",
+        "probative_value": 0.9,
+        "potential_risks": null,
+        "updated_at": "2026-03-25T09:12:08.135804",
+        "description": "银行转账记录",
+        "recommendations": null
+      }
+    },
+    {
+      "test": "获取证据项列表",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/analysis/8/evidence",
+      "response": [
+        {
+          "id": 1,
+          "content_summary": null,
+          "authenticity_confidence": null,
+          "is_verified": false,
+          "owner": "our",
+          "admissibility_risk": null,
+          "is_obtained": false,
+          "analysis_id": 8,
+          "is_in_our_possession": true,
+          "offensive_value": null,
+          "obtain_method": null,
+          "is_in_opponent_possession": false,
+          "defensive_value": null,
+          "sort_order": 0,
+          "name": "转账凭证",
+          "possession_probability": null,
+          "counter_evidence": null,
+          "evidence_type": "书证",
+          "role": "进攻性",
+          "counter_by_evidence": null,
+          "created_at": "2026-03-25T09:12:08.135804",
+          "source": "银行出具",
+          "probative_value": 0.9,
+          "potential_risks": null,
+          "updated_at": "2026-03-25T09:12:08.135804",
+          "description": "银行转账记录",
+          "recommendations": null
+        }
+      ]
+    },
+    {
+      "test": "添加行动方案",
+      "status": "FAIL",
+      "endpoint": "/api/对抗性分析/analysis/8/actions",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "获取行动方案列表",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/analysis/8/actions",
+      "response": []
+    },
+    {
+      "test": "添加情景预测",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/scenarios",
+      "response": {
+        "id": 2,
+        "predicted_outcome": null,
+        "created_at": "2026-03-25T09:12:16.388142",
+        "scenario_name": "对方同意调解",
+        "win_probability": 0.8,
+        "updated_at": "2026-03-25T09:12:16.388142",
+        "scenario_description": "通过调解达成和解",
+        "estimated_amount": "40万",
+        "scenario_type": "positive",
+        "time_estimate": null,
+        "trigger_conditions": null,
+        "impact_factors": null,
+        "required_evidence": null,
+        "key_variables": null,
+        "avoided_evidence": null,
+        "strategy_if_occurs": null,
+        "case_id": 6,
+        "preparation_checklist": null
+      }
+    },
+    {
+      "test": "获取情景预测列表",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/scenarios",
+      "response": [
+        {
+          "id": 2,
+          "predicted_outcome": null,
+          "created_at": "2026-03-25T09:12:16.388142",
+          "scenario_name": "对方同意调解",
+          "win_probability": 0.8,
+          "updated_at": "2026-03-25T09:12:16.388142",
+          "scenario_description": "通过调解达成和解",
+          "estimated_amount": "40万",
+          "scenario_type": "positive",
+          "time_estimate": null,
+          "trigger_conditions": null,
+          "impact_factors": null,
+          "required_evidence": null,
+          "key_variables": null,
+          "avoided_evidence": null,
+          "strategy_if_occurs": null,
+          "case_id": 6,
+          "preparation_checklist": null
+        }
+      ]
+    },
+    {
+      "test": "添加流程里程碑",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/milestones",
+      "response": {
+        "phase": "诉讼",
+        "related_evidence": null,
+        "order_in_phase": 0,
+        "ai_suggestions": null,
+        "case_id": 6,
+        "target_date": null,
+        "automated_tasks": null,
+        "id": 2,
+        "deadline": null,
+        "created_at": "2026-03-25T09:12:20.551301",
+        "name": "立案",
+        "completed_at": null,
+        "updated_at": "2026-03-25T09:12:20.551301",
+        "description": "正式向法院提起诉讼",
+        "status": "pending",
+        "milestone_type": null,
+        "completion_rate": 0.0,
+        "related_actions": null
+      }
+    },
+    {
+      "test": "获取流程里程碑列表",
+      "status": "PASS",
+      "endpoint": "/api/对抗性分析/case/6/milestones",
+      "response": [
+        {
+          "phase": "诉讼",
+          "related_evidence": null,
+          "order_in_phase": 0,
+          "ai_suggestions": null,
+          "case_id": 6,
+          "target_date": null,
+          "automated_tasks": null,
+          "id": 2,
+          "deadline": null,
+          "created_at": "2026-03-25T09:12:20.551301",
+          "name": "立案",
+          "completed_at": null,
+          "updated_at": "2026-03-25T09:12:20.551301",
+          "description": "正式向法院提起诉讼",
+          "status": "pending",
+          "milestone_type": null,
+          "completion_rate": 0.0,
+          "related_actions": null
+        }
+      ]
+    },
+    {
+      "test": "智能问答（问题澄清）",
+      "status": "PASS",
+      "endpoint": "/api/v2/question",
+      "response": {
+        "needs_clarification": true,
+        "intent": "unclear",
+        "key_entities": [],
+        "clarifying_questions": [
+          {
+            "question": "您的问题比较模糊，可以更具体地说明：\n1. 您想了解案件的事实情况？\n2. 您想知道需要准备哪些证据？\n3. 您想了解诉讼策略？",
+            "reason": "无法理解问题意图，需要用户澄清",
+            "options": [
+              "了解案件事实",
+              "了解证据准备",
+              "了解诉讼策略"
+            ]
+          }
+        ],
+        "answer": null
+      }
+    },
+    {
+      "test": "构建证据知识图谱",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence/graph",
+      "response": {
+        "case_id": 6,
+        "nodes": [
+          {
+            "id": "40",
+            "name": "银行转账流水.pdf",
+            "type": "书证",
+            "credibility": 0.85,
+            "credibility_factors": [
+              "证据为电子文档，可能存在被篡改的风险",
+              "未提供银行盖章或官方出具的证明文件，真实性需进一步验证"
+            ],
+            "proves_facts": [
+              "2024年1月15日存在一笔金额为50,000元的转账记录",
+              "张三在该日期有向他人或账户转账的行为"
+            ],
+            "related_evidence": [],
+            "contradicts_evidence": [],
+            "keywords": [
+              "银行转账流水",
+              "2024年1月15日",
+              "转账",
+              "50000元",
+              "证明内容",
+              "转账记录",
+              "日期",
+              "金额",
+              "银行",
+              "财务证据"
+            ]
+          }
+        ],
+        "summary": {
+          "total_count": 1,
+          "by_type": {
+            "书证": 1
+          },
+          "average_credibility": 0.85,
+          "high_credibility_count": 1,
+          "low_credibility_count": 0,
+          "keywords": [
+            "2024年1月15日",
+            "转账记录",
+            "转账",
+            "银行",
+            "50000元",
+            "证明内容",
+            "银行转账流水",
+            "日期",
+            "财务证据",
+            "金额"
+          ]
+        },
+        "total_evidence": 1
+      }
+    },
+    {
+      "test": "精准查询证据",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence/query/6",
+      "response": {
+        "query": "转账",
+        "search_type": "keywords",
+        "results": [
+          {
+            "id": "40",
+            "name": "银行转账流水.pdf",
+            "type": "书证",
+            "credibility": 0.85,
+            "proves_facts": [
+              "2024年1月15日存在一笔金额为50,000元的转账记录",
+              "张三在该日期有向他人或账户转账的行为"
+            ],
+            "keywords": [
+              "银行转账流水",
+              "2024年1月15日",
+              "转账",
+              "50000元",
+              "证明内容",
+              "转账记录",
+              "日期",
+              "金额",
+              "银行",
+              "财务证据"
+            ]
+          }
+        ],
+        "count": 1
+      }
+    },
+    {
+      "test": "生成分析报告",
+      "status": "PASS",
+      "endpoint": "/api/v2/report/generate",
+      "response": {
+        "case_id": 6,
+        "report_type": "analysis",
+        "content": "\n\n一、案件事实\n本案系一起典型的买卖合同纠纷案件，原告张三与被告李四公司之间存在合法有效的买卖合同关系。根据案件信息显示，原告张三作为卖方，向被告李四公司提供了货物，双方约定了货物的种类、数量、价格及付款方式等基本条款，形成书面或口头形式的买卖合同。在合同履行过程中，原告已依约完成交货义务，但被告李四公司未能按约定支付相应货款，导致原告权益受损，进而引发本次诉讼。\n\n本案的核心争议在于被告是否存在违约行为，即是否未按合同约定支付货款。原告主张被告拖欠货款共计50万元，要求其履行付款义务并承担相应的违约责任。从法律角度看，买卖合同是双务合同，双方均应依约履行各自义务。被告未按时支付货款，构成根本违约，原告有权依法主张债权，并可要求赔偿因违约造成的损失。本案事实清楚，证据明确，关键在于对合同履行情况及违约责任的进一步审查与认定。\n\n二、法律关系\n二、法律关系  \n本案系一起民事合同纠纷案件，涉及买卖合同关系。根据案件描述，原告张三与被告李四公司之间存在买卖合同关系，双方通过协商达成货物买卖协议，由李四公司向张三提供货物，张三则应支付相应货款。现因李四公司未按约支付货款，导致张三主张其承担违约责任，故本案的核心法律关系为买卖合同法律关系。\n\n在买卖合同中，双方当事人应当按照约定履行各自义务，买方负有支付货款的义务，卖方则负有交付符合约定质量及数量的货物的义务。本案中，张三作为买方已履行接收货物的义务，而李四公司作为卖方未依约支付货款，构成违约。因此，本案中张三有权依据《中华人民共和国民法典》第六百二十六条等相关规定，要求李四公司支付拖欠货款并承担相应的违约责任。\n\n此外，本案还可能涉及合同履行中的违约责任问题，需进一步审查合同条款及履约情况，以确定是否存在其他违约情形或免责事由。综上，本案主要法律关系为买卖合同关系，核心争议点在于货款支付义务的履行及违约责任的认定。\n\n三、争议焦点\n三、争议焦点  \n本案系买卖合同纠纷，核心争议焦点在于被告是否构成违约以及是否应支付拖欠货款。首先，原告主张其与被告之间存在有效的买卖合同关系，且已依约履行交货义务，而被告未按约定支付相应货款，构成违约。因此，原告要求被告支付500,000元货款及相应利息。其次，被告可能抗辩称原告未按合同约定交付货物或存在质量问题，导致其拒绝付款。此外，双方对合同履行情况、付款条件是否成就、是否存在不可抗力或情势变更等因素亦可能存在争议。同时，关于逾期付款利息的起算时间及计算标准，亦可能成为双方争议的焦点。综上，本案的核心争议集中于合同是否有效履行、是否存在违约行为及违约责任的认定，需结合合同条款、履约证据及双方实际行为进行综合判断。\n\n四、证据评估\n四、证据评估\n\n在本案中，原告张三主张被告李四公司拖欠货款共计500,000元，其主要依据为双方签订的买卖合同、送货单、对账单及微信聊天记录等。首先，买卖合同作为基础性证据，能够证明双方存在合法有效的合同关系，具有较强的证明力。其次，送货单和对账单可作为履行合同义务及货款金额的直接证据，若能与合同内容相互印证，将增强其可信度。此外，微信聊天记录虽属电子证据，但若能通过技术手段确认其真实性，并能体现被告对欠款事实的认可或承诺还款，则可作为补充证据，进一步支持原告主张。然而，需注意上述证据是否形成完整证据链，是否存在瑕疵或缺失。例如，是否有被告签章的对账单、是否有明确的付款期限约定等，均会影响证据的证明力。综合来看，现有证据具备一定证明力，但仍需进一步核实和补强，以确保案件事实的准确查明。\n\n五、法律依据\n五、法律依据  \n本案系一起买卖合同纠纷案件，涉及货款拖欠问题，应适用《中华人民共和国民法典》及相关司法解释进行分析。首先，《民法典》第五百七十七条明确规定，当事人一方不履行合同义务或者履行合同义务不符合约定的，应当承担继续履行、采取补救措施或者赔偿损失等违约责任。本案中，原告张三与被告李四公司之间存在合法有效的买卖合同关系，被告未按约支付货款，已构成违约，依法应承担相应的法律责任。其次，《民法典》第六百二十六条对买卖合同的付款时间作出规定，若双方未明确约定付款时间，买受人应在收到标的物或提取单据时支付。本案中，若无明确约定，被告应在收货后及时付款，其拖延行为已违反法律规定。此外，根据《最高人民法院关于审理买卖合同纠纷案件适用法律问题的解释》第十八条，出卖人主张买受人支付逾期付款违约金的，人民法院应予支持。综上，本案原告主张被告支付拖欠货款及相应违约金，具有充分的法律依据。\n\n六、突破口\n六、突破口\n\n在本案中，原告张三与被告李四公司之间存在买卖合同关系，核心争议在于货款拖欠问题。分析案件的突破口，应从以下几个方面入手：首先，合同的成立与履行情况是关键。需核实双方是否存在书面或口头合同，以及合同内容是否明确，特别是付款方式、时间及违约责任等条款，以确认被告是否存在违约行为。其次，证据的充分性是决定胜诉的重要因素。原告应提供送货单、发票、聊天记录、邮件往来等能够证明交易事实及欠款金额的材料，若证据链完整，将极大增强其主张的可信度。再次，被告是否存在恶意拖欠或经营困难等情形，亦可作为突破点，如能证明被告主观故意拖延付款，可主张更高的违约金或利息。此外，还可考虑是否存在第三方担保或连带责任主体，从而扩大追偿范围。综上，围绕合同有效性、履约事实及证据充分性展开分析，将为案件的胜诉提供有力支撑。\n\n七、策略建议\n七、策略建议  \n针对本案涉及的买卖合同纠纷，原告张三应采取系统性诉讼策略以最大限度维护自身权益。首先，应全面梳理和固定证据，包括但不限于买卖合同、发货单、对账单、付款记录及催款函等，确保合同关系及被告拖欠货款的事实具有充分证明力。其次，鉴于涉案金额较大（50万元），建议优先考虑通过法院诉讼途径解决，并合理选择管辖法院，以提高胜诉可能性。同时，可申请财产保全措施，防止被告转移资产，保障判决执行。在诉讼过程中，应注重举证责任的分配与抗辩点的预判，如被告可能主张已履行付款义务或存在质量问题等抗辩理由，需提前准备反驳材料。此外，可结合调解机制，在诉讼初期尝试协商解决，以降低诉讼成本与时间消耗。综上，本案应以证据为基石，以法律为准绳，制定详尽的诉讼计划，力求实现债权的有效回收。",
+        "segments": [],
+        "generated_at": "2026-03-25T17:13:00.063956",
+        "word_count": 2584
+      }
+    },
+    {
+      "test": "获取报告状态",
+      "status": "PASS",
+      "endpoint": "/api/v2/report/status/6",
+      "response": {
+        "status": "已完成",
+        "progress": 1.0,
+        "segments": [
+          {
+            "title": "一、案件事实",
+            "content": "本案系一起典型的买卖合同纠纷案件，原告张三与被告李四公司之间存在合法有效的买卖合同关系。根据案件信息显示，原告张三作为卖方，向被告李四公司提供了货物，双方约定了货物的种类、数量、价格及付款方式等基本条款，形成书面或口头形式的买卖合同。在合同履行过程中，原告已依约完成交货义务，但被告李四公司未能按约定支付相应货款，导致原告权益受损，进而引发本次诉讼。\n\n本案的核心争议在于被告是否存在违约行为，即是否未按合同约定支付货款。原告主张被告拖欠货款共计50万元，要求其履行付款义务并承担相应的违约责任。从法律角度看，买卖合同是双务合同，双方均应依约履行各自义务。被告未按时支付货款，构成根本违约，原告有权依法主张债权，并可要求赔偿因违约造成的损失。本案事实清楚，证据明确，关键在于对合同履行情况及违约责任的进一步审查与认定。",
+            "progress": 0.14285714285714285
+          },
+          {
+            "title": "二、法律关系",
+            "content": "二、法律关系  \n本案系一起民事合同纠纷案件，涉及买卖合同关系。根据案件描述，原告张三与被告李四公司之间存在买卖合同关系，双方通过协商达成货物买卖协议，由李四公司向张三提供货物，张三则应支付相应货款。现因李四公司未按约支付货款，导致张三主张其承担违约责任，故本案的核心法律关系为买卖合同法律关系。\n\n在买卖合同中，双方当事人应当按照约定履行各自义务，买方负有支付货款的义务，卖方则负有交付符合约定质量及数量的货物的义务。本案中，张三作为买方已履行接收货物的义务，而李四公司作为卖方未依约支付货款，构成违约。因此，本案中张三有权依据《中华人民共和国民法典》第六百二十六条等相关规定，要求李四公司支付拖欠货款并承担相应的违约责任。\n\n此外，本案还可能涉及合同履行中的违约责任问题，需进一步审查合同条款及履约情况，以确定是否存在其他违约情形或免责事由。综上，本案主要法律关系为买卖合同关系，核心争议点在于货款支付义务的履行及违约责任的认定。",
+            "progress": 0.2857142857142857
+          },
+          {
+            "title": "三、争议焦点",
+            "content": "三、争议焦点  \n本案系买卖合同纠纷，核心争议焦点在于被告是否构成违约以及是否应支付拖欠货款。首先，原告主张其与被告之间存在有效的买卖合同关系，且已依约履行交货义务，而被告未按约定支付相应货款，构成违约。因此，原告要求被告支付500,000元货款及相应利息。其次，被告可能抗辩称原告未按合同约定交付货物或存在质量问题，导致其拒绝付款。此外，双方对合同履行情况、付款条件是否成就、是否存在不可抗力或情势变更等因素亦可能存在争议。同时，关于逾期付款利息的起算时间及计算标准，亦可能成为双方争议的焦点。综上，本案的核心争议集中于合同是否有效履行、是否存在违约行为及违约责任的认定，需结合合同条款、履约证据及双方实际行为进行综合判断。",
+            "progress": 0.42857142857142855
+          },
+          {
+            "title": "四、证据评估",
+            "content": "四、证据评估\n\n在本案中，原告张三主张被告李四公司拖欠货款共计500,000元，其主要依据为双方签订的买卖合同、送货单、对账单及微信聊天记录等。首先，买卖合同作为基础性证据，能够证明双方存在合法有效的合同关系，具有较强的证明力。其次，送货单和对账单可作为履行合同义务及货款金额的直接证据，若能与合同内容相互印证，将增强其可信度。此外，微信聊天记录虽属电子证据，但若能通过技术手段确认其真实性，并能体现被告对欠款事实的认可或承诺还款，则可作为补充证据，进一步支持原告主张。然而，需注意上述证据是否形成完整证据链，是否存在瑕疵或缺失。例如，是否有被告签章的对账单、是否有明确的付款期限约定等，均会影响证据的证明力。综合来看，现有证据具备一定证明力，但仍需进一步核实和补强，以确保案件事实的准确查明。",
+            "progress": 0.5714285714285714
+          },
+          {
+            "title": "五、法律依据",
+            "content": "五、法律依据  \n本案系一起买卖合同纠纷案件，涉及货款拖欠问题，应适用《中华人民共和国民法典》及相关司法解释进行分析。首先，《民法典》第五百七十七条明确规定，当事人一方不履行合同义务或者履行合同义务不符合约定的，应当承担继续履行、采取补救措施或者赔偿损失等违约责任。本案中，原告张三与被告李四公司之间存在合法有效的买卖合同关系，被告未按约支付货款，已构成违约，依法应承担相应的法律责任。其次，《民法典》第六百二十六条对买卖合同的付款时间作出规定，若双方未明确约定付款时间，买受人应在收到标的物或提取单据时支付。本案中，若无明确约定，被告应在收货后及时付款，其拖延行为已违反法律规定。此外，根据《最高人民法院关于审理买卖合同纠纷案件适用法律问题的解释》第十八条，出卖人主张买受人支付逾期付款违约金的，人民法院应予支持。综上，本案原告主张被告支付拖欠货款及相应违约金，具有充分的法律依据。",
+            "progress": 0.7142857142857143
+          },
+          {
+            "title": "六、突破口",
+            "content": "六、突破口\n\n在本案中，原告张三与被告李四公司之间存在买卖合同关系，核心争议在于货款拖欠问题。分析案件的突破口，应从以下几个方面入手：首先，合同的成立与履行情况是关键。需核实双方是否存在书面或口头合同，以及合同内容是否明确，特别是付款方式、时间及违约责任等条款，以确认被告是否存在违约行为。其次，证据的充分性是决定胜诉的重要因素。原告应提供送货单、发票、聊天记录、邮件往来等能够证明交易事实及欠款金额的材料，若证据链完整，将极大增强其主张的可信度。再次，被告是否存在恶意拖欠或经营困难等情形，亦可作为突破点，如能证明被告主观故意拖延付款，可主张更高的违约金或利息。此外，还可考虑是否存在第三方担保或连带责任主体，从而扩大追偿范围。综上，围绕合同有效性、履约事实及证据充分性展开分析，将为案件的胜诉提供有力支撑。",
+            "progress": 0.8571428571428571
+          },
+          {
+            "title": "七、策略建议",
+            "content": "七、策略建议  \n针对本案涉及的买卖合同纠纷，原告张三应采取系统性诉讼策略以最大限度维护自身权益。首先，应全面梳理和固定证据，包括但不限于买卖合同、发货单、对账单、付款记录及催款函等，确保合同关系及被告拖欠货款的事实具有充分证明力。其次，鉴于涉案金额较大（50万元），建议优先考虑通过法院诉讼途径解决，并合理选择管辖法院，以提高胜诉可能性。同时，可申请财产保全措施，防止被告转移资产，保障判决执行。在诉讼过程中，应注重举证责任的分配与抗辩点的预判，如被告可能主张已履行付款义务或存在质量问题等抗辩理由，需提前准备反驳材料。此外，可结合调解机制，在诉讼初期尝试协商解决，以降低诉讼成本与时间消耗。综上，本案应以证据为基石，以法律为准绳，制定详尽的诉讼计划，力求实现债权的有效回收。",
+            "progress": 1.0
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "test": "清除案件缓存",
+      "status": "PASS",
+      "endpoint": "/api/v2/cache/clear/6",
+      "response": {
+        "message": "案件 6 的缓存已清除",
+        "cleared_items": [
+          "report_cache",
+          "analysis_cache"
+        ]
+      }
+    },
+    {
+      "test": "记录用户交互",
+      "status": "PASS",
+      "endpoint": "/api/v2/profile/interaction",
+      "response": {
+        "success": true,
+        "case_id": 6,
+        "profile_updated": true,
+        "knowledge_extracted": 0,
+        "gaps_identified": 0,
+        "new_suggestions": [
+          {
+            "type": "completeness",
+            "priority": "medium",
+            "message": "案件基本信息已完善",
+            "action": "建议上传相关证据材料"
+          }
+        ],
+        "completeness": {
+          "score": 30.0,
+          "level": "基本"
+        }
+      }
+    },
+    {
+      "test": "获取案件画像摘要",
+      "status": "PASS",
+      "endpoint": "/api/v2/profile/summary/6",
+      "response": {
+        "case_id": 6,
+        "summary": {
+          "case_id": 6,
+          "completeness": {
+            "score": 30.0,
+            "level": "基本"
+          },
+          "knowledge_stats": {
+            "total": 0,
+            "by_type": {}
+          },
+          "conversation_count": 1,
+          "evidence_count": 0,
+          "unresolved_gaps": [],
+          "last_updated": "2026-03-25T17:13:06.253171"
+        },
+        "recent_conversations": [
+          {
+            "turn_id": "84ccb04c",
+            "turn_number": 1,
+            "user_input": "这是一个重要的合同纠纷案件",
+            "input_type": "question",
+            "created_at": "2026-03-25T17:13:06.253171"
+          }
+        ],
+        "recent_knowledge": [],
+        "profile_tips": [
+          "基础信息已完备，可以开始上传证据",
+          "证据越充分，分析越准确"
+        ]
+      }
+    },
+    {
+      "test": "查询案件知识",
+      "status": "PASS",
+      "endpoint": "/api/v2/profile/knowledge/query",
+      "response": {
+        "query": "合同",
+        "knowledge_type": "fact",
+        "results": [],
+        "count": 0
+      }
+    },
+    {
+      "test": "获取证据缺口",
+      "status": "PASS",
+      "endpoint": "/api/v2/profile/gaps/6",
+      "response": {
+        "case_id": 6,
+        "unresolved_gaps": [],
+        "count": 0
+      }
+    },
+    {
+      "test": "获取知识图谱",
+      "status": "PASS",
+      "endpoint": "/api/v2/profile/knowledge-graph/6",
+      "response": {
+        "case_id": 6,
+        "nodes": [],
+        "edges": [],
+        "stats": {
+          "total_nodes": 0,
+          "total_edges": 0,
+          "by_type": {}
+        }
+      }
+    },
+    {
+      "test": "统一助手对话",
+      "status": "PASS",
+      "endpoint": "/api/v2/assistant/chat",
+      "response": {
+        "case_id": 6,
+        "answer": "",
+        "intent": "案件分析",
+        "needs_clarification": true,
+        "clarification_questions": [
+          {
+            "question": "您想了解案件的哪些方面？",
+            "options": [
+              {
+                "value": "situation",
+                "label": "案件基本情况"
+              },
+              {
+                "value": "risk",
+                "label": "胜诉概率"
+              },
+              {
+                "value": "evidence",
+                "label": "需要什么证据"
+              },
+              {
+                "value": "strategy",
+                "label": "如何应对"
+              }
+            ],
+            "reason": "您的问题比较宽泛，请选择具体方面",
+            "help": ""
+          }
+        ],
+        "suggestions": [],
+        "evidence_gaps": [],
+        "evidence_suggestions": [],
+        "confidence": 1.0,
+        "sources": [],
+        "profile_updated": false
+      }
+    },
+    {
+      "test": "获取快捷操作",
+      "status": "PASS",
+      "endpoint": "/api/v2/assistant/quick-actions/6",
+      "response": {
+        "case_id": 6,
+        "completeness_score": 0,
+        "recommended_actions": [
+          {
+            "type": "input",
+            "title": "补充案件信息",
+            "description": "案件信息较少，请详细描述事件经过",
+            "action": "goto_input",
+            "priority": "high"
+          },
+          {
+            "type": "evidence",
+            "title": "上传证据材料",
+            "description": "证据较少，建议上传更多证据材料",
+            "action": "goto_upload",
+            "priority": "high"
+          },
+          {
+            "type": "analysis",
+            "title": "生成案件分析",
+            "description": "获取详细案件分析报告",
+            "action": "generate_analysis",
+            "priority": "medium"
+          },
+          {
+            "type": "strategy",
+            "title": "制定诉讼策略",
+            "description": "获取专业诉讼策略建议",
+            "action": "generate_strategy",
+            "priority": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "test": "获取对话历史",
+      "status": "PASS",
+      "endpoint": "/api/v2/assistant/conversation-history/6",
+      "response": {
+        "case_id": 6,
+        "conversations": [],
+        "total": 0
+      }
+    },
+    {
+      "test": "上传并处理文档",
+      "status": "FAIL",
+      "endpoint": "/api/v2/assistant/upload",
+      "error": "状态码: 500, 响应: Internal Server Error"
+    },
+    {
+      "test": "处理证据",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/evidence/process",
+      "response": {
+        "status": "success",
+        "evidence": {
+          "id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+          "case_id": 6,
+          "source_type": "text",
+          "original_filename": "转账记录.txt",
+          "evidence_type": "PAYMENT",
+          "evidence_type_name": "支付凭证类",
+          "evidence_type_icon": "💰",
+          "source_party": "己方",
+          "summary": "银行转账记录：2024年1月15日转账10万元",
+          "credibility_score": 0.0,
+          "authenticity_score": 0.0,
+          "reliability_score": 0.0,
+          "consistency_score": 0.0,
+          "corroboration_score": 0.0,
+          "keywords": [
+            "2024",
+            "1",
+            "15",
+            "2024年1月15日",
+            "银行转账",
+            "记录",
+            "日转账",
+            "万元"
+          ],
+          "proves_facts": [
+            {
+              "fact": "时间节点: 2024",
+              "fact_type": "时间节点",
+              "confidence": 0.7
+            }
+          ],
+          "status": "已处理",
+          "created_at": "2026-03-25T09:13:24.902934",
+          "updated_at": "2026-03-25T09:13:24.923925"
+        },
+        "classification": {
+          "type": "PAYMENT",
+          "type_info": {
+            "name": "支付凭证类",
+            "icon": "💰",
+            "color": "#faad14"
+          },
+          "facts": [
+            {
+              "fact": "时间节点: 2024",
+              "fact_type": "时间节点",
+              "confidence": 0.7
+            }
+          ]
+        },
+        "keywords": {
+          "keywords": [
+            "2024",
+            "1",
+            "15",
+            "2024年1月15日",
+            "银行转账",
+            "记录",
+            "日转账",
+            "万元"
+          ],
+          "entities": [
+            {
+              "type": "MONEY",
+              "value": "2024"
+            },
+            {
+              "type": "MONEY",
+              "value": "1"
+            },
+            {
+              "type": "MONEY",
+              "value": "15"
+            },
+            {
+              "type": "DATE",
+              "value": "2024年1月15日"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test": "获取证据列表",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/evidence/list",
+      "response": {
+        "case_id": 6,
+        "total": 1,
+        "evidence_list": [
+          {
+            "id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+            "case_id": 6,
+            "source_type": "text",
+            "original_filename": "转账记录.txt",
+            "evidence_type": "PAYMENT",
+            "evidence_type_name": "支付凭证类",
+            "evidence_type_icon": "💰",
+            "source_party": "己方",
+            "summary": "银行转账记录：2024年1月15日转账10万元",
+            "credibility_score": 0.0,
+            "authenticity_score": 0.0,
+            "reliability_score": 0.0,
+            "consistency_score": 0.0,
+            "corroboration_score": 0.0,
+            "keywords": [
+              "2024",
+              "1",
+              "15",
+              "2024年1月15日",
+              "银行转账",
+              "记录",
+              "日转账",
+              "万元"
+            ],
+            "proves_facts": [
+              {
+                "fact": "时间节点: 2024",
+                "fact_type": "时间节点",
+                "confidence": 0.7
+              }
+            ],
+            "status": "已处理",
+            "created_at": "2026-03-25T09:13:24.902934",
+            "updated_at": "2026-03-25T09:13:24.923925"
+          }
+        ]
+      }
+    },
+    {
+      "test": "分析证据关系",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/relationships/analyze",
+      "response": {
+        "status": "insufficient",
+        "message": "证据数量不足，无法分析关系",
+        "relationships": []
+      }
+    },
+    {
+      "test": "获取图谱数据",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/graph/data",
+      "response": {
+        "nodes": [
+          {
+            "id": "evidence_2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+            "type": "evidence",
+            "label": "银行转账记录：2024年1月15日转账10万元",
+            "full_label": "银行转账记录：2024年1月15日转账10万元",
+            "category": "PAYMENT",
+            "category_name": "支付凭证类",
+            "icon": "💰",
+            "credibility": 0.0,
+            "source_party": "己方",
+            "proves_facts": [
+              "时间节点: 2024"
+            ],
+            "size": 15,
+            "color": "#faad14"
+          }
+        ],
+        "edges": [],
+        "legend": {
+          "node_types": {
+            "evidence": {
+              "name": "证据",
+              "icon": "📎"
+            },
+            "fact": {
+              "name": "案件事实",
+              "icon": "📌"
+            }
+          },
+          "edge_types": {
+            "SUPPORT": {
+              "name": "支持关系",
+              "description": "证明同一事实",
+              "color": "#52c41a"
+            },
+            "CONTRADICT": {
+              "name": "矛盾关系",
+              "description": "证明相反事实",
+              "color": "#f5222d"
+            },
+            "SUPPLEMENT": {
+              "name": "补充关系",
+              "description": "补强其他证据",
+              "color": "#1890ff"
+            },
+            "DERIVE": {
+              "name": "派生关系",
+              "description": "派生于其他证据",
+              "color": "#722ed1"
+            },
+            "DEPEND": {
+              "name": "依赖关系",
+              "description": "依赖其他证据生效",
+              "color": "#faad14"
+            }
+          },
+          "credibility": [
+            {
+              "range": "80-100",
+              "color": "#52c41a",
+              "label": "高信度"
+            },
+            {
+              "range": "60-79",
+              "color": "#faad14",
+              "label": "中信度"
+            },
+            {
+              "range": "40-59",
+              "color": "#fa8c16",
+              "label": "低信度"
+            },
+            {
+              "range": "0-39",
+              "color": "#f5222d",
+              "label": "待补充"
+            }
+          ]
+        },
+        "summary": {
+          "total": 1,
+          "by_type": {
+            "PAYMENT": {
+              "count": 1,
+              "evidence": [
+                "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0"
+              ]
+            }
+          },
+          "by_source": {
+            "己方": 1
+          },
+          "avg_credibility": 0.0,
+          "gaps": [
+            {
+              "name": "身份证明",
+              "type": "IDENTITY",
+              "suggestion": "建议补充身份证明相关证据",
+              "priority": "important"
+            },
+            {
+              "name": "合同文件",
+              "type": "CONTRACT",
+              "suggestion": "建议补充合同文件相关证据",
+              "priority": "important"
+            },
+            {
+              "name": "函件往来",
+              "type": "CORRESPONDENCE",
+              "suggestion": "建议补充函件往来相关证据",
+              "priority": "important"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test": "获取证据汇总",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/summary",
+      "response": {
+        "case_id": 6,
+        "summary": {
+          "total": 1,
+          "by_type": {
+            "PAYMENT": {
+              "count": 1,
+              "evidence": [
+                "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0"
+              ]
+            }
+          },
+          "by_source": {
+            "己方": 1
+          },
+          "avg_credibility": 0.0,
+          "gaps": [
+            {
+              "name": "身份证明",
+              "type": "IDENTITY",
+              "suggestion": "建议补充身份证明相关证据",
+              "priority": "important"
+            },
+            {
+              "name": "合同文件",
+              "type": "CONTRACT",
+              "suggestion": "建议补充合同文件相关证据",
+              "priority": "important"
+            },
+            {
+              "name": "函件往来",
+              "type": "CORRESPONDENCE",
+              "suggestion": "建议补充函件往来相关证据",
+              "priority": "important"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test": "获取证据统计",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/statistics",
+      "response": {
+        "case_id": 6,
+        "statistics": {
+          "total": 1,
+          "by_type": {
+            "PAYMENT": {
+              "count": 1,
+              "avg_credibility": 0.0,
+              "total_credibility": 0.0
+            }
+          },
+          "by_source": {
+            "己方": 1
+          },
+          "credibility_distribution": {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "very_low": 1
+          },
+          "avg_credibility": 0.0
+        }
+      }
+    },
+    {
+      "test": "获取证据类型信息",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/types",
+      "response": {
+        "types": {
+          "CONTRACT": {
+            "name": "合同协议类",
+            "icon": "📄",
+            "color": "#1890ff"
+          },
+          "CORRESPONDENCE": {
+            "name": "函件沟通类",
+            "icon": "📧",
+            "color": "#52c41a"
+          },
+          "PAYMENT": {
+            "name": "支付凭证类",
+            "icon": "💰",
+            "color": "#faad14"
+          },
+          "IDENTITY": {
+            "name": "身份证明类",
+            "icon": "🪪",
+            "color": "#722ed1"
+          },
+          "AUDIO_VIDEO": {
+            "name": "视听资料类",
+            "icon": "🎬",
+            "color": "#eb2f96"
+          },
+          "TESTIMONY": {
+            "name": "证人证言类",
+            "icon": "👤",
+            "color": "#13c2c2"
+          },
+          "EXPERT": {
+            "name": "鉴定意见类",
+            "icon": "🔬",
+            "color": "#2f54d2"
+          },
+          "DOCUMENT": {
+            "name": "书证类",
+            "icon": "📃",
+            "color": "#fa8c16"
+          },
+          "MATERIAL": {
+            "name": "物证类",
+            "icon": "📦",
+            "color": "#8c8c8c"
+          },
+          "OTHER": {
+            "name": "其他类",
+            "icon": "📎",
+            "color": "#bfbfbf"
+          }
+        }
+      }
+    },
+    {
+      "test": "获取关系类型信息",
+      "status": "PASS",
+      "endpoint": "/api/v2/evidence-graph/relationship-types",
+      "response": {
+        "types": {
+          "SUPPORT": {
+            "name": "支持关系",
+            "description": "证明同一事实",
+            "color": "#52c41a"
+          },
+          "CONTRADICT": {
+            "name": "矛盾关系",
+            "description": "证明相反事实",
+            "color": "#f5222d"
+          },
+          "SUPPLEMENT": {
+            "name": "补充关系",
+            "description": "补强其他证据",
+            "color": "#1890ff"
+          },
+          "DERIVE": {
+            "name": "派生关系",
+            "description": "派生于其他证据",
+            "color": "#722ed1"
+          },
+          "DEPEND": {
+            "name": "依赖关系",
+            "description": "依赖其他证据生效",
+            "color": "#faad14"
+          }
+        }
+      }
+    },
+    {
+      "test": "结案并转入执行",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/close",
+      "response": {
+        "message": "案件已结案归档",
+        "case_id": 6,
+        "status": "执行中",
+        "is_archived": true,
+        "is_transferred_to_execution": true
+      }
+    },
+    {
+      "test": "获取执行跟踪记录",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/execution",
+      "response": {
+        "id": 2,
+        "case_id": 6,
+        "execution_case_number": "2024执1234号",
+        "execution_court": null,
+        "executor_name": "王法官",
+        "executor_phone": "010-12345678",
+        "execution_amount": null,
+        "executed_amount": null,
+        "remaining_amount": null,
+        "status": "pending",
+        "progress": 0.0,
+        "records": null,
+        "assistance_needed": null,
+        "assistance_status": "pending",
+        "next_follow_up": null,
+        "created_at": "2026-03-25T09:13:41.371750",
+        "updated_at": "2026-03-25T09:13:41.371750"
+      }
+    },
+    {
+      "test": "获取执行案件列表",
+      "status": "PASS",
+      "endpoint": "/api/cases/execution/list",
+      "response": [
+        {
+          "id": 6,
+          "title": "测试案件_170530",
+          "case_number": null,
+          "defendant": "李四公司",
+          "closure_amount": "500000",
+          "execution_case_number": "2024执1234号",
+          "execution_status": "pending",
+          "execution_progress": 0.0,
+          "executor_name": "王法官",
+          "executor_phone": "010-12345678",
+          "next_follow_up": null,
+          "updated_at": "2026-03-25T09:13:41.343307"
+        },
+        {
+          "id": 5,
+          "title": "测试案件_140205",
+          "case_number": null,
+          "defendant": "李四公司",
+          "closure_amount": "500000",
+          "execution_case_number": "2024执1234号",
+          "execution_status": "pending",
+          "execution_progress": 0.0,
+          "executor_name": "王法官",
+          "executor_phone": "010-12345678",
+          "next_follow_up": null,
+          "updated_at": "2026-03-25T06:10:20.159297"
+        }
+      ]
+    },
+    {
+      "test": "添加执行进展记录",
+      "status": "PASS",
+      "endpoint": "/api/cases/6/execution/record",
+      "response": {
+        "message": "记录已添加",
+        "records_count": 1,
+        "current_progress": 40.0
+      }
+    },
+    {
+      "test": "资深律师视角分析",
+      "status": "PASS",
+      "endpoint": "/api/v2/senior-analysis/analyze",
+      "response": {
+        "status": "success",
+        "case_understanding": {
+          "case_id": 6,
+          "case_number": null,
+          "title": "测试案件_170530",
+          "case_type": {
+            "category": "CONTRACT_DISPUTE",
+            "category_name": "合同纠纷",
+            "subcategory": "买卖合同"
+          },
+          "cause": "合同纠纷",
+          "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+          "claim_amount": "500000",
+          "plaintiff": "张三",
+          "defendant": "李四公司",
+          "parties": [],
+          "threads": [],
+          "core_disputes": [],
+          "key_facts": [
+            "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+            "诉讼金额：500000"
+          ],
+          "timeline": [
+            {
+              "date": "2026-03-25T17:05:36.658014",
+              "event": "立案",
+              "importance": "high"
+            }
+          ],
+          "uncertain_aspects": [
+            "案件线索未梳理"
+          ]
+        },
+        "evidence_inventory": {
+          "total": 1,
+          "by_type": {
+            "counts": {
+              "PAYMENT": 1
+            },
+            "details": {
+              "PAYMENT": [
+                {
+                  "id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+                  "type": "PAYMENT",
+                  "summary": "银行转账记录：2024年1月15日转账10万元",
+                  "credibility": 0.0,
+                  "proves_facts": [
+                    "时间节点: 2024"
+                  ]
+                }
+              ]
+            }
+          },
+          "by_source": {
+            "己方": 1
+          },
+          "by_credibility": {
+            "counts": {
+              "high": 0,
+              "medium": 0,
+              "low": 1
+            },
+            "ids": {
+              "high": [],
+              "medium": [],
+              "low": [
+                "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0"
+              ]
+            }
+          },
+          "avg_credibility": 0.0,
+          "evidence_mapping": {
+            "时间节点: 2024": [
+              {
+                "evidence_id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+                "credibility": 0.0,
+                "type": "PAYMENT"
+              }
+            ]
+          },
+          "strongest_evidence": {
+            "id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+            "type": "PAYMENT",
+            "summary": "银行转账记录：2024年1月15日转账10万元",
+            "credibility": 0.0,
+            "proves_facts": [
+              "时间节点: 2024"
+            ]
+          },
+          "weakest_evidence": {
+            "id": "2f20bd78-05df-4518-9e4e-68dcc6e5e9a0",
+            "type": "PAYMENT",
+            "summary": "银行转账记录：2024年1月15日转账10万元",
+            "credibility": 0.0,
+            "proves_facts": [
+              "时间节点: 2024"
+            ]
+          }
+        },
+        "requirements_check": {
+          "requirements": [
+            {
+              "requirement": "合同成立",
+              "elements": [
+                "要约",
+                "承诺",
+                "意思表示一致"
+              ],
+              "evidence_required": [
+                "合同文本",
+                "磋商记录",
+                "履行行为"
+              ],
+              "common_issues": [
+                "合同是否签字盖章",
+                "是否超期未表示异议"
+              ],
+              "status": "incomplete",
+              "covered_elements": [],
+              "missing_elements": [
+                "要约",
+                "承诺",
+                "意思表示一致"
+              ],
+              "evidence_coverage": [],
+              "gaps": [
+                "核心要件证据严重缺失"
+              ],
+              "suggestions": [
+                "必须补充核心要件证据"
+              ]
+            },
+            {
+              "requirement": "合同效力",
+              "elements": [
+                "主体适格",
+                "意思表示真实",
+                "内容合法"
+              ],
+              "evidence_required": [
+                "主体证明",
+                "行为能力证明",
+                "合法性依据"
+              ],
+              "common_issues": [
+                "是否欺诈胁迫",
+                "是否重大误解",
+                "是否显失公平"
+              ],
+              "status": "incomplete",
+              "covered_elements": [],
+              "missing_elements": [
+                "主体适格",
+                "意思表示真实",
+                "内容合法"
+              ],
+              "evidence_coverage": [],
+              "gaps": [
+                "核心要件证据严重缺失"
+              ],
+              "suggestions": [
+                "必须补充核心要件证据"
+              ]
+            },
+            {
+              "requirement": "合同履行",
+              "elements": [
+                "履行行为",
+                "履行期限",
+                "履行地点",
+                "履行方式"
+              ],
+              "evidence_required": [
+                "履行凭证",
+                "验收记录",
+                "变更协议"
+              ],
+              "common_issues": [
+                "是否按约履行",
+                "是否存在瑕疵履行",
+                "是否有拒绝履行"
+              ],
+              "status": "incomplete",
+              "covered_elements": [],
+              "missing_elements": [
+                "履行行为",
+                "履行期限",
+                "履行地点",
+                "履行方式"
+              ],
+              "evidence_coverage": [],
+              "gaps": [
+                "核心要件证据严重缺失"
+              ],
+              "suggestions": [
+                "必须补充核心要件证据"
+              ]
+            },
+            {
+              "requirement": "违约责任",
+              "elements": [
+                "违约行为",
+                "损害事实",
+                "因果关系",
+                "过错"
+              ],
+              "evidence_required": [
+                "违约事实证据",
+                "损失计算依据",
+                "过错证明"
+              ],
+              "common_issues": [
+                "违约金是否过高",
+                "损失如何计算",
+                "是否可以减轻责任"
+              ],
+              "status": "incomplete",
+              "covered_elements": [],
+              "missing_elements": [
+                "违约行为",
+                "损害事实",
+                "因果关系",
+                "过错"
+              ],
+              "evidence_coverage": [],
+              "gaps": [
+                "核心要件证据严重缺失"
+              ],
+              "suggestions": [
+                "必须补充核心要件证据"
+              ]
+            }
+          ],
+          "overall_coverage": 0.0,
+          "total_gaps": [
+            {
+              "requirement": "合同成立",
+              "element": "要约"
+            },
+            {
+              "requirement": "合同成立",
+              "element": "承诺"
+            },
+            {
+              "requirement": "合同成立",
+              "element": "意思表示一致"
+            },
+            {
+              "requirement": "合同效力",
+              "element": "主体适格"
+            },
+            {
+              "requirement": "合同效力",
+              "element": "意思表示真实"
+            },
+            {
+              "requirement": "合同效力",
+              "element": "内容合法"
+            },
+            {
+              "requirement": "合同履行",
+              "element": "履行行为"
+            },
+            {
+              "requirement": "合同履行",
+              "element": "履行期限"
+            },
+            {
+              "requirement": "合同履行",
+              "element": "履行地点"
+            },
+            {
+              "requirement": "合同履行",
+              "element": "履行方式"
+            },
+            {
+              "requirement": "违约责任",
+              "element": "违约行为"
+            },
+            {
+              "requirement": "违约责任",
+              "element": "损害事实"
+            },
+            {
+              "requirement": "违约责任",
+              "element": "因果关系"
+            },
+            {
+              "requirement": "违约责任",
+              "element": "过错"
+            }
+          ],
+          "coverage_level": "poor"
+        },
+        "issues": {
+          "evidence_gaps": [
+            {
+              "fact": "要约",
+              "requirement": "合同成立",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"要约\"的证据",
+              "obtain_method": "提供合同文本、磋商记录"
+            },
+            {
+              "fact": "承诺",
+              "requirement": "合同成立",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"承诺\"的证据",
+              "obtain_method": "提供合同文本、邮件确认"
+            },
+            {
+              "fact": "意思表示一致",
+              "requirement": "合同成立",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"意思表示一致\"的证据",
+              "obtain_method": "提供录音录像、书面文件"
+            },
+            {
+              "fact": "主体适格",
+              "requirement": "合同效力",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"主体适格\"的证据",
+              "obtain_method": "提供营业执照、身份证明"
+            },
+            {
+              "fact": "意思表示真实",
+              "requirement": "合同效力",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"意思表示真实\"的证据",
+              "obtain_method": "提供录音录像、书面文件"
+            },
+            {
+              "fact": "内容合法",
+              "requirement": "合同效力",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"内容合法\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            },
+            {
+              "fact": "履行行为",
+              "requirement": "合同履行",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"履行行为\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            },
+            {
+              "fact": "履行期限",
+              "requirement": "合同履行",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"履行期限\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            },
+            {
+              "fact": "履行地点",
+              "requirement": "合同履行",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"履行地点\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            },
+            {
+              "fact": "履行方式",
+              "requirement": "合同履行",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"履行方式\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            },
+            {
+              "fact": "违约行为",
+              "requirement": "违约责任",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"违约行为\"的证据",
+              "obtain_method": "提供对方违约的函件、记录"
+            },
+            {
+              "fact": "损害事实",
+              "requirement": "违约责任",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"损害事实\"的证据",
+              "obtain_method": "提供损失清单、评估报告"
+            },
+            {
+              "fact": "因果关系",
+              "requirement": "违约责任",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"因果关系\"的证据",
+              "obtain_method": "提供鉴定意见、专家证言"
+            },
+            {
+              "fact": "过错",
+              "requirement": "违约责任",
+              "severity": "critical",
+              "suggestion": "需要补充证明\"过错\"的证据",
+              "obtain_method": "建议通过书面文件、电子数据、证人证言等方式获取"
+            }
+          ],
+          "weak_arguments": [],
+          "procedure_issues": [
+            {
+              "issue": "案件尚未正式立案",
+              "risk": "high",
+              "suggestion": "尽快完成立案程序"
+            }
+          ],
+          "risk_points": []
+        },
+        "risk_assessment": {
+          "overall_level": "medium",
+          "risk_items": [
+            {
+              "type": "证据不足",
+              "level": "high",
+              "description": "证据数量仅1份，可能难以支撑诉讼请求",
+              "mitigation": "立即着手收集关键证据"
+            }
+          ],
+          "mitigation_strategies": []
+        },
+        "recommendations": [
+          {
+            "type": "evidence",
+            "priority": "critical",
+            "action": "补充证据：要约",
+            "suggestion": "需要补充证明\"要约\"的证据",
+            "obtain_method": "提供合同文本、磋商记录",
+            "deadline": "紧急"
+          },
+          {
+            "type": "evidence",
+            "priority": "critical",
+            "action": "补充证据：承诺",
+            "suggestion": "需要补充证明\"承诺\"的证据",
+            "obtain_method": "提供合同文本、邮件确认",
+            "deadline": "紧急"
+          },
+          {
+            "type": "evidence",
+            "priority": "critical",
+            "action": "补充证据：意思表示一致",
+            "suggestion": "需要补充证明\"意思表示一致\"的证据",
+            "obtain_method": "提供录音录像、书面文件",
+            "deadline": "紧急"
+          },
+          {
+            "type": "evidence",
+            "priority": "critical",
+            "action": "补充证据：主体适格",
+            "suggestion": "需要补充证明\"主体适格\"的证据",
+            "obtain_method": "提供营业执照、身份证明",
+            "deadline": "紧急"
+          },
+          {
+            "type": "evidence",
+            "priority": "critical",
+            "action": "补充证据：意思表示真实",
+            "suggestion": "需要补充证明\"意思表示真实\"的证据",
+            "obtain_method": "提供录音录像、书面文件",
+            "deadline": "紧急"
+          },
+          {
+            "type": "procedure",
+            "priority": "important",
+            "action": "补救程序：案件尚未正式立案",
+            "suggestion": "尽快完成立案程序"
+          },
+          {
+            "type": "risk",
+            "priority": "important",
+            "action": "管控风险：证据不足",
+            "suggestion": "立即着手收集关键证据"
+          }
+        ],
+        "summary": {
+          "case_type": "合同纠纷",
+          "core_disputes": [],
+          "evidence_summary": {
+            "total": 14,
+            "critical_gaps": 5,
+            "important_gaps": 2
+          },
+          "top_recommendations": [
+            {
+              "type": "evidence",
+              "priority": "critical",
+              "action": "补充证据：要约",
+              "suggestion": "需要补充证明\"要约\"的证据",
+              "obtain_method": "提供合同文本、磋商记录",
+              "deadline": "紧急"
+            },
+            {
+              "type": "evidence",
+              "priority": "critical",
+              "action": "补充证据：承诺",
+              "suggestion": "需要补充证明\"承诺\"的证据",
+              "obtain_method": "提供合同文本、邮件确认",
+              "deadline": "紧急"
+            },
+            {
+              "type": "evidence",
+              "priority": "critical",
+              "action": "补充证据：意思表示一致",
+              "suggestion": "需要补充证明\"意思表示一致\"的证据",
+              "obtain_method": "提供录音录像、书面文件",
+              "deadline": "紧急"
+            }
+          ],
+          "overall_assessment": "案件准备严重不足，需要立即补充关键证据"
+        }
+      }
+    },
+    {
+      "test": "获取案件理解",
+      "status": "PASS",
+      "endpoint": "/api/v2/senior-analysis/case-understanding/6",
+      "response": {
+        "case_id": 6,
+        "understanding": {
+          "case_id": 6,
+          "case_number": null,
+          "title": "测试案件_170530",
+          "case_type": {
+            "category": "CONTRACT_DISPUTE",
+            "category_name": "合同纠纷",
+            "subcategory": "买卖合同"
+          },
+          "cause": "合同纠纷",
+          "description": "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+          "claim_amount": "500000",
+          "plaintiff": "张三",
+          "defendant": "李四公司",
+          "parties": [],
+          "threads": [],
+          "core_disputes": [],
+          "key_facts": [
+            "这是一起买卖合同纠纷案件，涉及货款拖欠问题。",
+            "诉讼金额：500000"
+          ],
+          "timeline": [
+            {
+              "date": "2026-03-25T17:05:36.658014",
+              "event": "立案",
+              "importance": "high"
+            }
+          ],
+          "uncertain_aspects": [
+            "案件线索未梳理"
+          ]
+        }
+      }
+    },
+    {
+      "test": "获取案件法律要件",
+      "status": "PASS",
+      "endpoint": "/api/v2/senior-analysis/requirements/6",
+      "response": {
+        "case_id": 6,
+        "category": "CONTRACT_DISPUTE",
+        "requirements": {
+          "合同成立": {
+            "要件": [
+              "要约",
+              "承诺",
+              "意思表示一致"
+            ],
+            "证据要求": [
+              "合同文本",
+              "磋商记录",
+              "履行行为"
+            ],
+            "常见问题": [
+              "合同是否签字盖章",
+              "是否超期未表示异议"
+            ]
+          },
+          "合同效力": {
+            "要件": [
+              "主体适格",
+              "意思表示真实",
+              "内容合法"
+            ],
+            "证据要求": [
+              "主体证明",
+              "行为能力证明",
+              "合法性依据"
+            ],
+            "常见问题": [
+              "是否欺诈胁迫",
+              "是否重大误解",
+              "是否显失公平"
+            ]
+          },
+          "合同履行": {
+            "要件": [
+              "履行行为",
+              "履行期限",
+              "履行地点",
+              "履行方式"
+            ],
+            "证据要求": [
+              "履行凭证",
+              "验收记录",
+              "变更协议"
+            ],
+            "常见问题": [
+              "是否按约履行",
+              "是否存在瑕疵履行",
+              "是否有拒绝履行"
+            ]
+          },
+          "违约责任": {
+            "要件": [
+              "违约行为",
+              "损害事实",
+              "因果关系",
+              "过错"
+            ],
+            "证据要求": [
+              "违约事实证据",
+              "损失计算依据",
+              "过错证明"
+            ],
+            "常见问题": [
+              "违约金是否过高",
+              "损失如何计算",
+              "是否可以减轻责任"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "test": "获取严重程度等级",
+      "status": "PASS",
+      "endpoint": "/api/v2/senior-analysis/severity-levels",
+      "response": {
+        "levels": {
+          "critical": {
+            "name": "严重",
+            "icon": "🔴",
+            "color": "#f5222d"
+          },
+          "important": {
+            "name": "重要",
+            "icon": "🟡",
+            "color": "#faad14"
+          },
+          "normal": {
+            "name": "一般",
+            "icon": "🔵",
+            "color": "#1890ff"
+          },
+          "info": {
+            "name": "提示",
+            "icon": "ℹ️",
+            "color": "#52c41a"
+          }
+        }
+      }
+    },
+    {
+      "test": "生成分析报告",
+      "status": "PASS",
+      "endpoint": "/api/reports/generate/6",
+      "response": {
+        "status": "completed",
+        "report_type": "analysis",
+        "content": "\n\n一、案件事实\n**一、案件事实分析**\n\n本案为一起买卖合同纠纷案件，原告张三与被告李四公司之间存在买卖合同关系。根据案件描述，争议焦点在于货款拖欠问题。从现有信息可知，张三作为卖方，曾向李四公司提供货物，但后者未按约定支付相应货款，导致张三提起诉讼，主张500,000元的货款及相应利息。\n\n案件事实中未明确具体交易时间、地点及合同签订方式，但可以推断双方在实际履行过程中形成了买卖合同关系。张三作为出卖人，已履行交货义务，而李四公司作为买受人，未能按时支付货款，构成违约。若无证据表明张三存在履约瑕疵或合同解除事由，李四公司应承担继续履行付款义务的责任。\n\n从法律角度分析，依据《民法典》第五百七十七条，当事人一方不履行合同义务或履行不符合约定的，应承担继续履行、采取补救措施或赔偿损失等责任。本案中，张三有权要求李四公司支付拖欠货款及逾期利息。建议张三进一步提供合同文本、交货凭证及催款记录等证据材料，以增强诉讼胜诉率。同时，可考虑通过调解或仲裁途径解决争议，降低诉讼成本与时间消耗。\n\n二、法律关系\n二、法律关系\n\n本案为一起买卖合同纠纷案件，原告张三与被告李四公司之间存在合法有效的买卖合同关系。根据案件描述，双方在交易过程中形成了以货物交付与货款支付为核心的合同权利义务关系。原告作为买方，应依约支付货款；被告作为卖方，应按约定交付符合质量标准的货物。现原告主张被告未按约支付货款，构成违约，故提起诉讼。\n\n从法律关系来看，本案的核心是买卖合同关系。依据《中华人民共和国民法典》第五百九十五条，买卖合同是出卖人转移标的物的所有权于买受人，买受人支付价款的合同。因此，原告张三负有支付货款的义务，而被告李四公司则负有交付货物并保证其质量的义务。若被告未履行交付义务或原告未按时付款，则构成违约，需承担相应的法律责任。\n\n建议原告在诉讼中提供完整的合同文本、交货凭证及付款记录，以证明被告未履行合同义务。同时，可考虑申请财产保全，防止被告转移资产。被告亦应积极举证，如已履行交货义务或原告未按期付款等事实，以维护自身合法权益。\n\n三、争议焦点\n三、争议焦点\n\n本案系一起买卖合同纠纷案件，原告张三主张被告李四公司拖欠货款共计500,000元，核心争议焦点在于被告是否确实存在未支付货款的违约行为，以及是否存在免责事由。首先，从事实层面看，需确认双方是否存在真实有效的买卖合同关系，原告是否已履行交货义务，被告是否实际收货并确认货物数量及价款。若原告能提供送货单、对账单、发票等证据，可初步证明其履约行为，进而推定被告负有付款义务。\n\n其次，法律层面应审查合同条款中关于付款条件、期限及违约责任的约定，判断被告是否存在迟延付款或拒绝付款的违约行为。若被告以质量问题、未收到货物或其他抗辩理由进行反驳，则需进一步举证，否则可能承担不利后果。根据《民法典》第577条，违约方应承担继续履行、赔偿损失等责任。\n\n策略建议方面，原告应优先收集完整交易凭证，明确合同履行情况；被告则需及时提出有效抗辩，并准备相关证据。双方均可考虑通过调解或诉讼途径解决争议，但需注意诉讼时效与证据保全问题。\n\n四、证据评估\n**四、证据评估**\n\n根据案件信息，本案为买卖合同纠纷，核心争议在于被告李四公司是否拖欠原告张三货款50万元。目前所涉证据主要包括：送货单、对账单、微信聊天记录及部分付款凭证。从事实层面分析，送货单与对账单可初步证明双方存在买卖关系及货物交付情况，具有一定的客观性与真实性。微信聊天记录虽能反映双方就货款支付的沟通内容，但其作为电子证据，需进一步核实其来源合法性与内容完整性。付款凭证则显示被告曾有部分付款行为，但不足以证明其已履行全部付款义务。\n\n从法律角度分析，上述证据能否形成完整的证据链，关键在于是否存在直接证明被告未付清货款的书面协议或明确承诺。若缺乏此类直接证据，可能影响原告主张的成立。建议原告补充提供合同原件、完整对账明细及催款函等材料，以增强证据的证明力。同时，应注重对微信聊天记录进行公证或提取原始载体，确保其证据效力。此外，可申请法院调取银行流水以佐证付款事实，从而构建更为严谨的证据体系。\n\n五、法律依据\n五、法律依据\n\n本案系合同纠纷，涉及买卖合同中货款拖欠问题。根据《中华人民共和国民法典》第五百七十七条，当事人一方不履行合同义务或者履行合同义务不符合约定的，应当承担继续履行、采取补救措施或者赔偿损失等违约责任。原告张三作为买方，已依约支付部分货款，被告李四公司未按约定交付货物或未及时支付相应款项，构成违约。\n\n此外，《民法典》第六百二十六条明确规定，买受人应当按照约定的地点和方式支付价款。本案中，若双方对付款时间及方式有明确约定，而被告未依约履行，则应承担相应法律责任。同时，《民事诉讼法》第一百一十九条明确了起诉应具备的条件，包括明确的被告、具体的诉讼请求及事实理由，本案符合起诉条件。\n\n建议原告在诉讼中重点举证双方合同文本、付款记录及催款函件，以证明被告违约事实。同时可依据《民法典》第五百八十五条主张违约金或赔偿损失，增强诉请的合法性与可执行性。\n\n六、突破口\n**六、突破口**\n\n本案为买卖合同纠纷，原告张三主张被告李四公司拖欠货款50万元。从事实层面看，关键突破口在于合同的成立与履行情况、货款支付义务的明确性以及是否存在违约行为。若能证明双方存在合法有效的买卖合同关系，并且原告已依约交付货物，而被告未按约定支付货款，则可形成有力的诉讼基础。\n\n从法律层面分析，《民法典》第五百七十七条明确规定，当事人一方不履行合同义务或履行不符合约定的，应承担继续履行、采取补救措施或赔偿损失等违约责任。本案中，若原告能够提供送货单、对账单、发票等证据，足以证明其已履行交货义务，而被告未按期付款，构成违约，原告有权要求其支付欠款及相应利息。\n\n策略建议方面，应重点收集和固定证据，包括合同文本、交易记录、催款函件等，以形成完整的证据链。同时，可考虑申请财产保全，防止被告转移资产。此外，若被告存在恶意拖延付款行为，还可主张逾期利息，进一步提升诉讼请求的合理性与胜诉可能性。\n\n七、策略建议\n**七、策略建议**\n\n本案系一起典型的买卖合同纠纷，原告张三主张被告李四公司拖欠货款50万元，案情相对明确。从事实层面看，原告需提供买卖合同、交货凭证、对账单等证据以证明交易关系及欠款事实。若证据充分，可有效支撑其诉讼请求。\n\n法律上，根据《民法典》第五百七十七条，当事人一方未支付价款或报酬的，对方可以要求履行或采取补救措施。原告有权主张被告支付拖欠货款及相应利息。此外，如存在违约行为，亦可主张违约金。\n\n针对本案，建议原告优先收集并固定相关证据，包括但不限于合同文本、发货单据、微信聊天记录、对账函等，确保证据链完整。同时，应尽快向有管辖权的法院提起诉讼，防止被告转移财产或超过诉讼时效。若被告经营状况不佳，可考虑申请财产保全，以保障将来判决的执行。在诉讼过程中，可适时申请调解，以提高纠纷解决效率。\n\n============================================================\n报告生成时间：2026-03-25 17:14:26\n本报告由 AI 法律助手自动生成，仅供参考\n",
+        "cached": false,
+        "progress": 1.0,
+        "segments_completed": 0,
+        "total_segments": 0
+      }
+    },
+    {
+      "test": "生成策略报告",
+      "status": "PASS",
+      "endpoint": "/api/reports/generate/6",
+      "response": {
+        "status": "completed",
+        "report_type": "strategy",
+        "content": "\n\n一、诉讼方向\n本案件为合同纠纷，原告张三起诉被告李四公司要求支付合同款50万元。诉讼策略应以**主张合同履行及违约责任**为核心方向，优先通过**民事诉讼途径**解决争议，同时做好证据准备与风险评估。\n\n首先，建议在收到起诉状后**7日内**完成证据梳理，确认合同文本、付款凭证、沟通记录等关键材料，并准备《答辩状》及反诉预案，以防被告提出抗辩或反诉。其次，若被告存在明显违约行为，可申请法院**财产保全**，防止其转移资产。若被告拒绝履行义务，可进一步申请强制执行。备选方案包括：如被告有履约能力但拒不履行，可考虑**调解或仲裁**；如被告恶意逃避债务，可启动**失信惩戒程序**。整体策略应以**快速立案、充分举证、强化执行**为主线，确保胜诉后能有效实现债权。\n\n二、证据策略\n在本案中，证据策略应围绕合同成立、履行情况及违约事实展开，优先收集和固定关键证据。首先，原告张三应于立案前3日内完成核心证据的整理与备份，包括但不限于合同原件、往来邮件、转账记录等，确保其真实性与完整性。其次，在举证阶段，应优先提交合同文本、履约凭证及被告违约证明，如对方未按约定支付款项的银行流水或催款函。若被告提出抗辩，需提前准备反驳证据，如沟通记录、第三方证人证言等。质证阶段，应重点针对被告提供的反证进行逐一质疑，尤其是对证据来源合法性及关联性进行质询。若被告拒不提供关键证据，可申请法院调取相关材料。备选方案包括申请证据保全或引入专家辅助人对专业问题进行说明。整个过程需严格遵守举证期限，确保诉讼程序顺利推进。\n\n三、关键风险\n【诉讼策略：合同纠纷案（张三诉李四公司）】\n\n**关键风险识别与评估：**\n\n1. **证据不足风险**：若原告无法提供完整合同、付款凭证或履行证明，可能导致主张不被法院支持。  \n2. **被告抗辩风险**：被告可能主张合同无效、已履行完毕或存在违约行为，需提前准备反证材料。  \n3. **管辖权异议风险**：被告可能提出管辖权异议，拖延诉讼进程。  \n4. **执行风险**：即使胜诉，若被告无可供执行财产，执行难度大。\n\n**优先级与行动步骤：**\n\n1. **证据收集与固定（1-2周）**：全面梳理合同文本、往来邮件、付款记录等，制作证据清单并公证。  \n2. **管辖确认与立案（第3周）**：确认法院管辖，提交起诉状及证据，同步准备管辖权异议应对方案。  \n3. **庭前调解（第4周）**：推动调解，降低诉讼成本，如调解不成则进入庭审。  \n4. **庭审准备（第5-6周）**：整理答辩要点，准备质证和辩论策略，预判被告可能抗辩点。  \n5. **执行预案（判决后）**：若胜诉，立即申请强制执行，同时调查被告资产情况，确保执行可行性。  \n\n**备选方案**：若证据不足，可考虑补充证据或通过其他途径（如仲裁）解决。\n\n四、行动建议\n针对“测试案件_170530”合同纠纷案，建议采取以下诉讼策略：\n\n**行动建议与时间表：**\n\n1. **证据整理与补充（1-2周）**：优先收集合同文本、付款凭证、沟通记录等核心证据，确保完整性和合法性。若证据不足，可申请法院调取相关资料或通过第三方平台获取电子证据。\n\n2. **起诉状准备与立案（第3周）**：在证据完备后，向被告住所地法院提起诉讼，明确诉讼请求及事实理由，确保诉请金额准确无误。\n\n3. **财产保全申请（同步进行）**：如存在被告转移财产风险，可立即申请财产保全，防止判决后难以执行。\n\n4. **调解尝试（立案后1个月内）**：在法院主持下尝试调解，降低诉讼成本并提高和解可能性；若调解失败，则进入审理阶段。\n\n5. **庭审准备与举证（庭审前1周）**：制定举证计划，准备质证策略，必要时申请证人出庭或专家辅助人协助。\n\n**备选方案**：若被告提出反诉或拖延诉讼，应提前准备反诉应对措施，并考虑申请延期审理或转为简易程序以加快进程。\n\n五、备选方案\n针对“测试案件_170530”合同纠纷一案，诉讼策略需围绕证据收集、法律依据及被告可能抗辩点展开。首先，优先整理原告与被告之间的合同文本、履行记录、付款凭证等核心证据，确保其完整性与合法性，计划在立案前2日内完成证据清单提交。其次，重点论证被告违约事实，明确其未按约支付款项的过错责任，并准备《合同法》第107条、第113条作为主要法律依据。\n\n备选方案方面，若被告提出管辖权异议，应提前准备反驳材料并申请法院驳回；若被告主张已履行义务，需准备反证及第三方证人证言。此外，若被告申请财产保全，应同步准备反担保措施，防止原告权益受损。最后，建议在立案后10日内向法院申请调解，以降低诉讼成本，若调解失败则立即进入审理程序，确保诉讼进度可控。",
+        "cached": false,
+        "progress": 1.0,
+        "segments_completed": 0,
+        "total_segments": 0
+      }
+    },
+    {
+      "test": "获取报告状态",
+      "status": "PASS",
+      "endpoint": "/api/reports/status/6",
+      "response": {
+        "status": "not_started",
+        "progress": 0
+      }
+    },
+    {
+      "test": "快速案件分析",
+      "status": "PASS",
+      "endpoint": "/api/reports/quick-analysis/6",
+      "response": {
+        "case_id": 6,
+        "analysis": "1. **案件性质**：本案为民事合同纠纷，属买卖合同中货款支付争议。  \n2. **核心争议**：原告主张被告未按约支付货款，被告可能抗辩付款条件未成就或已履行义务。  \n3. **关键证据**：买卖合同、发货单、对账单、付款凭证及催款记录等。  \n4. **策略建议**：原告应强化证据链，证明合同履行及欠款事实；被告需核实付款条件是否满足，必要时提出反诉或抵销主张。",
+        "generated_at": "2026-03-25T17:14:53.097184"
+      }
+    },
+    {
+      "test": "生成文书清单报告",
+      "status": "PASS",
+      "endpoint": "/api/reports/generate-documents/6",
+      "response": {
+        "case_id": 6,
+        "case_type": "民事",
+        "documents": [
+          {
+            "name": "起诉状",
+            "required": true,
+            "description": "向法院提起诉讼的书面文件"
+          },
+          {
+            "name": "证据目录",
+            "required": true,
+            "description": "证据清单及说明"
+          },
+          {
+            "name": "答辩状",
+            "required": false,
+            "description": "针对起诉的书面回应"
+          },
+          {
+            "name": "代理词",
+            "required": false,
+            "description": "庭审代理意见"
+          },
+          {
+            "name": "质证意见",
+            "required": true,
+            "description": "对对方证据的质证意见"
+          }
+        ],
+        "total_required": 3,
+        "total_optional": 2
+      }
+    },
+    {
+      "test": "智能问答",
+      "status": "PASS",
+      "endpoint": "/api/v2/conversation/ask",
+      "response": {
+        "status": "success",
+        "type": "clarification_needed",
+        "answer": "\n---\n## 💬 为了更准确地帮助您，请补充以下信息\n（选择最方便的回答即可）\n\n1. ❓ **事实** ⚡\n   能详细描述一下具体情况吗？\n\n2. 📎 **证据**\n   您有哪些证据材料？\n\n---\n💡 **小提示**：如果您不确定如何回答某个问题，也可以告诉我您知道的大致情况，我会根据您提供的信息进行分析，并指出需要进一步确认的地方。\n",
+        "intent": "FACT_QUERY",
+        "confidence": 0.4,
+        "clarifying_questions": [
+          {
+            "dimension": "WHAT",
+            "dimension_name": "事实",
+            "dimension_icon": "❓",
+            "question": "能详细描述一下具体情况吗？",
+            "priority": "high",
+            "reason": "需要明确具体发生了什么以便准确分析"
+          },
+          {
+            "dimension": "EVIDENCE",
+            "dimension_name": "证据",
+            "dimension_icon": "📎",
+            "question": "您有哪些证据材料？",
+            "priority": "medium",
+            "reason": "需要明确有哪些证据材料以便准确分析"
+          }
+        ],
+        "clarification_dimensions": [
+          "WHAT",
+          "EVIDENCE"
+        ],
+        "dimension_scores": {
+          "length": 0.5,
+          "intent": 0.7,
+          "entities": 0.3,
+          "question_clarity": 0.5,
+          "context": 0.0
+        },
+        "session_id": "3df2188d-4142-450f-a4ea-fb5578abfa63",
+        "analysis": {
+          "id": "a2ee88ad-9a43-42a8-9eef-3b7f762cc77b",
+          "session_id": "3df2188d-4142-450f-a4ea-fb5578abfa63",
+          "original_question": "这个案件的诉讼时效是多少？",
+          "intent": "FACT_QUERY",
+          "intent_name": "事实查询",
+          "intent_icon": "🔍",
+          "intent_confidence": 0.8,
+          "clarity_score": 0.0,
+          "clarification_needed": false,
+          "clarification_dimensions": [],
+          "clarifying_questions": [],
+          "answer_type": null,
+          "entities": {
+            "parties": [],
+            "dates": [],
+            "amounts": [],
+            "documents": [],
+            "locations": []
+          },
+          "evidence_gaps": [],
+          "confidence": 0.0,
+          "created_at": "2026-03-25T09:14:57.219238"
+        }
+      }
+    },
+    {
+      "test": "获取会话历史",
+      "status": "PASS",
+      "endpoint": "/api/v2/conversation/history/6",
+      "response": {
+        "case_id": 6,
+        "total": 1,
+        "sessions": [
+          {
+            "id": "3df2188d-4142-450f-a4ea-fb5578abfa63",
+            "case_id": 6,
+            "session_type": "qa",
+            "title": "这个案件的诉讼时效是多少？",
+            "description": null,
+            "status": "active",
+            "primary_intent": "FACT_QUERY",
+            "intent_confidence": 0.0,
+            "overall_clarity": 0.4,
+            "message_count": 1,
+            "clarification_count": 2,
+            "answer_type": null,
+            "confidence": 0.0,
+            "referenced_evidence_ids": [],
+            "suggested_evidence_ids": [],
+            "created_at": "2026-03-25T09:14:57.204190",
+            "updated_at": "2026-03-25T09:14:57.227763",
+            "last_message_at": "2026-03-25T09:14:57.225761"
+          }
+        ]
+      }
+    },
+    {
+      "test": "获取意图类型信息",
+      "status": "PASS",
+      "endpoint": "/api/v2/conversation/intent-info",
+      "response": {
+        "intents": {
+          "FACT_QUERY": {
+            "name": "事实查询",
+            "keywords": [
+              "什么时候",
+              "谁",
+              "多少",
+              "哪个",
+              "什么是",
+              "有无",
+              "是否",
+              "哪方"
+            ],
+            "required_clarity": 0.7,
+            "icon": "🔍",
+            "color": "#1890ff"
+          },
+          "LEGAL_ADVICE": {
+            "name": "法律建议",
+            "keywords": [
+              "能否",
+              "应该",
+              "可以",
+              "是否合法",
+              "规定",
+              "应当",
+              "需要"
+            ],
+            "required_clarity": 0.6,
+            "icon": "⚖️",
+            "color": "#52c41a"
+          },
+          "EVIDENCE_ADVICE": {
+            "name": "证据建议",
+            "keywords": [
+              "需要什么证据",
+              "证据",
+              "证明",
+              "材料",
+              "提供什么",
+              "举证"
+            ],
+            "required_clarity": 0.5,
+            "icon": "📎",
+            "color": "#faad14"
+          },
+          "STRATEGY_ADVICE": {
+            "name": "策略建议",
+            "keywords": [
+              "策略",
+              "怎么起诉",
+              "如何应对",
+              "下一步",
+              "怎么办",
+              "如何处理"
+            ],
+            "required_clarity": 0.6,
+            "icon": "🎯",
+            "color": "#722ed1"
+          },
+          "DOCUMENT_GENERATION": {
+            "name": "文书生成",
+            "keywords": [
+              "写",
+              "起草",
+              "生成",
+              "诉状",
+              "合同",
+              "协议",
+              "函件"
+            ],
+            "required_clarity": 0.6,
+            "icon": "📝",
+            "color": "#eb2f96"
+          },
+          "RISK_ASSESSMENT": {
+            "name": "风险评估",
+            "keywords": [
+              "风险",
+              "胜诉",
+              "可能",
+              "后果",
+              "利弊",
+              "会不会输",
+              "有无风险"
+            ],
+            "required_clarity": 0.5,
+            "icon": "⚠️",
+            "color": "#f5222d"
+          },
+          "CASE_STATUS": {
+            "name": "案件状态",
+            "keywords": [
+              "现在",
+              "当前",
+              "进度",
+              "状态",
+              "阶段",
+              "进行到哪"
+            ],
+            "required_clarity": 0.8,
+            "icon": "📋",
+            "color": "#13c2c2"
+          }
+        }
+      }
+    },
+    {
+      "test": "获取澄清维度信息",
+      "status": "PASS",
+      "endpoint": "/api/v2/conversation/clarification-dimensions",
+      "response": {
+        "dimensions": {
+          "WHO": {
+            "name": "当事人",
+            "description": "涉及哪些人",
+            "icon": "👤",
+            "questions": [
+              "请问您说的\"甲方\"是指哪一方？",
+              "对方当事人是谁？",
+              "是否有代理人？代理人的身份是？",
+              "涉及哪些相关方？"
+            ]
+          },
+          "WHEN": {
+            "name": "时间",
+            "description": "关键时间节点",
+            "icon": "📅",
+            "questions": [
+              "这件事是什么时候发生的？",
+              "具体的日期是哪天？",
+              "是否已超过诉讼时效？",
+              "合同约定的履行期限是？"
+            ]
+          },
+          "WHAT": {
+            "name": "事实",
+            "description": "具体发生了什么",
+            "icon": "❓",
+            "questions": [
+              "能详细描述一下具体情况吗？",
+              "具体金额或数量是？",
+              "对方的具体行为是什么？",
+              "具体涉及什么内容？"
+            ]
+          },
+          "WHERE": {
+            "name": "地点",
+            "description": "地点和管辖",
+            "icon": "📍",
+            "questions": [
+              "合同签订地点是？",
+              "合同履行地点在哪里？",
+              "是否涉及专属管辖？",
+              "事情发生在哪个地点？"
+            ]
+          },
+          "WHY": {
+            "name": "目的",
+            "description": "动机和目的",
+            "icon": "🎯",
+            "questions": [
+              "您的主要诉求是什么？",
+              "您希望通过什么方式解决？",
+              "对方这样做的原因是什么？",
+              "您的预期目标是什么？"
+            ]
+          },
+          "HOW": {
+            "name": "过程",
+            "description": "事情经过",
+            "icon": "📋",
+            "questions": [
+              "事情经过是怎样的？",
+              "双方如何沟通的？",
+              "是否有过协商？结果如何？",
+              "具体是怎么发生的？"
+            ]
+          },
+          "EVIDENCE": {
+            "name": "证据",
+            "description": "有哪些证据材料",
+            "icon": "📎",
+            "questions": [
+              "您有哪些证据材料？",
+              "是否有书面协议或合同？",
+              "是否有聊天记录或邮件？",
+              "是否有付款记录或收据？"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "test": "归档测试项目",
+      "status": "PASS",
+      "endpoint": "/api/projects/6/archive",
+      "response": {
+        "message": "项目归档成功"
+      }
+    }
+  ]
+}

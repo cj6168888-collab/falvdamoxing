@@ -1,0 +1,9 @@
+﻿/* Dark mode additional styles */
+.dark .prose { color: #e5e7eb; }
+.dark .prose a { color: #60a5fa; }
+.dark .prose strong { color: #f9fafb; }
+.dark .prose code { color: #e5e7eb; background: #1f2937; }
+.dark .prose blockquote { border-left-color: #374151; color: #9ca3af; }
+.dark .prose hr { border-color: #374151; }
+.dark .prose thead { border-bottom-color: #374151; }
+.dark .prose tbody tr { border-bottom-color: #1f2937; }

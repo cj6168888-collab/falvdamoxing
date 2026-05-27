@@ -1,0 +1,105 @@
+/* timeline.module.css */
+
+/* Container with subtle background blur and gradient */
+.container {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+}
+
+/* Card styling with glass effect */
+.card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 1.5rem;
+  transition: background 0.3s ease;
+}
+.card:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+/* Title and badge layout */
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Timeline line */
+.timelineLine {
+  position: relative;
+  margin-left: 1rem;
+  border-left: 2px solid rgba(0, 120, 212, 0.2);
+  padding-bottom: 2rem;
+}
+.nodeWrapper {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+.nodeDot {
+  position: absolute;
+  left: -9px;
+  top: 0.25rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+}
+
+/* Description text */
+.description {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* Evidence badge */
+.evidenceBadge {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.evidenceBadge:hover {
+  background-color: rgba(59,130,246,0.15);
+}
+
+/* Hearing block */
+.hearingBlock {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--primary);
+}
+.hearingTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.hearingNotes {
+  white-space: pre-wrap;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

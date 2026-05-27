@@ -1,0 +1,28 @@
+# Overlay for validating the production SMS path against Aliyun.
+#
+# Usage:
+#   1. Create .env.sms.local from your private Aliyun SMS env file.
+#   2. Run compose with this file after docker-compose.staging.yml.
+#
+# This keeps the app-side SMS_HTTP_ENDPOINT unchanged:
+#   http://sms-mock:8088/send
+# but replaces the mock service implementation with the Aliyun adapter.
+
+services:
+  sms-mock:
+    image: python:3.11-alpine
+    restart: always
+    command: python /scripts/aliyun_sms_gateway.py --host 0.0.0.0 --port 8088
+    env_file:
+      - .env.staging.example
+      - .env.sms.local
+    volumes:
+      - ./scripts:/scripts:ro
+    expose:
+      - "8088"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8088/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s

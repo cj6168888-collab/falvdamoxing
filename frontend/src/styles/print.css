@@ -1,0 +1,213 @@
+/* 打印样式 - 报告模块专用 */
+
+/* 基础打印样式 */
+@media print {
+  /* 隐藏非打印元素 */
+  nav, header, aside, .no-print,
+  [data-print-hide="true"],
+  button:not(.print-show),
+  .print\:hidden { display: none !important; }
+
+  /* 重置背景和颜色 */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  /* 打印字体设置 */
+  body {
+    font-size: 12pt;
+    line-height: 1.6;
+    font-family: 'SimSun', '宋体', 'Noto Serif SC', serif;
+  }
+
+  /* 标题样式 */
+  h1 { font-size: 20pt; font-weight: bold; margin-bottom: 16pt; }
+  h2 { font-size: 16pt; font-weight: bold; margin-top: 14pt; margin-bottom: 10pt; }
+  h3 { font-size: 14pt; font-weight: bold; margin-top: 12pt; margin-bottom: 8pt; }
+  h4 { font-size: 12pt; font-weight: bold; margin-top: 10pt; margin-bottom: 6pt; }
+
+  /* 页面设置 */
+  @page {
+    size: A4;
+    margin: 2cm 1.5cm;
+  }
+
+  /* 章节样式 */
+  .report-section {
+    page-break-inside: avoid;
+    margin-bottom: 16pt;
+    padding-bottom: 12pt;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .report-section:last-child {
+    border-bottom: none;
+  }
+
+  /* 报告头部 */
+  .report-header {
+    text-align: center;
+    margin-bottom: 24pt;
+    padding-bottom: 16pt;
+    border-bottom: 2px solid #333;
+  }
+
+  .report-meta {
+    font-size: 10pt;
+    color: #666;
+    margin-top: 8pt;
+  }
+
+  /* 报告卡片样式 */
+  .report-card {
+    border: 1px solid #ccc;
+    padding: 12pt;
+    margin-bottom: 12pt;
+    page-break-inside: avoid;
+  }
+
+  /* 表格打印样式 */
+  table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12pt 0;
+  }
+
+  table th,
+  table td {
+    border: 1px solid #ccc;
+    padding: 6pt 8pt;
+    text-align: left;
+    font-size: 10pt;
+  }
+
+  table th {
+    background: #f5f5f5 !important;
+    font-weight: bold;
+  }
+
+  /* 列表样式 */
+  ul, ol {
+    margin: 8pt 0;
+    padding-left: 24pt;
+  }
+
+  li {
+    margin-bottom: 4pt;
+  }
+
+  /* 链接打印 - 显示 URL */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* 图片打印 */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* 分页控制 */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  .page-break-before { page-break-before: always; }
+  .page-break-after { page-break-after: always; }
+  .avoid-break { page-break-inside: avoid; }
+
+  /* 进度条隐藏 */
+  .progress-bar,
+  [class*="progress"] {
+    display: none !important;
+  }
+
+  /* 徽章样式打印 */
+  .badge {
+    border: 1px solid #333;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    font-size: 9pt;
+  }
+
+  /* 脚注 */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+    border-top: 1px solid #ccc;
+    padding-top: 8pt;
+  }
+}
+
+/* 报告详情打印预览样式 */
+.report-print-content {
+  background: white;
+  padding: 20pt;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.report-print-content h1 {
+  text-align: center;
+  font-size: 18pt;
+  font-weight: bold;
+  margin-bottom: 8pt;
+  color: #1a1a1a;
+}
+
+.report-print-content .report-subtitle {
+  text-align: center;
+  font-size: 10pt;
+  color: #666;
+  margin-bottom: 16pt;
+  padding-bottom: 12pt;
+  border-bottom: 1px solid #ddd;
+}
+
+.report-print-content .report-section-title {
+  font-size: 14pt;
+  font-weight: bold;
+  margin-top: 16pt;
+  margin-bottom: 8pt;
+  color: #333;
+  padding-bottom: 4pt;
+  border-bottom: 1px solid #eee;
+}
+
+.report-print-content p {
+  text-indent: 2em;
+  margin: 8pt 0;
+  line-height: 1.8;
+}
+
+.report-print-content ul,
+.report-print-content ol {
+  margin: 8pt 0;
+  padding-left: 2em;
+}
+
+.report-print-content li {
+  margin-bottom: 4pt;
+  line-height: 1.6;
+}
+
+/* 打印预览模式 */
+@media screen {
+  .print-preview-only {
+    display: block;
+  }
+
+  .no-print-preview {
+    display: none;
+  }
+}

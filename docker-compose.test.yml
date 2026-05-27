@@ -1,0 +1,14 @@
+name: legal-ai-test
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: legal-ai-assistant:test
+    environment:
+      - APP_ENV=testing
+      - SMS_PROVIDER=console
+      - SMS_DEBUG_RETURN_CODE=1
+      - API_KEY_CONFIG_FILE=/tmp/legal-ai-api-keys.env
+    command: python -m pytest

@@ -1,0 +1,149 @@
+# Prometheus 告警规则
+# 法律大模型辅助系统告警配置
+
+groups:
+  - name: legal_ai_api
+    interval: 30s
+    rules:
+      # API 服务不可用
+      - alert: LegalAIAPIUnavailable
+        expr: up{job="legal-ai-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "法律大模型 API 服务不可用"
+          description: "法律大模型辅助系统 API 已经停止运行超过 1 分钟"
+
+      # API 请求错误率过高
+      - alert: LegalAIAPIHighErrorRate
+        expr: |
+          sum(rate(legal_ai_api_requests_total{status_code=~"5.."}[5m]))
+          /
+          sum(rate(legal_ai_api_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 请求错误率过高"
+          description: "过去 5 分钟内 API 5xx 错误率超过 5%，当前值: {{ $value | printf \"%.2f\" }}%"
+
+      # API 响应延迟过高
+      - alert: LegalAIAPIHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(legal_ai_api_request_duration_seconds_bucket[5m]))
+            by (le, endpoint)
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 响应延迟过高"
+          description: "API P95 响应时间超过 5 秒，当前值: {{ $value | printf \"%.2f\" }}秒"
+
+      # LLM 调用错误率过高
+      - alert: LegalAILLMHighErrorRate
+        expr: |
+          sum(rate(legal_ai_llm_errors_total[5m]))
+          /
+          sum(rate(legal_ai_llm_calls_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "LLM 调用错误率过高"
+          description: "过去 5 分钟内 LLM 调用错误率超过 10%，当前值: {{ $value | printf \"%.2f\" }}%"
+
+      # LLM 响应延迟过高
+      - alert: LegalAILLMHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(legal_ai_llm_call_duration_seconds_bucket[5m]))
+            by (le, model)
+          ) > 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LLM 响应延迟过高"
+          description: "LLM P95 响应时间超过 60 秒，当前值: {{ $value | printf \"%.2f\" }}秒"
+
+      # Token 使用量过高
+      - alert: LegalAILLMHighTokenUsage
+        expr: |
+          sum(rate(legal_ai_llm_tokens_total[1h]))
+          /
+          (sum(rate(legal_ai_llm_calls_total[1h])) * 8192) > 0.8
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "Token 使用效率偏低"
+          description: "平均每次 LLM 调用的 Token 使用量偏高，可能是提示词过长"
+
+      # 向量数据库操作延迟过高
+      - alert: LegalAIVectorDBHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(legal_ai_vector_db_operation_duration_seconds_bucket[5m]))
+            by (le, operation)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "向量数据库操作延迟过高"
+          description: "向量数据库 P95 操作延迟超过 1 秒，当前值: {{ $value | printf \"%.3f\" }}秒"
+
+      # 文件上传失败率过高
+      - alert: LegalAIFileUploadHighFailureRate
+        expr: |
+          sum(rate(legal_ai_file_uploads_total{status="failed"}[5m]))
+          /
+          sum(rate(legal_ai_file_uploads_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "文件上传失败率过高"
+          description: "过去 5 分钟内文件上传失败率超过 10%，当前值: {{ $value | printf \"%.2f\" }}%"
+
+  - name: legal_ai_business
+    interval: 60s
+    rules:
+      # 案件创建数异常
+      - alert: LegalAICasesCreationAnomaly
+        expr: |
+          sum(rate(legal_ai_cases_created_total[1h])) < 0.1
+        for: 2h
+        labels:
+          severity: info
+        annotations:
+          summary: "案件创建数异常偏低"
+          description: "过去 2 小时内几乎没有新案件创建，可能存在系统问题"
+
+      # 期限预警过多
+      - alert: LegalAIDeadlineAlertsHigh
+        expr: |
+          sum(increase(legal_ai_deadline_alerts_total{urgency="critical"}[1h])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "期限预警过多"
+          description: "过去 1 小时内临界期限预警超过 10 个，请检查即将到期的案件"
+
+  - name: infrastructure
+    interval: 30s
+    rules:
+      # 服务崩溃重启
+      - alert: ServiceCrashLoop
+        expr: |
+          rate(process_restart_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "服务崩溃重启"
+          description: "服务在过去 5 分钟内重启次数异常"

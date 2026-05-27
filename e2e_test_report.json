@@ -1,0 +1,237 @@
+{
+  "timestamp": "2026-04-01T08:53:24.476594",
+  "system": "法律大模型辅助系统",
+  "version": "v3.0",
+  "tests": [
+    {
+      "name": "API Health Check",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:26.826445",
+      "details": {
+        "status": "healthy"
+      }
+    },
+    {
+      "name": "Root Endpoint",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:28.847866",
+      "details": {
+        "name": "法律大模型辅助系统 API",
+        "version": "1.0.0",
+        "status": "running"
+      }
+    },
+    {
+      "name": "Database Connection",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:28.849864",
+      "details": {
+        "tables": 64,
+        "table_list": [
+          "cases",
+          "document_templates",
+          "chat_messages",
+          "documents",
+          "reminders",
+          "case_threads",
+          "sqlite_sequence",
+          "parties",
+          "counter_claims",
+          "adversarial_analyses",
+          "scenario_predictions",
+          "process_milestones",
+          "evidence_items",
+          "action_plans",
+          "execution_tracking",
+          "case_archives",
+          "letters",
+          "legal_deadlines",
+          "milestone_templates",
+          "case_timelines",
+          "hearing_records",
+          "hearing_statements",
+          "evidence_uses",
+          "hearing_warnings",
+          "speaking_guides",
+          "case_speaking_strategies",
+          "appeal_records",
+          "appeal_deadlines",
+          "appeal_arguments",
+          "appeal_documents",
+          "second_trial_strategies",
+          "projects",
+          "project_documents",
+          "project_milestones",
+          "project_communications",
+          "project_evidence",
+          "project_legal_advices",
+          "project_events",
+          "project_contracts",
+          "project_risks",
+          "project_case_mappings",
+          "evidence_items_v2",
+          "evidence_relationships_v2",
+          "evidence_facts",
+          "evidence_duplicate_check",
+          "evidence_keyword_index",
+          "conversation_sessions",
+          "conversation_messages",
+          "clarification_records",
+          "question_analyses",
+          "report_outlines",
+          "report_sections",
+          "section_references",
+          "report_cache",
+          "adversarial_evidence_items",
+          "evidence_analysis_sessions",
+          "evidence_analysis_messages",
+          "evidence_analysis_results",
+          "evidence_analysis_records",
+          "case_nodes",
+          "generated_documents",
+          "document_suggestions",
+          "cross_examination_records",
+          "cross_examination_templates"
+        ],
+        "cases": 2,
+        "projects": 0,
+        "evidence_items": 0,
+        "documents": 161
+      }
+    },
+    {
+      "name": "Create Case",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:30.917555",
+      "details": {
+        "case_id": 3
+      }
+    },
+    {
+      "name": "Get Cases List",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:32.982954",
+      "details": {
+        "count": 3
+      }
+    },
+    {
+      "name": "Submit Evidence",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:35.055569",
+      "details": {
+        "evidence_id": 162
+      }
+    },
+    {
+      "name": "Get Projects List",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:37.111455",
+      "details": {
+        "count": 0
+      }
+    },
+    {
+      "name": "Evidence Completeness Check",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:39.170874",
+      "details": {
+        "gaps": 6
+      }
+    },
+    {
+      "name": "Case Profile",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:41.214115",
+      "details": {
+        "completeness_score": "N/A"
+      }
+    },
+    {
+      "name": "Quick Actions",
+      "passed": true,
+      "timestamp": "2026-04-01T08:53:43.248585",
+      "details": {
+        "count": 4
+      }
+    },
+    {
+      "name": "Conversation History",
+      "passed": true,
+      "timestamp": "2026-04-01T08:54:09.249482",
+      "details": {
+        "messages": 1
+      }
+    },
+    {
+      "name": "Time Control API",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:11.284185",
+      "details": {
+        "status": 404
+      }
+    },
+    {
+      "name": "Adversarial Analysis",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:13.314239",
+      "error": "Status: 405"
+    },
+    {
+      "name": "Report Generation",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:15.362940",
+      "details": {
+        "status": 404
+      }
+    },
+    {
+      "name": "Senior Lawyer Analysis",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:17.378228",
+      "error": "Status: 404"
+    },
+    {
+      "name": "Legal Analysis Service",
+      "passed": true,
+      "timestamp": "2026-04-01T08:54:18.346515",
+      "details": {
+        "analysis_length": 16
+      }
+    },
+    {
+      "name": "Legal Protection System",
+      "passed": true,
+      "timestamp": "2026-04-01T08:54:18.346515",
+      "details": {
+        "safety_checks_passed": 5,
+        "total": 5
+      }
+    },
+    {
+      "name": "ChromaDB Connection",
+      "passed": true,
+      "timestamp": "2026-04-01T08:54:19.204638",
+      "details": {
+        "collections": 1,
+        "collection_names": [
+          "legal_documents"
+        ]
+      }
+    },
+    {
+      "name": "Deadline Service",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:19.228320",
+      "error": "cannot import name 'DeadlineService' from 'app.services.deadline_service' (D:\\www\\法律大模型\\app\\services\\deadline_service.py)"
+    },
+    {
+      "name": "Streaming Report",
+      "passed": false,
+      "timestamp": "2026-04-01T08:54:21.256716",
+      "details": {
+        "status": 404
+      }
+    }
+  ]
+}

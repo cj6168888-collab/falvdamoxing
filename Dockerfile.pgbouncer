@@ -1,0 +1,11 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache pgbouncer postgresql-client su-exec
+RUN addgroup -S pgbouncer && adduser -S -D -H -h /var/lib/pgbouncer -s /sbin/nologin -G pgbouncer pgbouncer
+
+COPY scripts/start_pgbouncer.sh /usr/local/bin/start_pgbouncer.sh
+RUN chmod +x /usr/local/bin/start_pgbouncer.sh
+
+EXPOSE 6432
+
+CMD ["/usr/local/bin/start_pgbouncer.sh"]

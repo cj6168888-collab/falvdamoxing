@@ -1,0 +1,176 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  WORKER_IMAGE_NAME: ${{ github.repository }}-worker
+
+jobs:
+  # ============================================================
+  # 1. 构建 Docker 镜像
+  # ============================================================
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
+      backend_image: ${{ steps.image-refs.outputs.backend_image }}
+      worker_image: ${{ steps.image-refs.outputs.worker_image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract worker metadata
+        id: worker-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.WORKER_IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PYTHON_VERSION=3.10
+
+      - name: Build and push worker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.prod
+          push: true
+          tags: ${{ steps.worker-meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            INSTALL_WORKER=true
+
+      - name: Export deploy image refs
+        id: image-refs
+        run: |
+          echo "backend_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "worker_image=${{ env.REGISTRY }}/${{ env.WORKER_IMAGE_NAME }}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+  # ============================================================
+  # 2. 部署到生产环境 (需要自行配置服务器)
+  # ============================================================
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://your-domain.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        env:
+          BACKEND_IMAGE: ${{ needs.build.outputs.backend_image }}
+          WORKER_IMAGE: ${{ needs.build.outputs.worker_image }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          envs: BACKEND_IMAGE,WORKER_IMAGE,GHCR_USERNAME,GHCR_TOKEN
+          script: |
+            cd /opt/legal-ai
+            if [ -n "${GHCR_USERNAME}" ] && [ -n "${GHCR_TOKEN}" ]; then
+              printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            fi
+            if grep -q '^BACKEND_IMAGE=' .env.prod; then
+              sed -i "s|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${BACKEND_IMAGE}|" .env.prod
+            else
+              printf '\nBACKEND_IMAGE=%s\n' "${BACKEND_IMAGE}" >> .env.prod
+            fi
+            if grep -q '^WORKER_IMAGE=' .env.prod; then
+              sed -i "s|^WORKER_IMAGE=.*|WORKER_IMAGE=${WORKER_IMAGE}|" .env.prod
+            else
+              printf 'WORKER_IMAGE=%s\n' "${WORKER_IMAGE}" >> .env.prod
+            fi
+            export BACKEND_IMAGE WORKER_IMAGE
+            docker compose --env-file .env.prod -f docker-compose.prod.yml pull app
+            docker compose --env-file .env.prod -f docker-compose.prod.yml --profile migrate run --rm migrate
+            docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm app python -m app.db.migrate_all --check
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --no-deps app
+            for i in $(seq 1 30); do
+              if docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T app python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=5).read()" >/dev/null 2>&1; then
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=200 app
+                exit 1
+              fi
+              sleep 5
+            done
+            if [ -n "$(docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery ps -q celery_worker)" ]; then
+              docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery pull celery_worker
+              docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery up -d --no-deps celery_worker
+            fi
+            docker image prune -f
+
+  # ============================================================
+  # 3. 通知
+  # ============================================================
+  notify:
+    name: Notify
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send notification
+        if: needs.build.result == 'failure' || needs.deploy.result == 'failure'
+        run: |
+          echo "Deployment failed. Check GitHub Actions logs."

@@ -1,0 +1,70 @@
+.git
+.gitignore
+.cursor
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python caches and local test output
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+test_output/
+
+# Node dependencies and frontend build artifacts
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/test-output/
+frontend/test-results/
+frontend/playwright-report/
+frontend/vite-project/
+legal-ai-project-video/
+
+# Local runtime data, databases, exports, and logs
+data/
+app/services/data/
+exports/
+logs/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.bak
+server_output.txt
+api_response_check.json
+test_report_*.json
+e2e_test_report*.json
+E2E_TEST_REPORT.md
+TEST_REPORT*.md
+
+# Local one-off scripts and diagnostics are not part of production images
+check_*.py
+debug_*.py
+e2e_test*.py
+fix_*.py
+launch_server*.py
+query_db.py
+run_test.py
+scan_getters.py
+search_*.py
+test_*.py
+update_case_title.py
+verify_*.py
+*_test.py
+*.bat
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+nul

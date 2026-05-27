@@ -1,0 +1,197 @@
+{
+  "timestamp": "2026-04-01T09:41:47.543395",
+  "system": "法律大模型辅助系统",
+  "version": "v3.0",
+  "tests": [
+    {
+      "name": "API Health Check",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:49.828061",
+      "details": {
+        "status": "healthy"
+      }
+    },
+    {
+      "name": "Root Endpoint",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:51.865368",
+      "details": {
+        "name": "法律大模型辅助系统 API",
+        "version": "1.0.0",
+        "status": "running"
+      }
+    },
+    {
+      "name": "Database Connection",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:51.869365",
+      "details": {
+        "tables": 64,
+        "cases": 7,
+        "evidence_items": 0
+      }
+    },
+    {
+      "name": "Create Case",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:53.942193",
+      "details": {
+        "case_id": 8
+      }
+    },
+    {
+      "name": "Get Cases List",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:55.981046",
+      "details": {
+        "count": 8
+      }
+    },
+    {
+      "name": "Submit Evidence",
+      "passed": true,
+      "timestamp": "2026-04-01T09:41:58.046561",
+      "details": {
+        "evidence_id": 167
+      }
+    },
+    {
+      "name": "Evidence Completeness Check",
+      "passed": true,
+      "timestamp": "2026-04-01T09:42:00.087552",
+      "details": {
+        "gaps": 6
+      }
+    },
+    {
+      "name": "Case Profile",
+      "passed": true,
+      "timestamp": "2026-04-01T09:42:02.139208",
+      "details": {
+        "case_id": 8,
+        "summary": {
+          "case_id": 8,
+          "completeness": {
+            "score": 25.0,
+            "level": "稀疏"
+          },
+          "knowledge_stats": {
+            "total": 0,
+            "by_type": {}
+          },
+          "conversation_count": 0,
+          "evidence_count": 0,
+          "unresolved_gaps": [],
+          "last_updated": "2026-04-01T09:42:02.137212"
+        },
+        "recent_conversations": [],
+        "recent_knowledge": [],
+        "profile_tips": [
+          "案件信息较少，建议详细描述事件经过",
+          "系统会引导您补充关键信息"
+        ]
+      }
+    },
+    {
+      "name": "Quick Actions",
+      "passed": true,
+      "timestamp": "2026-04-01T09:42:04.170763",
+      "details": {
+        "count": 4
+      }
+    },
+    {
+      "name": "Time Control API",
+      "passed": true,
+      "timestamp": "2026-04-01T09:42:06.228532",
+      "details": {
+        "deadlines": 0
+      }
+    },
+    {
+      "name": "Adversarial Analysis",
+      "passed": true,
+      "timestamp": "2026-04-01T09:42:08.282866",
+      "details": {
+        "has_result": true,
+        "task_id": "full_analysis_8_20260401094208"
+      }
+    },
+    {
+      "name": "Report Generation",
+      "passed": true,
+      "timestamp": "2026-04-01T09:43:16.605238",
+      "details": {
+        "has_result": true
+      }
+    },
+    {
+      "name": "Senior Lawyer Analysis",
+      "passed": true,
+      "timestamp": "2026-04-01T09:43:18.659976",
+      "details": {
+        "has_result": true
+      }
+    },
+    {
+      "name": "Legal Analysis Service",
+      "passed": true,
+      "timestamp": "2026-04-01T09:43:19.647225",
+      "details": {
+        "analysis_length": 16
+      }
+    },
+    {
+      "name": "Legal Protection System",
+      "passed": true,
+      "timestamp": "2026-04-01T09:43:19.647225",
+      "details": {
+        "safety_checks_passed": 5,
+        "total": 5
+      }
+    },
+    {
+      "name": "ChromaDB Connection",
+      "passed": true,
+      "timestamp": "2026-04-01T09:43:20.585523",
+      "details": {
+        "collections": 1,
+        "collection_names": [
+          "legal_documents"
+        ]
+      }
+    },
+    {
+      "name": "Milestone Generation",
+      "passed": true,
+      "timestamp": "2026-04-01T09:44:30.449432",
+      "details": {
+        "has_result": true
+      }
+    },
+    {
+      "name": "Evidence Graph",
+      "passed": true,
+      "timestamp": "2026-04-01T09:44:32.493182",
+      "details": {
+        "has_result": true
+      }
+    },
+    {
+      "name": "Conversation History",
+      "passed": true,
+      "timestamp": "2026-04-01T09:44:55.812916",
+      "details": {
+        "messages": 1
+      }
+    },
+    {
+      "name": "API Documentation",
+      "passed": true,
+      "timestamp": "2026-04-01T09:44:57.845246",
+      "details": {
+        "content_type": "text/html; charset=utf-8"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Grafana 仪表板自动配置
+apiVersion: 1
+
+providers:
+  - name: '法律大模型辅助系统'
+    orgId: 1
+    folder: '法律AI'
+    folderUid: 'legal-ai'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,171 @@
+name: legal-ai-staging
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: ${BACKEND_IMAGE:-legal-ai-assistant:staging}
+    restart: always
+    expose:
+      - "8000"
+    volumes:
+      - staging_data:/app/data
+    env_file:
+      - .env.staging.example
+    environment:
+      - PYTHONUNBUFFERED=1
+      - APP_ENV=production
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sms-mock:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5).read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - legal-network
+
+  migrate:
+    image: ${BACKEND_IMAGE:-legal-ai-assistant:staging}
+    command: python -m app.db.migrate_all
+    env_file:
+      - .env.staging.example
+    environment:
+      - PYTHONUNBUFFERED=1
+      - APP_ENV=production
+      - AUTO_CREATE_TABLES=1
+      - DATABASE_URL=${MIGRATION_DATABASE_URL}
+    volumes:
+      - staging_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - legal-network
+    profiles:
+      - migrate
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: legal-ai-frontend:staging
+    restart: always
+    expose:
+      - "8501"
+    depends_on:
+      - app
+    networks:
+      - legal-network
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    command: ["postgres", "-c", "max_connections=${POSTGRES_MAX_CONNECTIONS:-200}"]
+    env_file:
+      - .env.staging.example
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - legal-network
+
+  pgbouncer:
+    build:
+      context: .
+      dockerfile: Dockerfile.pgbouncer
+    image: legal-ai-pgbouncer:staging
+    restart: always
+    env_file:
+      - .env.staging.example
+    expose:
+      - "6432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=\"$${POSTGRES_PASSWORD}\" pg_isready -h 127.0.0.1 -p 6432 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - legal-network
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["sh", "-c", "redis-server /usr/local/etc/redis/redis.conf --requirepass \"$${REDIS_PASSWORD:?REDIS_PASSWORD is required}\""]
+    env_file:
+      - .env.staging.example
+    volumes:
+      - staging_redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$${REDIS_PASSWORD}\" redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - legal-network
+
+  sms-mock:
+    image: python:3.11-alpine
+    restart: always
+    command: python /scripts/mock_sms_gateway.py --host 0.0.0.0 --port 8088
+    env_file:
+      - .env.staging.example
+    volumes:
+      - ./scripts:/scripts:ro
+    expose:
+      - "8088"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8088/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - legal-network
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "${NGINX_HTTP_PORT:-8080}:80"
+      - "${NGINX_HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx-staging:/var/log/nginx
+    depends_on:
+      - app
+      - frontend
+    networks:
+      - legal-network
+
+networks:
+  legal-network:
+    driver: bridge
+
+volumes:
+  staging_data:
+    driver: local
+  staging_postgres_data:
+    driver: local
+  staging_redis_data:
+    driver: local

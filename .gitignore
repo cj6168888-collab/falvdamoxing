@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-output/
+frontend/test-results/
+frontend/vite-project/node_modules/
+frontend/debug-storybook.log
+
+# 数据
+*.db
+*.sqlite
+*.sqlite3
+data/
+chroma/
+backups/
+
+# 环境变量（确保 .env.legal 不被提交，保留 .env.example）
+.env
+.env.legal
+.env.prod
+.env.staging
+.env.sms.local
+*.env.local
+!.env.example
+!.env.prod.example
+!.env.staging.example
+
+# 运行时密钥配置
+data/config/api-keys.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志
+*.log
+logs/
+test_output/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 上传的文件
+uploads/
+
+# 大型资源文件
+legal-ai-project-video/
+exports/
