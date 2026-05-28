@@ -269,6 +269,15 @@ async def refresh(req: RefreshRequest, db: Session = Depends(get_db)):
     tenant = jwt_auth_service.get_tenant_by_id(db, user.tenant_id)
     if not tenant:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="租户不存在")
+    if not tenant.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="租户已被停用")
+    if tenant.approval_status != "approved" and not user.is_platform_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="租户尚未通过审批")
+
+    from app.services.billing_service import billing_service
+    check = billing_service.check_and_enforce(db, tenant)
+    if not check["ok"]:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=check["message"])
 
     tokens = jwt_auth_service._generate_tokens(user, tenant)
     return {"success": True, "tokens": tokens}

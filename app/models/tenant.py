@@ -1,7 +1,7 @@
 """
 租户（Tenant）模型 - SaaS 多租户核心
 """
-from sqlalchemy import Column, String, DateTime, Boolean, Text, Integer, Enum as SQLEnum
+from sqlalchemy import Column, String, DateTime, Boolean, Text, Integer, Float, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -70,7 +70,7 @@ class Tenant(Base):
     approved_by = Column(String(200), nullable=True)
     rejection_reason = Column(Text, nullable=True)
     billing_cycle = Column(String(20), default="monthly")  # monthly/yearly
-    billing_amount = Column(Integer, default=0)  # 月/年费（元）
+    billing_amount = Column(Float, default=0)  # 月/年费（元）
     billing_due_date = Column(DateTime, nullable=True)
     billing_method = Column(String(50), nullable=True)  # wechat/alipay/bank_transfer
     registered_from = Column(String(500), nullable=True)  # 注册来源（IP/域名）

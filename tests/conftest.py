@@ -26,8 +26,13 @@ def _ensure_test_identity() -> dict[str, str]:
                 tenant_type=TenantType.LAW_FIRM,
                 slug="pytest-tenant",
                 is_active=True,
+                approval_status="approved",
             )
             db.add(tenant)
+        else:
+            # Ensure existing test tenant has required fields
+            if tenant.approval_status != "approved":
+                tenant.approval_status = "approved"
 
         user = db.query(User).filter(User.id == TEST_USER_ID).first()
         if not user:

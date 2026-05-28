@@ -130,6 +130,20 @@ class LLMService:
         if not self.is_configured():
             return "错误：请先配置通义千问 API Key"
 
+        # 配额检查
+        from app.core.tenant_context import TenantContext
+        tenant_id = TenantContext.get_tenant_id()
+        if tenant_id:
+            from app.db.database import SessionLocal
+            from app.services.quota_service import quota_service as qs
+            qdb = SessionLocal()
+            try:
+                check = qs.check_quota(qdb, tenant_id, purpose="ai_chat")
+                if not check["allowed"]:
+                    return f"今日AI调用次数已达上限（{check['daily_limit']}次/天）。请明日再试或联系管理员升级套餐。"
+            finally:
+                qdb.close()
+
         model_config = self.models.get(model, self.models[self.default_model])
 
         params = {
@@ -177,6 +191,16 @@ class LLMService:
                     result = ""
                 
                 print(f"[DEBUG] LLM返回长度: {len(result) if result else 0} 字符")
+
+                # 记录AI调用
+                if tenant_id:
+                    try:
+                        qs.record_call(qdb, tenant_id=tenant_id, purpose="ai_chat",
+                                       user_id=TenantContext.get_user_id(),
+                                       query_text=messages[-1].get("content", "")[:200] if messages else "")
+                    except Exception:
+                        pass
+
                 return result if result else "AI 返回了空响应，请稍后重试"
             else:
                 # 不对外暴露 DashScope 内部错误码和消息

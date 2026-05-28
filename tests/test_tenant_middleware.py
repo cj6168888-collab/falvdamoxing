@@ -20,9 +20,9 @@ class _FakeQuery:
 
     def first(self):
         if self.model is User:
-            return SimpleNamespace(id="user-1", tenant_id="tenant-1", is_active=True)
+            return SimpleNamespace(id="user-1", tenant_id="tenant-1", is_active=True, is_platform_admin=False)
         if self.model is Tenant:
-            return SimpleNamespace(id="tenant-1", is_active=True)
+            return SimpleNamespace(id="tenant-1", is_active=True, approval_status="approved", billing_due_date=None)
         return None
 
 

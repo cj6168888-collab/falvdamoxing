@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from threading import Lock
 import time
 
@@ -148,6 +149,18 @@ def configure_tenant_middleware(app: FastAPI) -> None:
                         status_code=status.HTTP_403_FORBIDDEN,
                         content={"detail": "租户不可用"},
                     )
+
+                if not user.is_platform_admin:
+                    if tenant.approval_status and tenant.approval_status != "approved":
+                        return JSONResponse(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            content={"detail": "租户尚未通过审批"},
+                        )
+                    if tenant.billing_due_date and tenant.billing_due_date < datetime.utcnow():
+                        return JSONResponse(
+                            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                            content={"detail": f"账户已到期（{tenant.billing_due_date.strftime('%Y-%m-%d')}），请续费。"},
+                        )
 
                 auth_context = _AuthenticatedContext(
                     user_id=user.id,

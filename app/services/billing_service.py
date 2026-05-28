@@ -9,6 +9,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.models.tenant import Tenant
+from app.models.tenant import SubscriptionStatus
 from app.models.payment import PaymentRecord
 
 
@@ -25,7 +26,7 @@ class BillingService:
 
         now = datetime.utcnow()
         if now > tenant.billing_due_date and tenant.approval_status == "approved":
-            tenant.subscription_status = "past_due"
+            tenant.subscription_status = SubscriptionStatus.PAST_DUE
             tenant.is_active = False
             db.commit()
             return {
@@ -80,7 +81,7 @@ class BillingService:
         tenant.billing_due_date = period_end
         tenant.billing_amount = amount
         tenant.billing_cycle = billing_cycle
-        tenant.subscription_status = "active"
+        tenant.subscription_status = SubscriptionStatus.ACTIVE
         tenant.is_active = True
         db.commit()
 
