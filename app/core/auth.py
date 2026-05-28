@@ -105,3 +105,24 @@ async def check_ai_quota(
             detail=quota["message"],
         )
     return current_user
+
+
+class TenantIsolation:
+    """纵深防御 — 显式验证数据属于当前租户。
+
+    用法: Depends(TenantIsolation.check)
+    """
+    @staticmethod
+    def check(current_user: User = Depends(get_current_user)):
+        """返回一个验证函数，调用方用它检查对象的 tenant_id。"""
+        return lambda obj, name="数据": TenantIsolation._verify(obj, current_user, name)
+
+    @staticmethod
+    def _verify(obj, user: User, name: str = "数据"):
+        """显式检查对象的 tenant_id 是否匹配当前用户。"""
+        if obj is None:
+            return
+        obj_tenant = getattr(obj, "tenant_id", None)
+        if obj_tenant is not None and obj_tenant != user.tenant_id:
+            from fastapi import HTTPException as HE
+            raise HE(status_code=403, detail=f"{name}不属于您的租户")

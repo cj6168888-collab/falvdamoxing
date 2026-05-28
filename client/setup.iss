@@ -1,7 +1,3 @@
-; 法律大模型 — Windows 安装包
-; 使用 Inno Setup 6 编译
-; 下载: https://jrsoftware.org/isinfo.php
-
 #define MyAppName "法律大模型"
 #define MyAppVersion "2.1.0"
 #define MyAppPublisher "法律大模型团队"
@@ -15,7 +11,6 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
-AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
@@ -24,41 +19,28 @@ OutputBaseFilename=LegalAI-Setup-v{#MyAppVersion}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-WizardImageFile=.\installer-bg.bmp
-WizardSmallImageFile=.\installer-icon.bmp
 DisableProgramGroupPage=yes
-UninstallDisplayIcon={app}\legal-ai.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 SetupIconFile=.\legal-ai.ico
+PrivilegesRequiredOverridesAllowed=dialog
+; 安装向导标题
+AppComments=AI驱动的智能法律案件管理系统
+AppContact=法律大模型团队
 
 [Languages]
-Name: "chinese"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[CustomMessages]
+english.AppNameLabel=法律大模型 - AI案件指挥台
+english.WelcomeLabel2=即将安装 [name] v{#MyAppVersion} 到您的电脑。
+english.ClickNext=点击"Next"继续安装。
 
 [Tasks]
-Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: "其他:"; Flags: checkedonce
+Name: "desktopicon"; Description: "创建桌面快捷方式 (&D)"; GroupDescription: "其他:"; Flags: checkedonce
 
 [Files]
-; 主程序
-Source: ".\dist-exe\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-; Python 运行时 (嵌入版)
-Source: ".\python-embed\*"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs
-; 应用代码
-Source: "..\app\*"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs
-; 前端
-Source: "..\frontend\dist\*"; DestDir: "{app}\client\dist"; Flags: ignoreversion recursesubdirs
-; 启动器
-Source: ".\run_client.py"; DestDir: "{app}\client"; Flags: ignoreversion
-Source: ".\app_client.py"; DestDir: "{app}\client"; Flags: ignoreversion
-; 依赖
-Source: ".\requirements-client.txt"; DestDir: "{app}"; Flags: ignoreversion
-; 图标
+Source: ".\dist-exe\法律大模型.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\legal-ai.ico"; DestDir: "{app}"; Flags: ignoreversion
-; 配置文件
-Source: "..\.env.example"; DestDir: "{app}"; DestName: ".env"; Flags: ignoreversion
-
-[Dirs]
-Name: "{app}\data"
-Name: "{app}\data\files"
-Name: "{app}\logs"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -69,10 +51,4 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "启动 {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "taskkill"; Parameters: "/f /im {#MyAppExeName}"; Flags: runhidden
-
-[Code]
-function InitializeSetup: Boolean;
-begin
-  Result := True;
-end;
+Filename: "taskkill"; Parameters: "/f /im 法律大模型.exe"; Flags: runhidden

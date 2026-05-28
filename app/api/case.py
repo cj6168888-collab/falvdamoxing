@@ -15,6 +15,17 @@ CURRENT_DATE = datetime.now().strftime('%Y年%m月%d日')
 CURRENT_YEAR = datetime.now().year
 
 from app.db.database import get_db
+from app.core.tenant_context import TenantContext
+
+
+def _guard(obj, name="数据"):
+    """纵深防御：显式验证对象属于当前租户"""
+    if obj is None:
+        return
+    tid = TenantContext.get_tenant_id()
+    obj_tid = getattr(obj, "tenant_id", None)
+    if tid and obj_tid is not None and str(obj_tid) != str(tid):
+        raise HTTPException(status_code=403, detail=f"{name}不属于您的租户")
 from app.models.case import (
     Case, CaseStatus, CaseType, ChatMessage, CaseThread, Party, CounterClaim,
     ExecutionTracking, CaseArchive, ThreadStatus, PartyRole, CaseNode
@@ -476,7 +487,8 @@ def get_case(case_id: int, db: Session = Depends(get_db)):
     case = db.query(Case).filter(Case.id == case_id).first()
     if not case:
         raise HTTPException(status_code=404, detail="案件不存在")
-    
+    _guard(case, "案件")
+
     # 确保plaintiff和defendant是字符串
     return {
         "id": case.id,
