@@ -169,16 +169,19 @@ export default function LoginPage() {
               <span className="text-gray-600 dark:text-gray-400">单机部署<br />无需服务器</span>
             </div>
           </div>
+          <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+            推荐使用网页版，无需安装。如需桌面快捷方式，请下载客户端。
+          </p>
           <a
-            href="/downloads/legal-ai-client-setup.exe"
+            href="/downloads/legal-ai-client.tar.gz"
             className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
           >
             <MonitorDown size={18} />
             下载 Windows 客户端
           </a>
           <span className="ml-3 text-xs text-gray-400">v2.1.0 · 43MB · Win10/11</span>
-          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-            如提示 SmartScreen，请点击"更多信息"→"仍要运行"。软件未购买代码签名证书，非安全问题。
+          <p className="mt-2 text-xs text-gray-400">
+            下载后解压 tar.gz → 双击 setup.exe 安装。如遇 SmartScreen 点"仍要运行"。
           </p>
         </CardContent>
       </Card>

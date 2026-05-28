@@ -376,16 +376,16 @@ export default function RegisterPage() {
           </div>
           <div className="flex gap-3 items-center">
             <a
-              href="/downloads/legal-ai-client-setup.exe"
+              href="/downloads/legal-ai-client.tar.gz"
               className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
             >
               <MonitorDown size={18} />
               下载 Windows 客户端
             </a>
-            <span className="text-xs text-gray-400">v2.1.0 · 约 43MB · Win10/11</span>
+            <span className="text-xs text-gray-400">v2.1.0 · 43MB · Win10/11</span>
           </div>
-          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-            如提示 SmartScreen，请点击"更多信息"→"仍要运行"。软件未购买代码签名证书，非安全问题。
+          <p className="mt-2 text-xs text-gray-400">
+            下载后解压 tar.gz → 双击 setup.exe 安装。如遇 SmartScreen 点"仍要运行"。
           </p>
           <p className="mt-3 text-xs text-gray-400">
             支持 Windows 10/11。首次安装后，桌面快捷方式一键启动。
