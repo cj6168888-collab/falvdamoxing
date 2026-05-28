@@ -10,7 +10,7 @@ class Contract(Base):
     __tablename__ = "contracts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True, index=True)
+    tenant_id = Column(String(36), ForeignKey("tenants.id"), nullable=True, index=True)
     case_id = Column(Integer, ForeignKey("cases.id"), nullable=True, index=True)
     project_id = Column(Integer, nullable=True)
     title = Column(String(200), nullable=False)

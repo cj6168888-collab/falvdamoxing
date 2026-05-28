@@ -33,6 +33,7 @@ backups/
 .env.prod
 .env.staging
 .env.sms.local
+.env.fl-prod
 *.env.local
 !.env.example
 !.env.prod.example
