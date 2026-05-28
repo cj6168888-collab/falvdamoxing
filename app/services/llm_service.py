@@ -1284,6 +1284,25 @@ class LLMService:
 
         return self.chat(messages, model="qwen-plus")
 
+    def suggest_strategy(self, case_info: dict, evidence_count: int = 0) -> str:
+        """一站式策略建议 — 便捷入口。
+
+        从案件信息中提取描述和状态，委托给 strategy_suggestion()。
+        """
+        desc = case_info.get("description", "") or case_info.get("title", "")
+        case_type = case_info.get("case_type", "合同纠纷")
+        plaintiff = case_info.get("plaintiff", "")
+        defendant = case_info.get("defendant", "")
+
+        case_text = f"案件：{case_info.get('title', '')}\n类型：{case_type}\n原告：{plaintiff}\n被告：{defendant}\n描述：{desc[:3000]}"
+        status_text = f"当前证据数：{evidence_count}，诉讼状态：准备起诉阶段"
+
+        return self.strategy_suggestion(
+            case_info=case_text,
+            current_status=status_text,
+            recent_development="委托方要求出具完整诉讼策略建议",
+        )
+
     def strategy_synthesis(
         self,
         case_info: str,

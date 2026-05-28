@@ -60,6 +60,7 @@ ROUTER_SPECS = (
     RouterSpec("app.api.smart_chat"),
     RouterSpec("app.api.config_api"),
     RouterSpec("app.api.tenant_api"),
+    RouterSpec("app.api.advisory_api"),
     RouterSpec("app.api.auth"),
 )
 

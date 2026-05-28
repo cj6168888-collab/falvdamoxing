@@ -450,6 +450,42 @@ class ContractRiskReviewService:
         
         return scan_result
 
+    def review(self, content: str, case_id: int = None, db=None) -> Dict:
+        """便捷入口 — 合同风险全面审查。
+
+        先执行 quick_scan 进行规则扫描，再调用 LLM 进行深度风险分析。
+        """
+        scan = self.quick_scan(content)
+
+        llm_analysis = ""
+        try:
+            from app.services.llm_service import llm_service
+
+            prompt = f"""你是合同风险审查专家。请审查以下合同，指出风险点并给出修改建议。
+
+合同内容：
+{content[:8000]}
+
+请按以下格式输出：
+1. 风险等级（高/中/低）
+2. 主要风险点（每个风险点包含：条款位置、风险描述、修改建议）
+3. 总体评估"""
+
+            llm_analysis = llm_service.chat([
+                {"role": "system", "content": "你是资深合同审查律师。"},
+                {"role": "user", "content": prompt}
+            ])
+        except Exception:
+            llm_analysis = "LLM 深度分析暂不可用"
+
+        return {
+            "scan": scan,
+            "llm_analysis": llm_analysis,
+            "risk_level": scan.get("risk_level", "low"),
+            "risk_count": scan.get("risk_count", 0),
+            "key_issues": scan.get("key_issues", []),
+        }
+
 
 # 全局实例
 contract_risk_review_service = ContractRiskReviewService()

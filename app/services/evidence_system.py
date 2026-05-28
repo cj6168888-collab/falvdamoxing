@@ -1045,6 +1045,86 @@ class EvidenceBookGenerator:
         else:
             return f"- **原始文件**：{ev.file_path}（内容待提取）"
 
+    def generate_book(self, case_id: int, db=None, format: str = "markdown") -> str:
+        """便捷入口 — 生成案件证据册并返回 Markdown/HTML。
+
+        从数据库加载案件和证据后委托给 generate_evidence_book()。
+        """
+        try:
+            from app.db.database import SessionLocal
+            from app.models.case import Case
+            from app.models.evidence import EvidenceItem
+        except ImportError:
+            return "# 证据册\n\n(数据库模块不可用)"
+
+        own_db = db or SessionLocal()
+        try:
+            case = own_db.query(Case).filter(Case.id == case_id).first()
+            if not case:
+                return f"# 证据册\n\n案件 {case_id} 不存在"
+
+            evidence_items = (
+                own_db.query(EvidenceItem)
+                .filter(EvidenceItem.case_id == case_id)
+                .all()
+            )
+
+            evidence_objs = []
+            for item in evidence_items:
+                evidence_objs.append(Evidence(
+                    id=item.id or "",
+                    name=item.original_filename or item.display_name or f"证据-{item.id}",
+                    evidence_type=item.evidence_type or "OTHER",
+                    description=item.summary or "",
+                    content=item.extracted_content or item.raw_content or "",
+                    file_path=item.file_path or "",
+                    custody=getattr(item, "custody", "原告"),
+                ))
+
+            case_info = {
+                "case_name": case.title or f"案件{case_id}",
+                "case_number": getattr(case, "case_number", "") or "",
+                "court": "郑州高新区人民法院",
+            }
+            party_info = {
+                "plaintiff": case.plaintiff or "原告",
+                "defendant": case.defendant or "被告",
+            }
+
+            result = self.generate_evidence_book(
+                case_info=case_info,
+                evidence_list=evidence_objs,
+                party_info=party_info,
+                case_type=str(case.case_type) if case.case_type else "合同纠纷",
+            )
+
+            if format == "markdown":
+                return self._render_to_markdown(result)
+            return self._render_to_html(result)
+        finally:
+            if db is None and own_db:
+                own_db.close()
+
+    def _render_to_markdown(self, book: Dict) -> str:
+        lines = [f"# {book.get('cover', {}).get('title', '证据册')}", ""]
+        lines.append(book.get("table_of_contents", ""))
+        lines.append("")
+        for section in book.get("evidence_sections", {}).get("sections", []):
+            lines.append(f"## {section.get('title', '')}")
+            for ev in section.get("evidence_items", []):
+                lines.append(f"### {ev.get('name', '')}")
+                lines.append(f"- 类型: {ev.get('evidence_type', '')}")
+                lines.append(f"- 证明事项: {ev.get('proves', '')}")
+                lines.append("")
+                lines.append(ev.get("content", ""))
+                lines.append("")
+        lines.append(book.get("summary", ""))
+        return "\n".join(lines)
+
+    def _render_to_html(self, book: Dict) -> str:
+        md = self._render_to_markdown(book)
+        return f"<html><head>{self.get_css_styles()}</head><body><pre>{md}</pre></body></html>"
+
 
 # ========== 证据风险分析器 ==========
 

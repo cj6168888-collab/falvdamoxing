@@ -589,6 +589,12 @@ class TrapDetector:
             "template": "对方代理人的陈述，我方有异议，请求法庭记录在案。",
             "usage": "一般情况下的异议表达"
         })
+    def analyze_statement(self, statement: str, speaker_role: str = "other") -> Dict:
+        """便捷入口 — 分析单条语句中的陷阱。
+
+        等同于 detect_trap()，提供更直观的 API 名称。
+        """
+        return self.detect_trap(statement, speaker_role)
 
 
 # 全局实例
