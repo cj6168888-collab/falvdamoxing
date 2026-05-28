@@ -176,7 +176,7 @@ export default function LoginPage() {
             <MonitorDown size={18} />
             下载 Windows 客户端
           </a>
-          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 约 125MB · Win10/11</span>
+          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 约 43MB · Win10/11</span>
         </CardContent>
       </Card>
     </div>

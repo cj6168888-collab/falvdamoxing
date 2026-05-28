@@ -382,7 +382,7 @@ export default function RegisterPage() {
               <MonitorDown size={18} />
               下载 Windows 客户端
             </a>
-            <span className="text-xs text-gray-400">v2.1.0 · 约 150MB</span>
+            <span className="text-xs text-gray-400">v2.1.0 · 约 43MB · Win10/11</span>
           </div>
           <p className="mt-3 text-xs text-gray-400">
             支持 Windows 10/11。首次安装后，桌面快捷方式一键启动。
