@@ -63,6 +63,7 @@ class EvidenceItem(Base):
 
     # ==================== 来源信息 ====================
     source_type = Column(String(20), default=EvidenceSourceType.FILE.value)  # file/text/input
+    storage_mode = Column(String(20), default="local")  # local / cloud
     original_filename = Column(String(500), nullable=True)  # 原始文件名
     display_name = Column(String(200), nullable=True)  # 规范显示名称（AI生成，用于证据目录）
     file_path = Column(String(1000), nullable=True)  # 文件存储路径

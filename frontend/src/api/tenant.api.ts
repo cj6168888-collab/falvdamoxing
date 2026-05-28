@@ -76,3 +76,20 @@ export async function fetchUsageStats(): Promise<UsageStats> {
   const { data } = await axiosInstance.get('/api/tenant/usage');
   return data;
 }
+
+export interface StorageStatus {
+  mode: string;
+  cloud_available: boolean;
+  cloud_endpoint: string;
+  cloud_bucket: string;
+}
+
+export async function fetchStorageMode(): Promise<StorageStatus> {
+  const { data } = await axiosInstance.get('/api/tenant/storage-mode');
+  return data;
+}
+
+export async function setStorageMode(mode: string) {
+  const { data } = await axiosInstance.put('/api/tenant/storage-mode', { mode });
+  return data;
+}

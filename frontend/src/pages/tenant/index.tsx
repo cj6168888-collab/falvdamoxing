@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { fetchTenantProfile, updateTenantProfile, fetchTeamMembers, inviteMember, changeMemberRole, removeMember, fetchUsageStats, type TenantProfile, type TeamMember, type UsageStats } from '@/api/tenant.api';
+import { fetchTenantProfile, updateTenantProfile, fetchTeamMembers, inviteMember, changeMemberRole, removeMember, fetchUsageStats, fetchStorageMode, setStorageMode, type TenantProfile, type TeamMember, type UsageStats, type StorageStatus } from '@/api/tenant.api';
 import { useAuthStore } from '@/stores/auth.store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/common/empty-state';
 import { PageSkeleton } from '@/components/common/loading-skeleton';
-import { Users, Settings, BarChart3, Mail, Trash2, Shield } from 'lucide-react';
+import { Users, Settings, BarChart3, Mail, Trash2, Shield, HardDrive } from 'lucide-react';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: '管理员',
@@ -112,6 +112,67 @@ function UsageCard({ stats }: { stats: UsageStats }) {
             <p className="text-2xl font-bold">{stats.ai_calls_this_month}</p>
             <p className="text-xs text-gray-500">本月AI调用</p>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function StorageModeCard({ onRefresh }: { onRefresh: () => void }) {
+  const [status, setStatus] = useState<StorageStatus | null>(null);
+  const [switching, setSwitching] = useState(false);
+
+  useEffect(() => {
+    fetchStorageMode().then(setStatus).catch(() => {});
+  }, []);
+
+  const handleSwitch = async (mode: string) => {
+    setSwitching(true);
+    try {
+      await setStorageMode(mode);
+      setStatus((s) => s ? { ...s, mode } : null);
+      onRefresh();
+    } catch { alert('切换失败'); }
+    finally { setSwitching(false); }
+  };
+
+  if (!status) return null;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center gap-2">
+        <HardDrive className="h-5 w-5 text-gray-500" />
+        <CardTitle>证据存储模式</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center gap-3">
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+            status.mode === 'local'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+          }`}>
+            {status.mode === 'local' ? '本地存储' : '云端存储'}
+          </span>
+          {status.mode === 'cloud' && (
+            <span className="text-xs text-gray-500">Bucket: {status.cloud_bucket}</span>
+          )}
+        </div>
+        <p className="text-sm text-gray-500">
+          {status.mode === 'local'
+            ? '证据存储在服务器本地磁盘，适合单机部署。'
+            : '证据存储在云端对象存储（OSS/S3），适合多节点部署和异地容灾。'}
+        </p>
+        <div className="flex gap-2">
+          <Button size="sm" variant={status.mode === 'local' ? 'default' : 'outline'}
+            onClick={() => handleSwitch('local')} disabled={switching}>
+            本地模式
+          </Button>
+          <Button size="sm" variant={status.mode === 'cloud' ? 'default' : 'outline'}
+            onClick={() => handleSwitch('cloud')}
+            disabled={switching || !status.cloud_available}
+            title={!status.cloud_available ? '云端存储未配置' : ''}>
+            云端模式 {!status.cloud_available && '(未配置)'}
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -273,6 +334,7 @@ export default function TenantPage() {
 
       <TenantProfileCard profile={profile} onRefresh={load} />
       {stats && <UsageCard stats={stats} />}
+      <StorageModeCard onRefresh={load} />
       {isAdmin && <TeamCard members={members} onRefresh={load} />}
       {!isAdmin && (
         <Card>

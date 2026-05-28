@@ -94,6 +94,17 @@ class SimpleResponse(BaseModel):
     message: str
 
 
+class StorageModeRequest(BaseModel):
+    mode: str = Field(..., description="local 或 cloud")
+
+
+class StorageStatusResponse(BaseModel):
+    mode: str  # local / cloud
+    cloud_available: bool
+    cloud_endpoint: str
+    cloud_bucket: str
+
+
 # ========== 辅助函数 ==========
 
 def _tenant_admin(user: User = Depends(require_role("admin"))):
@@ -347,3 +358,66 @@ def get_usage_stats(
         ai_monthly_usage=tenant.ai_monthly_usage or 0,
         storage_used_mb=round(data_dir_size / (1024 * 1024), 2),
     )
+
+
+# ========== 证据存储模式 ==========
+
+@router.get("/storage-mode", response_model=StorageStatusResponse)
+def get_storage_mode(
+    admin: User = Depends(_tenant_admin),
+):
+    from app.services.storage_backend import cloud_backend
+    import os
+    current = os.environ.get("EVIDENCE_STORAGE_MODE", "local")
+    return StorageStatusResponse(
+        mode=current,
+        cloud_available=cloud_backend.is_available,
+        cloud_endpoint=cloud_backend.endpoint or os.environ.get("OSS_ENDPOINT", ""),
+        cloud_bucket=cloud_backend.bucket,
+    )
+
+
+@router.put("/storage-mode", response_model=SimpleResponse)
+def set_storage_mode(
+    req: StorageModeRequest,
+    admin: User = Depends(_tenant_admin),
+    db: Session = Depends(get_db),
+):
+    if req.mode not in ("local", "cloud"):
+        raise HTTPException(status_code=400, detail="模式仅支持 local 或 cloud")
+
+    if req.mode == "cloud":
+        from app.services.storage_backend import cloud_backend
+        if not cloud_backend.is_available:
+            raise HTTPException(status_code=400, detail="云端存储不可用，请先配置 OSS 环境变量")
+
+    # 迁移现有证据
+    from app.models.evidence import EvidenceItem
+    evidence_list = db.query(EvidenceItem).filter(
+        EvidenceItem.tenant_id == admin.tenant_id
+    ).all()
+    migrated = 0
+    for ev in evidence_list:
+        if ev.storage_mode != req.mode and ev.file_path:
+            from app.services.storage_backend import get_backend, local_backend
+            if ev.storage_mode == "local" and req.mode == "cloud":
+                data = local_backend.read(ev.file_path)
+                if data:
+                    try:
+                        new_path = get_backend("cloud").save(data, ev.original_filename or "evidence", ev.case_id)
+                        ev.file_path = new_path
+                        ev.storage_mode = "cloud"
+                        migrated += 1
+                    except Exception:
+                        pass
+            elif ev.storage_mode == "cloud" and req.mode == "local":
+                from app.services.storage_backend import get_backend as gb2
+                data = gb2("cloud").read(ev.file_path)
+                if data:
+                    new_path = local_backend.save(data, ev.original_filename or "evidence", ev.case_id)
+                    ev.file_path = new_path
+                    ev.storage_mode = "local"
+                    migrated += 1
+
+    db.commit()
+    return {"success": True, "message": f"已切换到{req.mode}模式，迁移{migrated}份证据"}
