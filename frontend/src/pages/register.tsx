@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Scale, Eye, EyeOff, ArrowRight, Building2, Briefcase, ArrowLeft } from 'lucide-react';
+import { Scale, Eye, EyeOff, ArrowRight, Building2, Briefcase, ArrowLeft, MonitorDown, Shield, Zap, HardDrive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -345,6 +345,48 @@ export default function RegisterPage() {
               </Link>
             </p>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Windows 客户端下载 */}
+      <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-950/30 dark:to-blue-950/30 dark:border-teal-900">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MonitorDown className="h-5 w-5 text-teal-600" />
+            Windows 桌面客户端
+          </CardTitle>
+          <CardDescription>
+            下载安装到本地，数据更安全，体验更流畅
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-3 mb-4">
+            <div className="flex items-start gap-2 text-sm">
+              <Shield className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-400">证据本地存储<br />不上传不共享</span>
+            </div>
+            <div className="flex items-start gap-2 text-sm">
+              <Zap className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-400">内嵌本地AI<br />离线也能分析</span>
+            </div>
+            <div className="flex items-start gap-2 text-sm">
+              <HardDrive className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
+              <span className="text-gray-600 dark:text-gray-400">单机部署<br />无需服务器</span>
+            </div>
+          </div>
+          <div className="flex gap-3 items-center">
+            <a
+              href="/downloads/legal-ai-client-setup.exe"
+              className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
+            >
+              <MonitorDown size={18} />
+              下载 Windows 客户端
+            </a>
+            <span className="text-xs text-gray-400">v2.1.0 · 约 150MB</span>
+          </div>
+          <p className="mt-3 text-xs text-gray-400">
+            支持 Windows 10/11。首次安装后，桌面快捷方式一键启动。
+          </p>
         </CardContent>
       </Card>
     </div>
