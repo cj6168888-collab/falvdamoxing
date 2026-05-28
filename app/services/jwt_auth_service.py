@@ -164,7 +164,7 @@ class JWTAuthService:
                 name=tenant_name or username,
                 tenant_type=tenant_type,
                 slug=tenant_slug,
-                approval_status="pending",
+                approval_status="approved",
             )
             db.add(tenant)
             role = UserRole.ADMIN

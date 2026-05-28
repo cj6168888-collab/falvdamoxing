@@ -65,7 +65,7 @@ class Tenant(Base):
     stripe_subscription_id = Column(String(100), nullable=True)
 
     # 审批与计费
-    approval_status = Column(String(20), default="pending")  # pending/approved/rejected
+    approval_status = Column(String(20), default="approved")  # approved/pending/rejected
     approved_at = Column(DateTime, nullable=True)
     approved_by = Column(String(200), nullable=True)
     rejection_reason = Column(Text, nullable=True)
