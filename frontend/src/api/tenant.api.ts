@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import axiosInstance from './client';
 
 export interface TenantProfile {
   id: string;
@@ -43,36 +43,36 @@ export interface UsageStats {
 }
 
 export async function fetchTenantProfile(): Promise<TenantProfile> {
-  const { data } = await apiClient.get('/api/tenant/profile');
+  const { data } = await axiosInstance.get('/api/tenant/profile');
   return data;
 }
 
 export async function updateTenantProfile(body: { name?: string; description?: string }) {
-  const { data } = await apiClient.put('/api/tenant/profile', body);
+  const { data } = await axiosInstance.put('/api/tenant/profile', body);
   return data;
 }
 
 export async function fetchTeamMembers(): Promise<TeamMember[]> {
-  const { data } = await apiClient.get('/api/tenant/members');
+  const { data } = await axiosInstance.get('/api/tenant/members');
   return data;
 }
 
 export async function inviteMember(body: { email: string; full_name?: string; role: string }) {
-  const { data } = await apiClient.post('/api/tenant/members/invite', body);
+  const { data } = await axiosInstance.post('/api/tenant/members/invite', body);
   return data;
 }
 
 export async function changeMemberRole(body: { user_id: string; role: string }) {
-  const { data } = await apiClient.put('/api/tenant/members/role', body);
+  const { data } = await axiosInstance.put('/api/tenant/members/role', body);
   return data;
 }
 
 export async function removeMember(userId: string) {
-  const { data } = await apiClient.delete(`/api/tenant/members/${userId}`);
+  const { data } = await axiosInstance.delete(`/api/tenant/members/${userId}`);
   return data;
 }
 
 export async function fetchUsageStats(): Promise<UsageStats> {
-  const { data } = await apiClient.get('/api/tenant/usage');
+  const { data } = await axiosInstance.get('/api/tenant/usage');
   return data;
 }

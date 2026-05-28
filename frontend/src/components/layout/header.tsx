@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Moon, Sun, Settings, LogOut, ChevronDown, Building2 } from 'lucide-react';
+import { Moon, Sun, Settings, LogOut, ChevronDown, Building2, Menu } from 'lucide-react';
 import { TaskNotification } from './task-notification';
+import { MobileSidebar } from './mobile-sidebar';
 import { useAuthStore } from '@/stores/auth.store';
 import { ROLE_LABELS, TENANT_TYPE_LABELS } from '@/types/auth';
 
-export function Header() {
+export function Header({ mobileMenuOpen, onOpenMobileMenu, onCloseMobileMenu }: {
+  mobileMenuOpen: boolean;
+  onOpenMobileMenu: () => void;
+  onCloseMobileMenu: () => void;
+}) {
   const [darkMode, setDarkMode] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -47,6 +52,17 @@ export function Header() {
 
   return (
     <header className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 sm:px-4 lg:px-6">
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onOpenMobileMenu}
+        className="rounded-md p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
+        aria-label="打开菜单"
+      >
+        <Menu size={22} />
+      </button>
+
+      <MobileSidebar open={mobileMenuOpen} onClose={onCloseMobileMenu} />
+
       <div className="min-w-0 flex-1 items-center gap-3 text-sm text-slate-500 dark:text-slate-400 sm:flex">
         <div className="hidden h-8 items-center rounded-md border border-slate-200 bg-slate-50 px-3 text-xs font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 md:flex">
           预生产验收通过
