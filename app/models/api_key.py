@@ -21,6 +21,7 @@ class APIKey(Base):
 
     is_active = Column(Boolean, default=True)
     last_used_at = Column(DateTime, nullable=True)
+    source = Column(String(500), nullable=True)  # 申请地址/域名/IP
 
     expires_at = Column(DateTime, nullable=True)
 

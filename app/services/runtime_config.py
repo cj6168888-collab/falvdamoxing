@@ -72,7 +72,7 @@ def get_config_value(key: str, default: str = "") -> str:
     return read_runtime_config().get(key, default)
 
 
-def save_config_values(updates: dict[str, str]) -> list[str]:
+def save_config_values(updates: dict[str, str], sources: dict[str, str] | None = None) -> list[str]:
     values = read_runtime_config()
     saved: list[str] = []
     for key, value in updates.items():
@@ -81,6 +81,9 @@ def save_config_values(updates: dict[str, str]) -> list[str]:
         values[key] = value
         os.environ[key] = value
         saved.append(key)
+        if sources and key in sources:
+            source_key = f"{key}_SOURCE"
+            values[source_key] = sources[key]
     write_runtime_config(values)
     return saved
 

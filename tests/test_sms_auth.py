@@ -75,6 +75,13 @@ async def test_phone_registration_login_and_password_reset(lightweight_app, auth
         assert register.status_code == 200
         assert register.json()["user"]["phone"] == "13800138001"
 
+        # Approve the auto-created tenant for the test
+        from app.models.tenant import Tenant
+        tenant = auth_db.query(Tenant).filter(Tenant.id == register.json()["user"]["tenant_id"]).first()
+        if tenant:
+            tenant.approval_status = "approved"
+            auth_db.commit()
+
         old_login = await client.post(
             "/api/auth/login",
             json={"username": "13800138001", "password": "old-secret"},

@@ -64,6 +64,7 @@ class JWTAuthService:
             "username": user.username,
             "role": user.role.value,
             "tenant_type": tenant.tenant_type.value,
+            "is_platform_admin": bool(user.is_platform_admin),
             "type": "access",
             "exp": now + self.token_expiry,
             "iat": now,
@@ -163,6 +164,7 @@ class JWTAuthService:
                 name=tenant_name or username,
                 tenant_type=tenant_type,
                 slug=tenant_slug,
+                approval_status="pending",
             )
             db.add(tenant)
             role = UserRole.ADMIN
@@ -209,6 +211,9 @@ class JWTAuthService:
 
         tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
         if not tenant or not tenant.is_active:
+            return None
+
+        if tenant.approval_status != "approved" and not user.is_platform_admin:
             return None
 
         user.last_login_at = datetime.utcnow()

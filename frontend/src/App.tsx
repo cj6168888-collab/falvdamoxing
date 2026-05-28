@@ -29,6 +29,7 @@ const SmartChat = lazy(() => import('./pages/smart-chat/[caseId]'));
 const Insight = lazy(() => import('./pages/insight/[caseId]'));
 const ApiKeyConfig = lazy(() => import('./pages/api-key-config'));
 const TenantPage = lazy(() => import('./pages/tenant'));
+const PlatformAdmin = lazy(() => import('./pages/platform'));
 
 function LoadingFallback() {
   return (
@@ -121,6 +122,7 @@ function App() {
               <Route path="reminders" element={<Reminders />} />
               <Route path="settings/api-keys" element={<ApiKeyConfig />} />
               <Route path="settings/tenant" element={<TenantPage />} />
+              <Route path="platform" element={<PlatformAdmin />} />
               <Route path="analysis-history/:caseId" element={<AnalysisHistory />} />
               <Route path="smart-chat/:caseId" element={<SmartChat />} />
               <Route path="insight/:caseId" element={<Insight />} />

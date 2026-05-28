@@ -23,10 +23,12 @@ import {
   BrainCircuit,
   Network,
   ClipboardCheck,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCurrentCase } from '@/contexts/use-current-case';
+import { useAuthStore } from '@/stores/auth.store';
 
 const CASE_ID_FALLBACK = '1';
 
@@ -41,7 +43,8 @@ interface NavItem {
 function useCaseNavItems() {
   const { currentCaseId } = useCurrentCase();
   const activeCaseId = currentCaseId || CASE_ID_FALLBACK;
-  
+  const isPlatformAdmin = useAuthStore((s) => s.user?.is_platform_admin);
+
   const navItems: NavItem[] = [
     { icon: LayoutDashboard, label: '总览工作台', path: '/dashboard', key: 'dashboard' },
     { icon: Briefcase, label: '案件管理', path: '/cases', key: 'cases' },
@@ -65,10 +68,14 @@ function useCaseNavItems() {
       key: 'settings',
       children: [
         { icon: Key, label: 'API Key 配置', path: '/settings/api-keys', key: 'api-keys' },
+        { icon: Users, label: '租户管理', path: '/settings/tenant', key: 'tenant' },
+        ...(isPlatformAdmin
+          ? [{ icon: ShieldCheck, label: '平台管理', path: '/platform', key: 'platform' }]
+          : []),
       ],
     },
   ];
-  
+
   return navItems;
 }
 

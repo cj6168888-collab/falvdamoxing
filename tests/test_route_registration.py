@@ -444,7 +444,8 @@ def test_register_routes_imports_routers_in_declared_order(monkeypatch):
 
 def test_router_specs_keep_system_routes_first_and_auth_last():
     assert ROUTER_SPECS[0].module_name == "app.api.system"
-    assert ROUTER_SPECS[-4].module_name == "app.api.config_api"
-    assert ROUTER_SPECS[-3].module_name == "app.api.tenant_api"
+    assert ROUTER_SPECS[-5].module_name == "app.api.config_api"
+    assert ROUTER_SPECS[-4].module_name == "app.api.tenant_api"
+    assert ROUTER_SPECS[-3].module_name == "app.api.platform_api"
     assert ROUTER_SPECS[-2].module_name == "app.api.advisory_api"
     assert ROUTER_SPECS[-1].module_name == "app.api.auth"

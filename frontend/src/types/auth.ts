@@ -18,6 +18,7 @@ export interface AuthUser {
   tenant_id: string;
   is_active: boolean;
   is_email_verified: boolean;
+  is_platform_admin: boolean;
   last_login_at: string | null;
   created_at: string | null;
 }

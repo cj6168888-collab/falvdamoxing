@@ -1,12 +1,13 @@
 """
 API Key 配置管理 API
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import Dict, Optional, List
 import logging
 from app.services.runtime_config import delete_config_value
 from app.services.runtime_config import get_config_value
+from app.services.runtime_config import read_runtime_config
 from app.services.runtime_config import save_config_values
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ class ApiKeyConfig(BaseModel):
     key: str
     value: str
     masked: bool = False  # 是否已掩码
+    source: Optional[str] = None  # 申请来源地址
 
 
 class ApiKeyConfigRequest(BaseModel):
@@ -28,6 +30,7 @@ class ApiKeyConfigRequest(BaseModel):
 class ApiKeyConfigResponse(BaseModel):
     """API Key 配置响应"""
     configs: Dict[str, str]
+    sources: Dict[str, str] = {}
     total: int
     configured: int
 
@@ -41,6 +44,7 @@ class ApiKeyInfo(BaseModel):
     category: str
     has_value: bool
     masked_value: Optional[str] = None
+    source: Optional[str] = None  # 申请来源地址
 
 
 # API Key 配置定义
@@ -170,18 +174,24 @@ async def get_api_keys():
     获取所有 API Key 配置状态（掩码形式）
     """
     configs: Dict[str, str] = {}
+    sources: Dict[str, str] = {}
     configured = 0
+    all_values = read_runtime_config()
 
     for key in API_KEY_DEFINITIONS.keys():
-        value = get_config_value(key)
+        value = all_values.get(key, "")
+        source = all_values.get(f"{key}_SOURCE", "")
         if value:
             configs[key] = display_config_value(key, value)
+            sources[key] = source
             configured += 1
         else:
             configs[key] = ""
+            sources[key] = ""
 
     return ApiKeyConfigResponse(
         configs=configs,
+        sources=sources,
         total=len(API_KEY_DEFINITIONS),
         configured=configured,
     )
@@ -193,8 +203,10 @@ async def get_api_key_info() -> List[ApiKeyInfo]:
     获取所有 API Key 的详细信息
     """
     result = []
+    all_values = read_runtime_config()
     for key, info in API_KEY_DEFINITIONS.items():
-        value = get_config_value(key)
+        value = all_values.get(key, "")
+        source = all_values.get(f"{key}_SOURCE", "")
         result.append(ApiKeyInfo(
             key=key,
             name=info["name"],
@@ -203,30 +215,38 @@ async def get_api_key_info() -> List[ApiKeyInfo]:
             category=info["category"],
             has_value=bool(value),
             masked_value=display_config_value(key, value) if value else None,
+            source=source or None,
         ))
     return result
 
 
 @router.post("/api-keys")
-async def save_api_keys(request: ApiKeyConfigRequest):
+async def save_api_keys(request: ApiKeyConfigRequest, req: Request):
     """
     保存 API Key 配置。
 
     配置会写入当前进程环境变量，并持久化到 data/config/api-keys.env。
+    自动记录申请来源（域名/IP）。
     """
     try:
         saved = []
         updates = {}
+        sources = {}
+        # Detect source from request
+        origin = req.headers.get("origin", "") or req.headers.get("referer", "")
+        if not origin:
+            origin = req.client.host if req.client else "unknown"
         for key, value in request.configs.items():
             if key in API_KEY_DEFINITIONS:
                 if is_masked_value(value):
                     continue
                 updates[key] = value
+                sources[key] = origin[:500]
 
         if updates:
-            saved = save_config_values(updates)
+            saved = save_config_values(updates, sources=sources)
             for key in saved:
-                logger.info(f"API Key 配置已更新: {key}")
+                logger.info(f"API Key 配置已更新: {key} (来源: {sources.get(key, '')})")
 
         return {
             "success": True,

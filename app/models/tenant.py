@@ -64,6 +64,17 @@ class Tenant(Base):
     stripe_customer_id = Column(String(100), nullable=True)
     stripe_subscription_id = Column(String(100), nullable=True)
 
+    # 审批与计费
+    approval_status = Column(String(20), default="pending")  # pending/approved/rejected
+    approved_at = Column(DateTime, nullable=True)
+    approved_by = Column(String(200), nullable=True)
+    rejection_reason = Column(Text, nullable=True)
+    billing_cycle = Column(String(20), default="monthly")  # monthly/yearly
+    billing_amount = Column(Integer, default=0)  # 月/年费（元）
+    billing_due_date = Column(DateTime, nullable=True)
+    billing_method = Column(String(50), nullable=True)  # wechat/alipay/bank_transfer
+    registered_from = Column(String(500), nullable=True)  # 注册来源（IP/域名）
+
     # 状态
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
@@ -83,6 +94,9 @@ class Tenant(Base):
             "logo_url": self.logo_url,
             "plan": self.plan.value if self.plan else None,
             "subscription_status": self.subscription_status.value if self.subscription_status else None,
+            "approval_status": self.approval_status,
+            "billing_cycle": self.billing_cycle,
+            "billing_amount": self.billing_amount,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

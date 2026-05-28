@@ -36,6 +36,7 @@ class User(Base):
 
     is_active = Column(Boolean, default=True)
     is_email_verified = Column(Boolean, default=False)
+    is_platform_admin = Column(Boolean, default=False)  # 平台超管
 
     last_login_at = Column(DateTime, nullable=True)
     last_active_at = Column(DateTime, nullable=True)
@@ -57,6 +58,7 @@ class User(Base):
             "tenant_id": self.tenant_id,
             "is_active": self.is_active,
             "is_email_verified": self.is_email_verified,
+            "is_platform_admin": self.is_platform_admin,
             "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
