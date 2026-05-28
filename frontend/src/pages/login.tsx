@@ -176,7 +176,10 @@ export default function LoginPage() {
             <MonitorDown size={18} />
             下载 Windows 客户端
           </a>
-          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 约 43MB · Win10/11</span>
+          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 43MB · Win10/11</span>
+          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+            如提示 SmartScreen，请点击"更多信息"→"仍要运行"。软件未购买代码签名证书，非安全问题。
+          </p>
         </CardContent>
       </Card>
     </div>
