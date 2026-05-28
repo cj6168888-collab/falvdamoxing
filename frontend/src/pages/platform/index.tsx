@@ -21,6 +21,7 @@ import {
   CheckCircle,
   XCircle,
   DollarSign,
+  Settings,
   BarChart3,
   Shield,
   Zap,
@@ -83,30 +84,40 @@ function StatsRow({ stats }: { stats: PlatformStats }) {
 
 function TenantRow({ t, onRefresh }: { t: TenantDetail; onRefresh: () => void }) {
   const [showApprove, setShowApprove] = useState(false);
-  const [plan, setPlan] = useState('trial');
-  const [amount, setAmount] = useState(0);
+  const [plan, setPlan] = useState(t.plan);
+  const [amount, setAmount] = useState(t.billing_amount || 0);
+  const [maxUsers, setMaxUsers] = useState(t.max_users);
+  const [maxCases, setMaxCases] = useState(t.max_cases);
+  const [aiQuota, setAiQuota] = useState(t.ai_daily_quota);
   const [rejectReason, setRejectReason] = useState('');
   const [showReject, setShowReject] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleApprove = async () => {
+    setLoading(true);
     await approveTenant({
-      tenant_id: t.id,
-      plan,
-      billing_cycle: 'monthly',
-      billing_amount: amount,
-      max_users: 10,
-      max_cases: 50,
-      ai_daily_quota: 100,
+      tenant_id: t.id, plan, billing_cycle: 'monthly', billing_amount: amount,
+      max_users: maxUsers, max_cases: maxCases, ai_daily_quota: aiQuota,
     });
-    setShowApprove(false);
-    onRefresh();
+    setShowApprove(false); setLoading(false); onRefresh();
   };
 
   const handleReject = async () => {
     if (!rejectReason.trim()) return;
     await rejectTenant({ tenant_id: t.id, reason: rejectReason });
-    setShowReject(false);
-    onRefresh();
+    setShowReject(false); onRefresh();
+  };
+
+  const handleRecordPayment = async () => {
+    const amt = prompt('缴费金额（元）:', String(amount));
+    if (!amt) return;
+    setLoading(true);
+    try {
+      const { recordPayment } = await import('@/api/platform.api');
+      await recordPayment({ tenant_id: t.id, amount: Number(amt), billing_cycle: 'monthly' });
+      onRefresh();
+    } catch { alert('操作失败'); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -147,25 +158,51 @@ function TenantRow({ t, onRefresh }: { t: TenantDetail; onRefresh: () => void })
           </>
         )}
         {t.approval_status === 'approved' && (
-          <Button size="sm" variant="outline" onClick={() => toggleTenant(t.id).then(onRefresh)}>
-            {t.is_active ? '停用' : '启用'}
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button size="sm" variant="outline" onClick={handleRecordPayment} disabled={loading}>
+              <DollarSign className="mr-1 h-3 w-3" /> 缴费
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowApprove(true)}>
+              <Settings className="mr-1 h-3 w-3" /> 套餐
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => toggleTenant(t.id).then(onRefresh)}>
+              {t.is_active ? '停用' : '启用'}
+            </Button>
+          </div>
         )}
       </div>
 
       {showApprove && (
         <div className="rounded border p-3 space-y-2 dark:border-gray-600">
-          <div className="flex gap-2">
-            <select className="rounded border px-2 py-1 text-sm dark:bg-gray-800" value={plan} onChange={(e) => setPlan(e.target.value)}>
-              <option value="trial">试用 (Trial)</option>
-              <option value="pro">专业版 (Pro)</option>
-              <option value="enterprise">企业版 (Enterprise)</option>
-              <option value="custom">自定义</option>
-            </select>
-            <input type="number" className="w-24 rounded border px-2 py-1 text-sm dark:bg-gray-800" value={amount} onChange={(e) => setAmount(Number(e.target.value))} placeholder="月费(元)" />
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <label className="text-xs text-gray-500">套餐</label>
+              <select className="w-full rounded border px-2 py-1 dark:bg-gray-800" value={plan} onChange={(e) => setPlan(e.target.value)}>
+                <option value="free">免费版</option>
+                <option value="trial">试用版</option>
+                <option value="pro">专业版</option>
+                <option value="enterprise">企业版</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500">月费(元)</label>
+              <input type="number" className="w-full rounded border px-2 py-1 dark:bg-gray-800" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500">子账户数</label>
+              <input type="number" className="w-full rounded border px-2 py-1 dark:bg-gray-800" value={maxUsers} onChange={(e) => setMaxUsers(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500">最大案件</label>
+              <input type="number" className="w-full rounded border px-2 py-1 dark:bg-gray-800" value={maxCases} onChange={(e) => setMaxCases(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500">日AI配额</label>
+              <input type="number" className="w-full rounded border px-2 py-1 dark:bg-gray-800" value={aiQuota} onChange={(e) => setAiQuota(Number(e.target.value))} />
+            </div>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleApprove}>确认批准</Button>
+            <Button size="sm" onClick={handleApprove} disabled={loading}>保存套餐</Button>
             <Button size="sm" variant="outline" onClick={() => setShowApprove(false)}>取消</Button>
           </div>
         </div>

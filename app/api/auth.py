@@ -241,6 +241,12 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
             detail="用户名或密码错误",
         )
 
+    if not result.get("success", True):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail=result.get("error", "账户不可用"),
+        )
+
     return {
         "success": True,
         "user": result["user"],

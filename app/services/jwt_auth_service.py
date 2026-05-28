@@ -216,6 +216,13 @@ class JWTAuthService:
         if tenant.approval_status != "approved" and not user.is_platform_admin:
             return None
 
+        # 计费检查（平台超管跳过）
+        if not user.is_platform_admin:
+            from app.services.billing_service import billing_service
+            check = billing_service.check_and_enforce(db, tenant)
+            if not check["ok"]:
+                return {"success": False, "error": check["message"]}
+
         user.last_login_at = datetime.utcnow()
         db.commit()
 

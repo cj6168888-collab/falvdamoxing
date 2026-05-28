@@ -68,3 +68,13 @@ export async function toggleTenant(tenantId: string) {
   const { data } = await axiosInstance.post(`/api/platform/tenants/${tenantId}/toggle`);
   return data;
 }
+
+export async function recordPayment(body: { tenant_id: string; amount: number; billing_cycle: string }) {
+  const { data } = await axiosInstance.post('/api/platform/tenants/payment', body);
+  return data;
+}
+
+export async function getPaymentHistory(tenantId: string) {
+  const { data } = await axiosInstance.get(`/api/platform/tenants/${tenantId}/payments`);
+  return data;
+}

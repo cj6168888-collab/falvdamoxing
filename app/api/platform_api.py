@@ -228,3 +228,64 @@ def toggle_tenant_active(
     db.commit()
     action = "启用" if tenant.is_active else "停用"
     return {"success": True, "message": f"已{action} {tenant.name}"}
+
+
+class RecordPaymentRequest(BaseModel):
+    tenant_id: str
+    amount: float = Field(..., gt=0)
+    billing_cycle: str = Field(default="monthly")
+    payment_method: str = Field(default="manual")
+
+
+class PaymentRecordResponse(BaseModel):
+    id: int
+    tenant_id: str
+    amount: float
+    billing_cycle: str
+    payment_method: Optional[str] = None
+    paid_at: Optional[str] = None
+    period_start: Optional[str] = None
+    period_end: Optional[str] = None
+    status: str
+    notes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+@router.post("/tenants/payment", response_model=SimpleResponse)
+def record_payment(
+    req: RecordPaymentRequest,
+    admin: User = Depends(_require_platform_admin),
+    db: Session = Depends(get_db),
+):
+    from app.services.billing_service import billing_service
+
+    record = billing_service.record_payment(
+        db, req.tenant_id, req.amount,
+        billing_cycle=req.billing_cycle,
+        payment_method=req.payment_method,
+        created_by=admin.username,
+    )
+    return {"success": True, "message": f"已记录缴费 {record.amount}元 ({record.billing_cycle})"}
+
+
+@router.get("/tenants/{tenant_id}/payments", response_model=List[PaymentRecordResponse])
+def get_payment_history(
+    tenant_id: str,
+    admin: User = Depends(_require_platform_admin),
+    db: Session = Depends(get_db),
+):
+    from app.services.billing_service import billing_service
+    records = billing_service.get_payment_history(db, tenant_id)
+    return [
+        PaymentRecordResponse(
+            id=r.id, tenant_id=r.tenant_id, amount=r.amount,
+            billing_cycle=r.billing_cycle, payment_method=r.payment_method,
+            paid_at=r.paid_at.isoformat() if r.paid_at else None,
+            period_start=r.period_start.isoformat() if r.period_start else None,
+            period_end=r.period_end.isoformat() if r.period_end else None,
+            status=r.status, notes=r.notes,
+        )
+        for r in records
+    ]

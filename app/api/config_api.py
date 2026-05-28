@@ -20,6 +20,7 @@ class ApiKeyConfig(BaseModel):
     value: str
     masked: bool = False  # 是否已掩码
     source: Optional[str] = None  # 申请来源地址
+    free_alternative: Optional[str] = None  # 免费替代方案
 
 
 class ApiKeyConfigRequest(BaseModel):
@@ -45,6 +46,7 @@ class ApiKeyInfo(BaseModel):
     has_value: bool
     masked_value: Optional[str] = None
     source: Optional[str] = None  # 申请来源地址
+    free_alternative: Optional[str] = None  # 免费替代方案
 
 
 # API Key 配置定义
@@ -55,6 +57,7 @@ API_KEY_DEFINITIONS = {
         "description": "用于调用通义千问大语言模型",
         "required": True,
         "category": "llm",
+        "free_alternative": "本地 Ollama 部署 qwen2.5 或 legalone-r1，免费无限制",
     },
     "OLLAMA_BASE_URL": {
         "name": "Ollama 服务地址",
@@ -80,18 +83,21 @@ API_KEY_DEFINITIONS = {
         "description": "用于裁判文书查询、律师信息检索",
         "required": False,
         "category": "law",
+        "free_alternative": "中国裁判文书网（wenshu.court.gov.cn）免费查询 + 北大法宝公开版",
     },
     "BAITEN_API_KEY": {
         "name": "佰腾大数据 API Key",
         "description": "用于法律法规大数据检索",
         "required": False,
         "category": "law",
+        "free_alternative": "国家法律法规数据库（flk.npc.gov.cn）免费全文检索",
     },
     "YILIAN_API_KEY": {
         "name": "易连数据 API Key",
         "description": "用于司法综合数据查询",
         "required": False,
         "category": "law",
+        "free_alternative": "中国庭审公开网 + 信用中国 替代基础查询",
     },
     # 节假日 API
     "HOLIDAY_API_KEY": {
@@ -99,6 +105,7 @@ API_KEY_DEFINITIONS = {
         "description": "用于法定期限计算",
         "required": False,
         "category": "calendar",
+        "free_alternative": "系统内置 chinese_calendar 库 + 国务院办公厅通知（免费）",
     },
     # 企业信息验证
     "COMPANY_INFO_API_BASE_URL": {
@@ -106,30 +113,35 @@ API_KEY_DEFINITIONS = {
         "description": "用于企业工商信息查询的服务地址，例如 https://provider.example.com/api",
         "required": False,
         "category": "verification",
+        "free_alternative": "国家企业信用信息公示系统（gsxt.gov.cn）免费查询",
     },
     "COMPANY_INFO_API_KEY": {
         "name": "企业工商信息 API Key",
         "description": "用于企业名称、统一社会信用代码、法定代表人等工商信息查询",
         "required": False,
         "category": "verification",
+        "free_alternative": "天眼查/企查查免费版 或 gsxt.gov.cn 官网",
     },
     "CLEARBIT_API_KEY": {
         "name": "Clearbit API Key",
         "description": "用于自动获取企业 Logo",
         "required": False,
         "category": "verification",
+        "free_alternative": "谷歌 Favicon API 免费获取网站图标",
     },
     "NUMVERIFY_API_KEY": {
         "name": "Numverify API Key",
         "description": "用于电话号码验证",
         "required": False,
         "category": "verification",
+        "free_alternative": "正则校验 + 阿里云短信验证码（注册即送额度）",
     },
     "MAILBOX_VALIDATOR_API_KEY": {
         "name": "MailboxValidator API Key",
         "description": "用于邮箱地址验证",
         "required": False,
         "category": "verification",
+        "free_alternative": "SMTP 握手验证（开源 free-email-validator）",
     },
     # 工具类 API
     "PDFLAYER_API_KEY": {
@@ -137,12 +149,14 @@ API_KEY_DEFINITIONS = {
         "description": "用于文档转 PDF",
         "required": False,
         "category": "utility",
+        "free_alternative": "本机安装 Ollama 即免费（默认 http://localhost:11434）",
     },
     "OCR_SPACE_API_KEY": {
         "name": "OCR.space API Key",
         "description": "用于云端 OCR 文字识别",
         "required": False,
         "category": "utility",
+        "free_alternative": "推荐 legalone-r1:8b（法律专项，免费）或 qwen2.5:7b（通用，免费）",
     },
 }
 
@@ -216,6 +230,7 @@ async def get_api_key_info() -> List[ApiKeyInfo]:
             has_value=bool(value),
             masked_value=display_config_value(key, value) if value else None,
             source=source or None,
+            free_alternative=info.get("free_alternative") or None,
         ))
     return result
 
