@@ -64,3 +64,12 @@ uploads/
 # 大型资源文件
 legal-ai-project-video/
 exports/
+
+# 客户端构建产物
+client/app/
+client/dist/
+client/dist-exe/
+client/build/
+client/*.spec
+client/*.zip
+client/__pycache__/
