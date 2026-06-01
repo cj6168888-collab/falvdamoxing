@@ -4,6 +4,7 @@ import axiosInstance from '@/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ClaimBasisMatrix } from '@/components/senior-analysis/claim-basis-matrix';
+import { FactEvidenceInferenceColumns } from '@/components/senior-analysis/fact-evidence-inference-columns';
 import { Sparkles, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTaskStore, pollTaskStatus } from '@/stores/task.store';
@@ -18,13 +19,13 @@ interface SeniorAnalysisResult {
   status?: string;
   message?: string;
   summary?: unknown;
-  case_understanding?: unknown;
-  evidence_inventory?: unknown;
+  case_understanding?: Record<string, unknown>;
+  evidence_inventory?: Record<string, unknown>;
   evidence_review?: unknown;
   requirements_check?: {
     requirements?: Array<Record<string, unknown>>;
   };
-  issues?: unknown;
+  issues?: Record<string, unknown>;
   risk_assessment?: unknown;
   recommendations?: unknown;
   strategy_suggestions?: unknown;
@@ -163,6 +164,13 @@ export default function SeniorAnalysisPage() {
             <AnalysisSection title="分析摘要" value={analysisResult.summary} />
             <AnalysisSection title="案件理解" value={analysisResult.case_understanding} />
             <AnalysisSection title="证据盘点" value={analysisResult.evidence_inventory ?? analysisResult.evidence_review} />
+            <FactEvidenceInferenceColumns
+              caseUnderstanding={analysisResult.case_understanding}
+              evidenceInventory={analysisResult.evidence_inventory}
+              requirementsCheck={analysisResult.requirements_check}
+              issues={analysisResult.issues}
+              recommendations={analysisResult.recommendations ?? analysisResult.strategy_suggestions}
+            />
             <ClaimBasisMatrix requirementsCheck={analysisResult.requirements_check} />
             <AnalysisSection title="要件核对" value={analysisResult.requirements_check} />
             <AnalysisSection title="问题发现" value={analysisResult.issues} />
