@@ -44,7 +44,7 @@ ModelRouter 是系统的智能LLM路由组件，负责：
 | **案件结果预测** | `prediction` | high | 云端 | 结果预测 |
 | **法官视角评估** | `judge_perspective` | high | 云端 | 法官思维分析 |
 | **策略综合合成** | `strategy_synthesis` | high | 云端 | 多策略整合 |
-| **胜诉概率评估** | `win_probability` | high | 云端 | 胜诉评估 |
+| **裁判支持度参考** | `win_probability` | high | 云端 | 诉讼风险评估 |
 
 ### 2.2 路由决策矩阵
 

@@ -208,7 +208,7 @@ Authorization: Bearer <token>
 | 财务汇总 | `GET /case/{id}/finance` | 获取财务汇总 |
 | 费用记录 | `GET /case/{id}/fees` | 获取费用记录 |
 | 添加费用 | `POST /case/{id}/fees` | 添加费用 |
-| 胜诉评估 | `POST /case/{id}/estimate` | 胜诉概率评估 |
+| 诉讼风险评估 | `POST /case/{id}/estimate` | 裁判支持度参考与成本收益评估 |
 | 成本收益 | `GET /case/{id}/cost-benefit` | 成本收益分析 |
 
 ---

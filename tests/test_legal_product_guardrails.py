@@ -8,9 +8,15 @@ SCAN_ROOTS = [
     PROJECT_ROOT / "app" / "api",
     PROJECT_ROOT / "app" / "services",
     PROJECT_ROOT / "app" / "models",
+    PROJECT_ROOT / "docs",
 ]
 
-TEXT_SUFFIXES = {".py", ".ts", ".tsx"}
+TEXT_SUFFIXES = {".md", ".py", ".ts", ".tsx"}
+
+ALLOWLISTED_DOCS = {
+    "docs/legal-ai-product-guardrails.md",
+    "docs/lawyer-workflow-upgrade-roadmap.md",
+}
 
 FORBIDDEN_TERMS = {
     "AI律师",
@@ -33,6 +39,9 @@ def _is_compatibility_exception(path: Path, term: str, line: str) -> bool:
             "胜诉概率: Optional[float]" in line
             or "data.胜诉概率" in line
         )
+
+    if rel in ALLOWLISTED_DOCS:
+        return True
 
     return False
 
