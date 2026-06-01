@@ -31,7 +31,7 @@ export function DocumentRecommendations({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-sm font-medium">推荐文书（点击生成）</p>
+            <p className="text-sm font-medium">推荐文书草稿（点击起草）</p>
           </div>
           {documents.length > 1 && onGenerateAllDocs && (
             <Button
@@ -42,7 +42,7 @@ export function DocumentRecommendations({
               disabled={isGenerating}
             >
               <Sparkles className="mr-1 h-3 w-3" />
-              {isGenerating ? '生成中...' : '一键全部生成'}
+              {isGenerating ? '起草中...' : '批量起草草稿'}
             </Button>
           )}
         </div>
