@@ -5,7 +5,7 @@ import { Shield, Upload, FileText, ChevronDown, ChevronUp, Star, Info } from 'lu
 import { EvidenceUploader } from './evidence-uploader';
 
 interface EvidenceItem {
-  id: number;
+  id: number | string;
   display_name?: string;
   original_filename?: string;
   evidence_type?: string;
@@ -15,6 +15,17 @@ interface EvidenceItem {
   credibility_score?: number;
   proves_facts?: string[];
   keywords?: string[];
+  evidence_review?: {
+    proof_purpose?: string;
+    original_status?: string;
+    formed_at?: string;
+    authenticity_risk?: string;
+    legality_risk?: string;
+    relevance_risk?: string;
+    strengthening_actions?: string[];
+    review_notes?: string;
+    reviewed_at?: string;
+  } | null;
 }
 
 interface EvidencePanelProps {
@@ -33,7 +44,7 @@ export function EvidencePanel({
   onEvidenceUploaded,
 }: EvidencePanelProps) {
   const [showAll, setShowAll] = useState(false);
-  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<number | string>>(new Set());
 
   const displayList = showAll ? evidenceList : evidenceList.slice(0, 20);
 
@@ -65,7 +76,7 @@ export function EvidencePanel({
     return 'text-red-600';
   };
 
-  const toggleExpand = (id: number) => {
+  const toggleExpand = (id: number | string) => {
     setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -77,6 +88,11 @@ export function EvidencePanel({
   const getDisplayContent = (ev: EvidenceItem) => {
     // 优先显示提取的内容，其次原始内容
     return ev.extracted_content || ev.raw_content || ev.summary || '无内容';
+  };
+
+  const formatReviewActions = (actions?: string[]) => {
+    if (!actions || actions.length === 0) return '待补充';
+    return actions.filter(Boolean).join('；') || '待补充';
   };
 
   const content = (
@@ -135,6 +151,8 @@ export function EvidencePanel({
           {displayList.map((ev) => {
             const isExpanded = expandedIds.has(ev.id);
             const displayContent = getDisplayContent(ev);
+            const review = ev.evidence_review;
+            const hasReview = Boolean(review);
 
             return (
               <Collapsible key={ev.id} open={isExpanded} onOpenChange={() => toggleExpand(ev.id)}>
@@ -149,6 +167,15 @@ export function EvidencePanel({
                           <div className="flex items-center gap-1 mt-1 flex-wrap">
                             <span className={`text-xs px-1.5 py-0.5 rounded ${getTypeColor(ev.evidence_type || '')}`}>
                               {ev.evidence_type || '未分类'}
+                            </span>
+                            <span
+                              className={`text-xs px-1.5 py-0.5 rounded ${
+                                hasReview
+                                  ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-300'
+                                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300'
+                              }`}
+                            >
+                              {hasReview ? '已人工复核' : '待人工复核'}
                             </span>
                             {ev.credibility_score && (
                               <span className={`text-xs flex items-center gap-0.5 ${getCredibilityColor(ev.credibility_score)}`}>
@@ -184,6 +211,49 @@ export function EvidencePanel({
                       )}
 
                       {/* 证明的事实 */}
+                      <div className="rounded border border-teal-200 bg-teal-50/70 p-2 dark:border-teal-900/60 dark:bg-teal-950/20">
+                        <p className="text-xs font-medium text-teal-800 dark:text-teal-300 flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          人工复核工作底稿
+                        </p>
+                        <dl className="mt-2 grid gap-1 text-xs text-teal-900 dark:text-teal-100">
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">证明目的</dt>
+                            <dd>{review?.proof_purpose || '待人工填写'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">原件状态</dt>
+                            <dd>{review?.original_status || '待核验'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">形成时间</dt>
+                            <dd>{review?.formed_at || '待核验'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">真实性</dt>
+                            <dd>{review?.authenticity_risk || '待人工核验'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">合法性</dt>
+                            <dd>{review?.legality_risk || '待人工核验'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">关联性</dt>
+                            <dd>{review?.relevance_risk || '待人工核验'}</dd>
+                          </div>
+                          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                            <dt className="text-teal-700 dark:text-teal-300">补强动作</dt>
+                            <dd>{formatReviewActions(review?.strengthening_actions)}</dd>
+                          </div>
+                          {review?.review_notes && (
+                            <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
+                              <dt className="text-teal-700 dark:text-teal-300">复核备注</dt>
+                              <dd>{review.review_notes}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </div>
+
                       {ev.proves_facts && ev.proves_facts.length > 0 && (
                         <div className="bg-green-50 dark:bg-green-950/20 rounded p-2">
                           <p className="text-xs font-medium text-green-700 dark:text-green-400">证明事实</p>

@@ -37,7 +37,7 @@ interface ChatMessage {
 }
 
 interface EvidenceItem {
-  id: number;
+  id: number | string;
   display_name?: string;
   original_filename?: string;
   evidence_type?: string;
@@ -47,6 +47,17 @@ interface EvidenceItem {
   credibility_score?: number;
   proves_facts?: string[];
   keywords?: string[];
+  evidence_review?: {
+    proof_purpose?: string;
+    original_status?: string;
+    formed_at?: string;
+    authenticity_risk?: string;
+    legality_risk?: string;
+    relevance_risk?: string;
+    strengthening_actions?: string[];
+    review_notes?: string;
+    reviewed_at?: string;
+  } | null;
 }
 
 interface SmartChatAnalysisRecord {
