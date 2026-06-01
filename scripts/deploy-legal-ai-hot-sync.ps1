@@ -62,6 +62,12 @@ if (-not $SkipFrontendBuild) {
     }
 }
 
+Invoke-Checked "Package Windows client download" {
+    & (Join-Path $repoRoot "scripts\package-windows-client-download.ps1") `
+        -Version "2.1.0" `
+        -OutputDir (Join-Path $repoRoot "frontend\dist\downloads")
+}
+
 Invoke-Checked "Create release archives" {
     if (Test-Path $releaseTar) { Remove-Item $releaseTar }
     if (Test-Path $frontendTar) { Remove-Item $frontendTar }

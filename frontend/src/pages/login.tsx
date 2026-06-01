@@ -173,15 +173,15 @@ export default function LoginPage() {
             推荐使用网页版，无需安装。如需桌面快捷方式，请下载客户端。
           </p>
           <a
-            href="/downloads/legal-ai-client.tar.gz"
+            href="/downloads/LegalAI-Windows-Client-v2.1.0.zip"
             className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
           >
             <MonitorDown size={18} />
             下载 Windows 客户端
           </a>
-          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 43MB · Win10/11</span>
+          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 安装包+说明书 · Win10/11</span>
           <p className="mt-2 text-xs text-gray-400">
-            下载后解压 tar.gz → 双击 setup.exe 安装。如遇 SmartScreen 点"仍要运行"。
+            下载后解压 zip，先阅读使用说明书，再双击安装程序安装。
           </p>
         </CardContent>
       </Card>
