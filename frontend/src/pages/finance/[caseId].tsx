@@ -215,7 +215,7 @@ export default function FinancePage() {
                   {winRateData.win_rate_confidence !== undefined && winRateData.win_rate_confidence !== null && (
                     <div className="text-center">
                       <div className="text-4xl font-bold text-green-600">{winRateData.win_rate_confidence}%</div>
-                      <p className="text-sm text-muted-foreground mt-1">评估置信度</p>
+                      <p className="text-sm text-muted-foreground mt-1">评估参考度</p>
                     </div>
                   )}
                 </div>

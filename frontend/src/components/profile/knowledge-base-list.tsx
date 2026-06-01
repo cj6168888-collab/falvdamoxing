@@ -56,7 +56,7 @@ export function KnowledgeBaseList({ knowledge }: Props) {
                       <Badge variant="success" className="text-xs">已验证</Badge>
                     )}
                     <span className="text-xs text-muted-foreground">
-                      置信度: {(atom.confidence * 100).toFixed(0)}%
+                      识别参考: {(atom.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
                 </div>

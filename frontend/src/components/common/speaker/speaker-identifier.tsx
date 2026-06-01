@@ -30,7 +30,7 @@ export interface Speaker {
   role: SpeakerRole;
   color: string;
   isActive?: boolean;
-  confidence?: number; // 置信度 0-1
+  confidence?: number; // 识别参考 0-1
 }
 
 interface SpeakerConfig {
@@ -90,7 +90,7 @@ interface SpeakerIdentifierProps {
   currentText?: string;
   /** 当前发言的角色 */
   currentSpeaker?: string;
-  /** 置信度 */
+  /** 识别参考 */
   confidence?: number;
   /** 发言人们 */
   speakers?: Speaker[];
@@ -186,7 +186,7 @@ export function SpeakerIdentifier({
     }
   };
 
-  // 获取置信度等级
+  // 获取识别参考等级
   const getConfidenceLevel = (conf: number) => {
     if (conf >= 0.8) return { label: '高', color: 'text-green-600' };
     if (conf >= 0.6) return { label: '中', color: 'text-yellow-600' };
@@ -218,13 +218,13 @@ export function SpeakerIdentifier({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 置信度显示 */}
+            {/* 识别参考显示 */}
             {confidence > 0 && (
               <Badge
                 variant="outline"
                 className={`text-xs ${confidenceLevel.color}`}
               >
-                置信度: {Math.round(confidence * 100)}%
+                识别参考: {Math.round(confidence * 100)}%
               </Badge>
             )}
 
@@ -318,11 +318,11 @@ export function SpeakerIdentifier({
                       </select>
                     </div>
 
-                    {/* 置信度阈值 */}
+                    {/* 识别参考阈值 */}
                     {mode === 'auto' && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs">置信度阈值</Label>
+                          <Label className="text-xs">识别参考阈值</Label>
                           <span className="text-xs text-muted-foreground">
                             {Math.round(confidenceThreshold[0] * 100)}%
                           </span>

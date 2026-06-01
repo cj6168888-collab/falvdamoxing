@@ -54,7 +54,7 @@ export function KnowledgeGraphView({ graphData }: Props) {
                     </div>
                     <p className="text-sm">{node.label}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      置信度: {(node.confidence * 100).toFixed(0)}%
+                      识别参考: {(node.confidence * 100).toFixed(0)}%
                     </p>
                   </div>
                 ))}

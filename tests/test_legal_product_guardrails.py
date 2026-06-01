@@ -99,3 +99,25 @@ def test_user_facing_evidence_score_wording_uses_workpaper_language():
                         violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
 
     assert not violations, "Evidence score wording should use proof-strength/workpaper language:\n" + "\n".join(violations)
+
+
+def test_user_facing_confidence_wording_uses_reference_language():
+    files = [
+        PROJECT_ROOT / "frontend" / "src" / "components" / "profile" / "knowledge-graph-view.tsx",
+        PROJECT_ROOT / "frontend" / "src" / "components" / "profile" / "knowledge-base-list.tsx",
+        PROJECT_ROOT / "frontend" / "src" / "components" / "common" / "speaker" / "speaker-identifier.tsx",
+        PROJECT_ROOT / "frontend" / "src" / "pages" / "finance" / "[caseId].tsx",
+        PROJECT_ROOT / "app" / "services" / "finance_service.py",
+    ]
+    forbidden = ["置信度", "可信度"]
+    violations: list[str] = []
+
+    for path in files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), 1):
+            for term in forbidden:
+                if term in line:
+                    rel = path.relative_to(PROJECT_ROOT).as_posix()
+                    violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
+
+    assert not violations, "User-facing confidence wording should use reference language:\n" + "\n".join(violations)
