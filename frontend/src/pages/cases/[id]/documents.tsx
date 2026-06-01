@@ -180,7 +180,7 @@ export default function CaseDocumentsPage() {
     setViewMode('generate');
   };
 
-  // 开始生成
+  // 开始起草
   const handleStartGenerate = async () => {
     if (!selectedTemplate || !id) return;
 
@@ -380,7 +380,7 @@ export default function CaseDocumentsPage() {
     }
   };
 
-  // 重新生成（基于当前文书，保留历史修改）
+  // 重新起草（基于当前文书，保留历史修改）
   const handleRegenerate = async () => {
     if (!currentDocId || !id) {
       // 无当前文书，直接新建
@@ -392,7 +392,7 @@ export default function CaseDocumentsPage() {
       return;
     }
 
-    // 基于当前文书重新生成，保留历史修改
+    // 基于当前文书重新起草，保留历史修改
     setIsGenerating(true);
     try {
       const res = await axiosInstance.post('/api/smart-chat/generate-document', {
@@ -411,12 +411,12 @@ export default function CaseDocumentsPage() {
       setChatMessages([
         {
           role: 'assistant',
-          content: `已基于历史修改重新生成文书！\n\n之前的修改意见已被保留，请在当前基础上继续修改。`,
+          content: `已基于历史修改重新起草文书草稿！\n\n之前的修改意见已被保留，请在当前基础上继续核验修改。`,
           timestamp: new Date().toISOString(),
         },
       ]);
     } catch (err) {
-      toast.error('重新生成失败');
+      toast.error('重新起草失败');
     } finally {
       setIsGenerating(false);
     }
@@ -461,7 +461,7 @@ export default function CaseDocumentsPage() {
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-bold">文书草稿</h2>
-          <p className="text-sm text-muted-foreground">选择文书类型，AI 将基于案件信息自动生成</p>
+          <p className="text-sm text-muted-foreground">选择文书类型，系统将基于案件信息起草待核验文书草稿</p>
         </div>
 
         <Tabs defaultValue="templates" className="w-full">
@@ -642,13 +642,13 @@ export default function CaseDocumentsPage() {
               className="w-full"
             >
               {isGenerating ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />AI 正在生成文书...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />正在起草文书草稿...</>
               ) : (
-                <><Sparkles className="mr-2 h-4 w-4" />开始生成</>
+                <><Sparkles className="mr-2 h-4 w-4" />开始起草草稿</>
               )}
             </Button>
             <p className="text-xs text-muted-foreground">
-              AI 将基于案件全部证据生成文书，并在文书中标注证据序号
+              系统将基于案件全部证据起草文书草稿，并在草稿中标注证据序号；提交或对外发送前请逐项核验。
             </p>
           </CardContent>
         </Card>
@@ -675,7 +675,7 @@ export default function CaseDocumentsPage() {
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleRegenerate}>
               <RotateCcw className="mr-1 h-4 w-4" />
-              重新生成
+              重新起草草稿
             </Button>
             {!isConfirmed ? (
               <Button
@@ -740,7 +740,7 @@ export default function CaseDocumentsPage() {
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                    正在生成文书...
+                    正在起草文书草稿...
                   </div>
                 )}
               </CardContent>

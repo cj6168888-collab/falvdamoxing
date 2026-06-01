@@ -214,3 +214,23 @@ def test_appeal_document_generator_uses_draft_wording():
     assert "AI 草稿，待人工核验" in tracking_text
     assert "requires_human_review" in tracking_text
     assert not violations, "Appeal document generator should use draft/review wording:\n" + "\n".join(violations)
+
+
+def test_case_documents_page_uses_reviewable_draft_wording():
+    path = PROJECT_ROOT / "frontend" / "src" / "pages" / "cases" / "[id]" / "documents.tsx"
+    text = path.read_text(encoding="utf-8", errors="ignore")
+
+    forbidden = [
+        "选择文书类型，AI 将基于案件信息自动生成",
+        "AI 正在生成文书",
+        "AI 将基于案件全部证据生成文书",
+        "已基于历史修改重新生成文书",
+        "正在生成文书",
+    ]
+
+    for term in forbidden:
+        assert term not in text
+
+    assert "系统将基于案件信息起草待核验文书草稿" in text
+    assert "提交或对外发送前请逐项核验" in text
+    assert "重新起草文书草稿" in text
