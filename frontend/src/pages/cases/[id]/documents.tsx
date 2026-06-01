@@ -322,11 +322,38 @@ export default function CaseDocumentsPage() {
     }
   };
 
-  const executePendingExport = async () => {
+  const recordExportReviewAudit = async (checkedItems: string[]) => {
+    if (!pendingExport) return;
+
+    const exportFormat =
+      pendingExport.kind === 'download'
+        ? pendingExport.format
+        : pendingExport.kind === 'markdown'
+          ? 'markdown'
+          : 'pdf';
+    const generatedDocumentId =
+      pendingExport.kind === 'download'
+        ? Number(pendingExport.docId)
+        : currentDocId || undefined;
+
+    await axiosInstance.post('/api/documents/export-review-audits', {
+      generated_document_id: typeof generatedDocumentId === 'number' && Number.isFinite(generatedDocumentId) ? generatedDocumentId : undefined,
+      case_id: id ? parseInt(id) : undefined,
+      document_title: pendingExport.documentTitle || currentDocTitle || selectedTemplate?.name,
+      document_type: currentDocTitle || selectedTemplate?.name,
+      export_action: pendingExport.kind,
+      export_format: exportFormat,
+      checked_items: checkedItems,
+    });
+  };
+
+  const executePendingExport = async (checkedItems: string[]) => {
     if (!pendingExport) return;
 
     setIsReviewExporting(true);
     try {
+      await recordExportReviewAudit(checkedItems);
+
       if (pendingExport.kind === 'download') {
         const url = `/api/documents/${pendingExport.docId}/download?format=${pendingExport.format}&doc_type=generated`;
         window.open(url, '_blank');

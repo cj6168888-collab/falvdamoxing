@@ -133,6 +133,28 @@ class GeneratedDocument(Base):
     claim = relationship("CaseClaim", back_populates="documents")
 
 
+class DocumentExportReviewAudit(Base):
+    """Audit trail for document export review checklist confirmations."""
+
+    __tablename__ = "document_export_review_audits"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(String(36), index=True, nullable=True)
+    user_id = Column(String(200), index=True, nullable=True)
+    case_id = Column(Integer, index=True, nullable=True)
+    generated_document_id = Column(Integer, ForeignKey("generated_documents.id", ondelete="SET NULL"), index=True, nullable=True)
+    document_title = Column(String(500), nullable=True)
+    document_type = Column(String(100), nullable=True)
+    export_action = Column(String(50), index=True, nullable=False)
+    export_format = Column(String(30), index=True, nullable=False)
+    checked_items = Column(JSON, nullable=False, default=list)
+    checked_item_count = Column(Integer, nullable=False, default=0)
+    confirmed_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    generated_document = relationship("GeneratedDocument", foreign_keys=[generated_document_id])
+
+
 class DocumentSuggestion(Base):
     """
     文书生成建议 - 逻辑闭环

@@ -18,7 +18,8 @@ CURRENT_YEAR = datetime.now().year
 
 from app.db.database import get_db
 from app.config import settings
-from app.models.document import Document, DocumentTemplate
+from app.core.tenant_context import TenantContext
+from app.models.document import Document, DocumentExportReviewAudit, DocumentTemplate, GeneratedDocument
 from app.models.case import Case
 from app.models.evidence import EvidenceItem, EvidenceSourceType, EvidenceSourceParty, EvidenceStatus
 from app.services.rag_service import rag_service
@@ -27,6 +28,15 @@ from app.services.llm_service import llm_service
 from app.utils.file_parser import file_parser
 
 from pydantic import BaseModel, Field
+
+REQUIRED_DOCUMENT_EXPORT_REVIEW_ITEMS = {
+    "parties",
+    "claims",
+    "facts",
+    "evidence",
+    "law",
+    "signature",
+}
 
 # ============ 安全常量 ============
 # 文件大小限制由 app.config.settings.max_file_size_mb 统一控制（默认50MB）
@@ -111,6 +121,16 @@ class DocumentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DocumentExportReviewAuditRequest(BaseModel):
+    generated_document_id: int | None = None
+    case_id: int | None = None
+    document_title: str | None = None
+    document_type: str | None = None
+    export_action: str = Field(..., min_length=1, max_length=50)
+    export_format: str = Field(..., min_length=1, max_length=30)
+    checked_items: List[str] = Field(default_factory=list)
 
 
 class DocumentGenerateRequest(BaseModel):
@@ -1169,6 +1189,94 @@ def format_document(request: DocumentFormatRequest, db: Session = Depends(get_db
 
 
 # ============ 文书下载 API ============
+
+
+def _serialize_export_review_audit(audit: DocumentExportReviewAudit) -> dict:
+    return {
+        "id": audit.id,
+        "tenant_id": audit.tenant_id,
+        "user_id": audit.user_id,
+        "case_id": audit.case_id,
+        "generated_document_id": audit.generated_document_id,
+        "document_title": audit.document_title,
+        "document_type": audit.document_type,
+        "export_action": audit.export_action,
+        "export_format": audit.export_format,
+        "checked_items": audit.checked_items or [],
+        "checked_item_count": audit.checked_item_count,
+        "confirmed_at": audit.confirmed_at.isoformat() if audit.confirmed_at else None,
+        "created_at": audit.created_at.isoformat() if audit.created_at else None,
+    }
+
+
+@router.post("/export-review-audits")
+def create_export_review_audit(
+    request: DocumentExportReviewAuditRequest,
+    db: Session = Depends(get_db),
+):
+    checked_items = set(request.checked_items or [])
+    missing_items = sorted(REQUIRED_DOCUMENT_EXPORT_REVIEW_ITEMS - checked_items)
+    if missing_items:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "文书导出前核验清单未完成",
+                "missing_items": missing_items,
+            },
+        )
+
+    document = None
+    if request.generated_document_id is not None:
+        document = (
+            db.query(GeneratedDocument)
+            .filter(GeneratedDocument.id == request.generated_document_id)
+            .first()
+        )
+        if not document:
+            raise HTTPException(status_code=404, detail="文书不存在")
+
+    audit = DocumentExportReviewAudit(
+        tenant_id=TenantContext.get_tenant_id(),
+        user_id=TenantContext.get_user_id(),
+        case_id=request.case_id or (document.case_id if document else None),
+        generated_document_id=request.generated_document_id,
+        document_title=request.document_title or (document.title if document else None),
+        document_type=request.document_type or (document.document_type if document else None),
+        export_action=request.export_action,
+        export_format=request.export_format,
+        checked_items=sorted(checked_items),
+        checked_item_count=len(checked_items),
+    )
+    db.add(audit)
+    db.commit()
+    db.refresh(audit)
+
+    return {
+        "success": True,
+        "audit": _serialize_export_review_audit(audit),
+    }
+
+
+@router.get("/{doc_id}/export-review-audits")
+def list_export_review_audits(
+    doc_id: int,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+):
+    limit = max(1, min(limit, 100))
+    audits = (
+        db.query(DocumentExportReviewAudit)
+        .filter(DocumentExportReviewAudit.generated_document_id == doc_id)
+        .order_by(DocumentExportReviewAudit.confirmed_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return {
+        "document_id": doc_id,
+        "total": len(audits),
+        "audits": [_serialize_export_review_audit(audit) for audit in audits],
+    }
+
 
 @router.get("/{doc_id}/download")
 def download_document(doc_id: int, format: str = "docx", doc_type: str = "generated", db: Session = Depends(get_db)):

@@ -131,6 +131,7 @@ from app.models.user import User, UserRole
 from app.models.api_key import APIKey
 from app.models.sms_verification import SMSVerificationCode
 from app.models.ai_audit import AIRetrievalAudit
+from app.models.document import DocumentExportReviewAudit
 
 # 合同与借款
 from app.models.contract import Contract

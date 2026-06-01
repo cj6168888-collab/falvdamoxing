@@ -26,7 +26,7 @@ interface Props {
   exportLabel?: string;
   isLoading?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: (checkedItems: string[]) => void;
 }
 
 export function DocumentExportReviewDialog({
@@ -110,7 +110,7 @@ export function DocumentExportReviewDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
               取消
             </Button>
-            <Button onClick={onConfirm} disabled={!allChecked || isLoading}>
+            <Button onClick={() => onConfirm([...checkedIds])} disabled={!allChecked || isLoading}>
               {isLoading ? '处理中...' : exportLabel}
             </Button>
           </div>
