@@ -12,6 +12,7 @@ import { PageSkeleton } from '@/components/common/loading-skeleton';
 import { MarkdownContent } from '@/components/common/markdown-content';
 import { HistoryDocumentList, type HistoryDocument } from '@/components/document/history-document-list';
 import { DocumentExportReviewDialog } from '@/components/document/document-export-review-dialog';
+import { DocumentExportAuditHistory } from '@/components/document/document-export-audit-history';
 import { downloadExportFile, exportCaseDocument } from '@/api/export.api';
 import {
   FileText, Sparkles, Send, Loader2, Download, FileDown,
@@ -353,6 +354,10 @@ export default function CaseDocumentsPage() {
     setIsReviewExporting(true);
     try {
       await recordExportReviewAudit(checkedItems);
+      const auditDocumentId = pendingExport.kind === 'download' ? pendingExport.docId : currentDocId;
+      if (auditDocumentId) {
+        queryClient.invalidateQueries({ queryKey: ['document-export-review-audits', auditDocumentId] });
+      }
 
       if (pendingExport.kind === 'download') {
         const url = `/api/documents/${pendingExport.docId}/download?format=${pendingExport.format}&doc_type=generated`;
@@ -558,6 +563,9 @@ export default function CaseDocumentsPage() {
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
                   <MarkdownContent content={previewDocument.content} />
                 </div>
+                <div className="mt-4">
+                  <DocumentExportAuditHistory documentId={previewDocument.id} compact />
+                </div>
               </div>
               <div className="p-4 border-t flex justify-end gap-2">
                 <Button
@@ -737,6 +745,9 @@ export default function CaseDocumentsPage() {
                 )}
               </CardContent>
             </Card>
+            <div className="mt-4">
+              <DocumentExportAuditHistory documentId={currentDocId} compact />
+            </div>
           </div>
 
           {/* AI 对话 */}
@@ -883,6 +894,7 @@ export default function CaseDocumentsPage() {
             </div>
           </CardContent>
         </Card>
+        <DocumentExportAuditHistory documentId={currentDocId} />
         {renderExportReviewDialog()}
       </div>
     );
