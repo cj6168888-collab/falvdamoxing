@@ -13,6 +13,7 @@ class TenantType(str, enum.Enum):
     """租户类型"""
     LAW_FIRM = "law_firm"      # 律所
     ENTERPRISE = "enterprise"  # 企业
+    PERSONAL = "personal"      # 个人
 
 
 class SubscriptionPlan(str, enum.Enum):
@@ -33,7 +34,7 @@ class SubscriptionStatus(str, enum.Enum):
 
 
 class Tenant(Base):
-    """租户（律所/企业）"""
+    """租户（律所/企业/个人）"""
     __tablename__ = "tenants"
 
     id = Column(String(36), primary_key=True)

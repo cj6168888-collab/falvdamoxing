@@ -8,6 +8,7 @@ interface TenantStore {
   // Computed
   isLawFirm: () => boolean;
   isEnterprise: () => boolean;
+  isPersonal: () => boolean;
 
   // Actions
   setTenant: (tenant: Tenant | null) => void;
@@ -20,6 +21,7 @@ export const useTenantStore = create<TenantStore>((set, get) => ({
 
   isLawFirm: () => get().tenantType === 'law_firm',
   isEnterprise: () => get().tenantType === 'enterprise',
+  isPersonal: () => get().tenantType === 'personal',
 
   setTenant: (tenant) => {
     set({

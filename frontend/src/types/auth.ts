@@ -2,7 +2,7 @@
 
 export type UserRole = 'admin' | 'lawyer' | 'assistant' | 'client' | 'viewer';
 
-export type TenantType = 'law_firm' | 'enterprise';
+export type TenantType = 'law_firm' | 'enterprise' | 'personal';
 
 export type SubscriptionPlan = 'free' | 'trial' | 'pro' | 'enterprise' | 'custom';
 
@@ -119,6 +119,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const TENANT_TYPE_LABELS: Record<TenantType, string> = {
   law_firm: '律所',
   enterprise: '企业',
+  personal: '个人',
 };
 
 export const PLAN_LABELS: Record<SubscriptionPlan, string> = {

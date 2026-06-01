@@ -33,7 +33,7 @@ class RegisterRequest(BaseModel):
     sms_code: Optional[str] = Field(default=None, min_length=4, max_length=8)
     full_name: Optional[str] = None
     tenant_name: Optional[str] = None
-    tenant_type: str = Field(default="law_firm", description="law_firm 或 enterprise")
+    tenant_type: str = Field(default="law_firm", description="law_firm/enterprise/personal")
     role: str = Field(default="assistant", description="admin/lawyer/assistant/client/viewer")
 
 
@@ -108,7 +108,7 @@ class PhoneRegisterRequest(BaseModel):
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
     tenant_name: Optional[str] = None
-    tenant_type: str = Field(default="law_firm", description="law_firm 或 enterprise")
+    tenant_type: str = Field(default="law_firm", description="law_firm/enterprise/personal")
     role: str = Field(default="assistant", description="admin/lawyer/assistant/client/viewer")
 
 

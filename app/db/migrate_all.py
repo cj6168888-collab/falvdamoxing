@@ -261,6 +261,57 @@ def _sync_missing_indexes() -> list[str]:
     return created
 
 
+def _sync_postgres_enum_values() -> list[str]:
+    if engine.dialect.name != "postgresql":
+        return []
+
+    from app.models.tenant import TenantType
+
+    enum_specs = {
+        "tenanttype": [member.name for member in TenantType],
+    }
+    added: list[str] = []
+    preparer = engine.dialect.identifier_preparer
+
+    with engine.begin() as connection:
+        for enum_name, labels in enum_specs.items():
+            exists = connection.execute(
+                text("SELECT 1 FROM pg_type WHERE typname = :enum_name"),
+                {"enum_name": enum_name},
+            ).first()
+            if not exists:
+                continue
+
+            existing = {
+                row[0]
+                for row in connection.execute(
+                    text(
+                        """
+                        SELECT e.enumlabel
+                        FROM pg_enum e
+                        JOIN pg_type t ON t.oid = e.enumtypid
+                        WHERE t.typname = :enum_name
+                        """
+                    ),
+                    {"enum_name": enum_name},
+                )
+            }
+
+            quoted_enum_name = preparer.quote(enum_name)
+            for label in labels:
+                if label in existing:
+                    continue
+                escaped_label = label.replace("'", "''")
+                connection.execute(
+                    text(f"ALTER TYPE {quoted_enum_name} ADD VALUE IF NOT EXISTS '{escaped_label}'")
+                )
+                added.append(f"{enum_name}.{label}")
+
+    if added:
+        logger.info("Added missing postgres enum values: %s", ", ".join(added))
+    return added
+
+
 def _fallback_tenant_id(connection) -> str:
     try:
         result = connection.execute(text("SELECT id FROM tenants LIMIT 1")).first()
@@ -357,6 +408,8 @@ def migrate_all() -> None:
         _drop_cross_table_index_conflicts()
         logger.info("Creating SQLAlchemy-managed tables.")
         create_all_tables()
+        logger.info("Synchronizing postgres enum values.")
+        _sync_postgres_enum_values()
         logger.info("Synchronizing missing columns on existing tables.")
         _sync_missing_columns()
         logger.info("Synchronizing missing indexes on existing tables.")

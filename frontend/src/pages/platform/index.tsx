@@ -128,7 +128,9 @@ function TenantRow({ t, onRefresh }: { t: TenantDetail; onRefresh: () => void })
           <Badge className={STATUS_COLORS[t.approval_status] || ''}>
             {STATUS_LABELS[t.approval_status] || t.approval_status}
           </Badge>
-          <Badge variant="outline">{t.tenant_type === 'law_firm' ? '律所' : '企业'}</Badge>
+          <Badge variant="outline">
+            {t.tenant_type === 'law_firm' ? '律所' : t.tenant_type === 'enterprise' ? '企业' : '个人'}
+          </Badge>
           {!t.is_active && <Badge variant="destructive">已停用</Badge>}
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-500">

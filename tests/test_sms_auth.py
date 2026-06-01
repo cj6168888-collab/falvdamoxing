@@ -136,6 +136,26 @@ async def test_phone_registration_login_and_password_reset(lightweight_app, auth
         )
         assert second_register.status_code == 200
 
+        send_personal_register = await client.post(
+            "/api/auth/sms/send",
+            json={"phone": "13800138003", "purpose": "register"},
+        )
+        assert send_personal_register.status_code == 200
+        personal_register_code = send_personal_register.json()["debug_code"]
+
+        personal_register = await client.post(
+            "/api/auth/register/phone",
+            json={
+                "phone": "13800138003",
+                "sms_code": personal_register_code,
+                "password": "personal-secret",
+                "tenant_name": "张三的法律后盾",
+                "tenant_type": "personal",
+            },
+        )
+        assert personal_register.status_code == 200
+        assert personal_register.json()["tenant"]["tenant_type"] == "personal"
+
         slugs = [tenant.slug for tenant in auth_db.query(Tenant).all()]
         assert len(slugs) == len(set(slugs))
 

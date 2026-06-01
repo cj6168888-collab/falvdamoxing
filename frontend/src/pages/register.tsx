@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Scale, Eye, EyeOff, ArrowRight, Building2, Briefcase, ArrowLeft, MonitorDown, Shield, Zap, HardDrive } from 'lucide-react';
+import { Scale, Eye, EyeOff, ArrowRight, Building2, Briefcase, UserRound, ArrowLeft, MonitorDown, Shield, Zap, HardDrive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +28,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const register = useAuthStore((s) => s.register);
+  const tenantNameLabel =
+    tenantType === 'law_firm' ? '律所名称' : tenantType === 'enterprise' ? '企业名称' : '个人空间名称';
+  const tenantNamePlaceholder =
+    tenantType === 'law_firm'
+      ? '例如：甲鼎律师事务所'
+      : tenantType === 'enterprise'
+        ? '例如：XX科技有限公司'
+        : '例如：张三的法律后盾';
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -58,7 +66,7 @@ export default function RegisterPage() {
       return '两次输入的密码不一致';
     }
     if (!tenantName.trim()) {
-      return '请输入组织名称';
+      return tenantType === 'personal' ? '请设置个人空间名称' : '请输入组织名称';
     }
     return '';
   };
@@ -158,7 +166,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label>账户类型</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={() => setTenantType('law_firm')}
@@ -189,7 +197,23 @@ export default function RegisterPage() {
                     className={tenantType === 'enterprise' ? 'text-blue-500' : 'text-gray-400'}
                   />
                   <span className="text-sm font-medium">企业</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">合同管理、风险监控</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">靠谱法律顾问、经营风控</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTenantType('personal')}
+                  className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
+                    tenantType === 'personal'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                  }`}
+                >
+                  <UserRound
+                    size={24}
+                    className={tenantType === 'personal' ? 'text-blue-500' : 'text-gray-400'}
+                  />
+                  <span className="text-sm font-medium">个人</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">法律后盾、安心行动</span>
                 </button>
               </div>
             </div>
@@ -272,11 +296,11 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tenantName">{tenantType === 'law_firm' ? '律所名称' : '企业名称'}</Label>
+              <Label htmlFor="tenantName">{tenantNameLabel}</Label>
               <Input
                 id="tenantName"
                 type="text"
-                placeholder={tenantType === 'law_firm' ? '例如：甲鼎律师事务所' : '例如：XX科技有限公司'}
+                placeholder={tenantNamePlaceholder}
                 value={tenantName}
                 onChange={(e) => setTenantName(e.target.value)}
                 disabled={isLoading}

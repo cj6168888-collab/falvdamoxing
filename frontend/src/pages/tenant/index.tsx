@@ -63,7 +63,9 @@ function TenantProfileCard({ profile, onRefresh }: { profile: TenantProfile; onR
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold text-lg">{profile.name}</p>
-              <p className="text-sm text-gray-500">{profile.tenant_type === 'law_firm' ? '律所' : '企业'} · {profile.slug}</p>
+              <p className="text-sm text-gray-500">
+                {profile.tenant_type === 'law_firm' ? '律所' : profile.tenant_type === 'enterprise' ? '企业' : '个人'} · {profile.slug}
+              </p>
             </div>
             <Button size="sm" variant="outline" onClick={() => setEditing(true)}>编辑</Button>
           </div>
