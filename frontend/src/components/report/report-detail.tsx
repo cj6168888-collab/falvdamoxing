@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useReportDetail, useRegenerateReport } from '@/hooks/use-report';
 import { useReportPrint } from '@/hooks/use-report-print';
 import { PageSkeleton } from '@/components/common/loading-skeleton';
-import { ArrowLeft, RefreshCw, FileText, Clock, CheckCircle, Download, Loader2, Sparkles, Printer } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, RefreshCw, FileText, Clock, CheckCircle, Download, Loader2, Sparkles, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -136,22 +137,22 @@ export function ReportDetail({ reportId, onBack, onRegenerate }: Props) {
                 ) : (
                   <Download className="mr-2 h-4 w-4" />
                 )}
-                导出
+                导出工作底稿
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleExport('markdown')}>
-                Markdown 格式 (.md)
+                Markdown 工作底稿 (.md)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExport('text')}>
-                纯文本格式 (.txt)
+                纯文本工作底稿 (.txt)
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                PDF 文档 (.pdf)
+                PDF 工作底稿 (.pdf)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExport('word')}>
-                Word 文档 (.docx)
+                Word 工作底稿 (.docx)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -165,7 +166,7 @@ export function ReportDetail({ reportId, onBack, onRegenerate }: Props) {
             className="no-print"
           >
             <Printer className="mr-2 h-4 w-4" />
-            打印
+            打印工作底稿
           </Button>
 
           {/* 重新生成按钮 */}
@@ -184,6 +185,14 @@ export function ReportDetail({ reportId, onBack, onRegenerate }: Props) {
           </Button>
         </div>
       </div>
+
+      <Alert variant="warning">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>AI 法律工作底稿</AlertTitle>
+        <AlertDescription>
+          本报告仅用于事实整理、证据分析和风险提示。导出、打印、提交或对外发送前，请人工核验当事人、金额、事实证据对应、法条现行有效性、管辖、日期和签章。
+        </AlertDescription>
+      </Alert>
 
       {/* 生成进度条 */}
       {isGenerating && (

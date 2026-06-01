@@ -57,7 +57,7 @@ export function useReportPrint() {
 /**
  * 构建报告打印内容
  */
-function buildReportPrintContent(report: ReportDetail): string {
+export function buildReportPrintContent(report: ReportDetail): string {
   const sections = report.sections || [];
   const createdDate = report.created_at
     ? new Date(report.created_at).toLocaleDateString('zh-CN')
@@ -116,6 +116,19 @@ function buildReportPrintContent(report: ReportDetail): string {
         .report-meta span {
           margin: 0 8pt;
         }
+        .workpaper-notice {
+          margin: 16pt 0 20pt;
+          padding: 10pt 12pt;
+          border: 1px solid #d97706;
+          background: #fffbeb;
+          color: #7c2d12;
+          font-size: 10pt;
+          line-height: 1.6;
+        }
+        .workpaper-notice strong {
+          display: block;
+          margin-bottom: 4pt;
+        }
         .report-section {
           margin-bottom: 20pt;
           page-break-inside: avoid;
@@ -162,6 +175,8 @@ function buildReportPrintContent(report: ReportDetail): string {
       <div class="report-header">
         <div class="report-title">${escapeHtml(report.title)}</div>
         <div class="report-meta">
+          <span>AI 法律工作底稿</span>
+          <span>|</span>
           <span>类型: ${escapeHtml(report.report_type_name)}</span>
           <span>|</span>
           <span>版本: V${report.version}</span>
@@ -170,12 +185,17 @@ function buildReportPrintContent(report: ReportDetail): string {
         </div>
       </div>
 
+      <div class="workpaper-notice">
+        <strong>导出/打印前核验提示</strong>
+        本报告仅用于事实整理、证据分析和风险提示，不构成正式法律意见。提交、对外发送或庭审使用前，请人工核验当事人、金额、事实证据对应、法条现行有效性、管辖、日期和签章。
+      </div>
+
       <div class="report-body">
         ${sectionsHtml}
       </div>
 
       <div class="report-footer">
-        <p>法律案件追踪系统 - ${new Date().toLocaleDateString('zh-CN')} 打印</p>
+        <p>法律案件追踪系统 - AI 法律工作底稿 - ${new Date().toLocaleDateString('zh-CN')} 打印</p>
       </div>
     </body>
     </html>
@@ -185,7 +205,7 @@ function buildReportPrintContent(report: ReportDetail): string {
 /**
  * 构建章节打印内容
  */
-function buildSectionPrintContent(section: ReportSection, reportTitle: string): string {
+export function buildSectionPrintContent(section: ReportSection, reportTitle: string): string {
   const contentHtml = markdownToHtml(section.content || '');
   const completedDate = section.completed_at
     ? new Date(section.completed_at).toLocaleString('zh-CN')
@@ -222,6 +242,19 @@ function buildSectionPrintContent(section: ReportSection, reportTitle: string): 
           font-size: 10pt;
           color: #666;
         }
+        .workpaper-notice {
+          margin: 16pt 0 20pt;
+          padding: 10pt 12pt;
+          border: 1px solid #d97706;
+          background: #fffbeb;
+          color: #7c2d12;
+          font-size: 10pt;
+          line-height: 1.6;
+        }
+        .workpaper-notice strong {
+          display: block;
+          margin-bottom: 4pt;
+        }
         .section-content {
           text-indent: 2em;
         }
@@ -247,10 +280,17 @@ function buildSectionPrintContent(section: ReportSection, reportTitle: string): 
       <div class="section-header">
         <div class="section-title">${escapeHtml(section.title)}</div>
         <div class="section-meta">
+          <span>AI 法律工作底稿</span>
+          <span>|</span>
           <span>来自: ${escapeHtml(reportTitle)}</span>
           <span>|</span>
           <span>完成时间: ${completedDate}</span>
         </div>
+      </div>
+
+      <div class="workpaper-notice">
+        <strong>打印前核验提示</strong>
+        本章节仅为报告工作底稿片段。正式使用前请核验证据来源、事实对应、法律依据和人工确认状态。
       </div>
 
       <div class="section-content">
@@ -258,7 +298,7 @@ function buildSectionPrintContent(section: ReportSection, reportTitle: string): 
       </div>
 
       <div class="section-footer">
-        <p>法律案件追踪系统 - ${new Date().toLocaleDateString('zh-CN')} 打印</p>
+        <p>法律案件追踪系统 - AI 法律工作底稿 - ${new Date().toLocaleDateString('zh-CN')} 打印</p>
       </div>
     </body>
     </html>
