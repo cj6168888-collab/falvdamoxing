@@ -1,4 +1,5 @@
-import { AlertTriangle, Brain, FileCheck2 } from 'lucide-react';
+import { AlertTriangle, Brain, CheckSquare, FileCheck2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -63,6 +64,14 @@ export interface FactInferenceColumnsData {
   establishedFacts: string[];
   aiInferences: string[];
   unverifiedItems: string[];
+  reviewTasks: ReviewTask[];
+}
+
+export interface ReviewTask {
+  title: string;
+  category: '补证' | '程序核验' | '事实核验' | '论证补强';
+  nextAction: string;
+  priority: 'high' | 'medium';
 }
 
 function evidenceLabel(anchor: EvidenceAnchor) {
@@ -86,6 +95,16 @@ function collectRecommendationText(value: unknown): string[] {
 
 function unique(items: string[]) {
   return Array.from(new Set(items.map((item) => item.trim()).filter(Boolean)));
+}
+
+function uniqueTasks(tasks: ReviewTask[]) {
+  const seen = new Set<string>();
+  return tasks.filter((task) => {
+    const key = `${task.category}:${task.title}:${task.nextAction}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function buildFactInferenceColumns({
@@ -135,11 +154,44 @@ export function buildFactInferenceColumns({
     ...procedureIssues,
     ...weakArguments,
   ];
+  const reviewTasks: ReviewTask[] = [
+    ...(caseUnderstanding?.uncertain_aspects || []).map((item) => ({
+      title: item,
+      category: '事实核验' as const,
+      nextAction: '补录或核对案件基础信息，并标注信息来源。',
+      priority: 'medium' as const,
+    })),
+    ...(requirementsCheck?.total_gaps || []).map((gap) => ({
+      title: `${gap.requirement || '待识别请求权基础'}缺少${gap.element || '证明要件'}`,
+      category: '补证' as const,
+      nextAction: `收集或关联能够证明“${gap.element || '该要件'}”的证据，并补充证明目的。`,
+      priority: 'high' as const,
+    })),
+    ...(issues?.evidence_gaps || []).map((gap) => ({
+      title: `${gap.requirement || '待识别要件'}：${gap.fact || gap.suggestion || '证据缺口待核验'}`,
+      category: '补证' as const,
+      nextAction: gap.obtain_method || gap.suggestion || '补充直接证据、原件或可相互印证的辅助材料。',
+      priority: 'high' as const,
+    })),
+    ...(issues?.procedure_issues || []).map((item) => ({
+      title: item.issue || '程序事项待核验',
+      category: '程序核验' as const,
+      nextAction: item.suggestion || '核对管辖、时效、送达、授权或期限等程序事项。',
+      priority: 'high' as const,
+    })),
+    ...(issues?.weak_arguments || []).map((item) => ({
+      title: item.issue || item.weakness || '论证薄弱点待核验',
+      category: '论证补强' as const,
+      nextAction: item.strengthening || '补充证据链、请求权基础或金额计算依据。',
+      priority: 'medium' as const,
+    })),
+  ];
 
   return {
     establishedFacts: unique(establishedFacts),
     aiInferences: unique(aiInferences),
     unverifiedItems: unique(unverifiedItems),
+    reviewTasks: uniqueTasks(reviewTasks),
   };
 }
 
@@ -187,6 +239,29 @@ export function FactEvidenceInferenceColumns(props: Props) {
           warning
         />
       </CardContent>
+      {data.reviewTasks.length > 0 && (
+        <CardContent className="border-t pt-4">
+          <div className="mb-3 flex items-center gap-2 font-medium">
+            <CheckSquare className="h-4 w-4 text-primary" />
+            待核验任务清单
+            <Badge variant="secondary">{data.reviewTasks.length} 项</Badge>
+          </div>
+          <div className="grid gap-2 md:grid-cols-2">
+            {data.reviewTasks.map((task, index) => (
+              <div key={`${task.category}-${task.title}-${index}`} className="rounded-md border p-3 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={task.priority === 'high' ? 'destructive' : 'outline'}>
+                    {task.priority === 'high' ? '优先核验' : '常规核验'}
+                  </Badge>
+                  <Badge variant="secondary">{task.category}</Badge>
+                </div>
+                <p className="mt-2 font-medium leading-6">{task.title}</p>
+                <p className="mt-1 text-muted-foreground leading-6">下一步：{task.nextAction}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 }
@@ -199,7 +274,7 @@ function Column({
   emptyText,
   warning = false,
 }: {
-  icon: typeof FileCheck2;
+  icon: LucideIcon;
   title: string;
   description: string;
   items: string[];

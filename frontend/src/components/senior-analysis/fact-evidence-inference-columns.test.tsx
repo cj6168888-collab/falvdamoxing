@@ -51,6 +51,18 @@ describe('FactEvidenceInferenceColumns', () => {
     expect(columns.aiInferences).toContain('合同违约责任：部分要件待补强');
     expect(columns.unverifiedItems).toContain('被告主体信息缺失');
     expect(columns.unverifiedItems).toContain('合同违约责任缺少违约行为');
+    expect(columns.reviewTasks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        title: '合同违约责任缺少违约行为',
+        category: '补证',
+        priority: 'high',
+      }),
+      expect.objectContaining({
+        title: '管辖法院待确认',
+        category: '程序核验',
+        nextAction: '核对合同管辖条款',
+      }),
+    ]));
   });
 
   it('renders the three review columns', () => {
@@ -63,6 +75,10 @@ describe('FactEvidenceInferenceColumns', () => {
     expect(screen.getByText('合同签署事实（证据：ev-1/合同/信度90）')).toBeInTheDocument();
     expect(screen.getByText('下一步建议：补充付款流水原件')).toBeInTheDocument();
     expect(screen.getByText('管辖法院待确认；核对合同管辖条款')).toBeInTheDocument();
+    expect(screen.getByText('待核验任务清单')).toBeInTheDocument();
+    expect(screen.getAllByText('补证').length).toBeGreaterThan(0);
+    expect(screen.getByText('程序核验')).toBeInTheDocument();
+    expect(screen.getByText(/下一步：收集或关联能够证明/)).toBeInTheDocument();
   });
 
   it('does not render when there is no usable content', () => {
