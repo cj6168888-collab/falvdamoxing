@@ -130,7 +130,7 @@ $remoteScript = $remoteScript.Replace("__RELEASE_TAR__", $releaseTar)
 $remoteScript = $remoteScript.Replace("__FRONTEND_TAR__", $frontendTar)
 
 $remoteScriptPath = Join-Path $env:TEMP "legal-ai-hot-sync-$resolvedCommit.sh"
-$remoteScript | Set-Content -Path $remoteScriptPath -Encoding ascii
+[System.IO.File]::WriteAllText($remoteScriptPath, $remoteScript, [System.Text.Encoding]::ASCII)
 
 Invoke-Checked "Run remote hot sync" {
     scp $remoteScriptPath "${HostAlias}:/tmp/legal-ai-hot-sync-$resolvedCommit.sh"
