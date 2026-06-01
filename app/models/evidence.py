@@ -228,6 +228,7 @@ class EvidenceItem(Base):
     def to_dict(self) -> dict:
         """转换为字典"""
         type_info = self.get_type_display(self.evidence_type)
+        evidence_review = self.get_latest_fixed_review()
         return {
             'id': self.id,
             'tenant_id': self.tenant_id,
@@ -262,6 +263,7 @@ class EvidenceItem(Base):
             # ==================== 使用方向标注 ====================
             'usage_direction': self.usage_direction,
             'usage_annotations': self.usage_annotations,
+            'evidence_review': evidence_review,
             'usage_tags': self.usage_tags,
             'is_highlighted': self.is_highlighted,
             'highlight_reason': self.highlight_reason,
@@ -277,6 +279,30 @@ class EvidenceItem(Base):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+
+    def get_latest_fixed_review(self) -> dict | None:
+        """Return the latest manually saved fixed review fields."""
+        annotations = self.usage_annotations or []
+        if not isinstance(annotations, list):
+            return None
+
+        for annotation in reversed(annotations):
+            if isinstance(annotation, dict) and annotation.get("type") == "fixed_review_fields":
+                return {
+                    "review_status": annotation.get("review_status", "reviewed"),
+                    "reviewed_by": annotation.get("reviewed_by"),
+                    "reviewed_at": annotation.get("reviewed_at"),
+                    "source": annotation.get("source"),
+                    "formed_at": annotation.get("formed_at"),
+                    "original_status": annotation.get("original_status"),
+                    "proof_purpose": annotation.get("proof_purpose"),
+                    "authenticity_risk": annotation.get("authenticity_risk"),
+                    "legality_risk": annotation.get("legality_risk"),
+                    "relevance_risk": annotation.get("relevance_risk"),
+                    "strengthening_actions": annotation.get("strengthening_actions") or [],
+                    "review_notes": annotation.get("review_notes"),
+                }
+        return None
 
     def to_graph_node(self) -> dict:
         """转换为图谱节点格式"""

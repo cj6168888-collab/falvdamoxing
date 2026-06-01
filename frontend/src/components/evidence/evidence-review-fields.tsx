@@ -1,6 +1,15 @@
-import { AlertTriangle, ClipboardCheck, FileText, ShieldCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AlertTriangle, CheckCircle2, ClipboardCheck, FileText, Loader2, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  saveEvidenceFixedReview,
+  type EvidenceFixedReviewPayload,
+} from '@/api/evidence.api';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type EvidenceFact = string | { fact?: string };
 
@@ -17,16 +26,45 @@ export interface EvidenceReviewSource {
   status?: string;
   source_party?: string;
   created_at?: string;
+  evidence_review?: EvidenceReviewData | null;
 }
 
 interface EvidenceReviewFieldsProps {
   evidence: EvidenceReviewSource;
+  onSaved?: (evidence: EvidenceReviewSource) => void;
 }
 
 interface ReviewField {
   label: string;
   value: string;
   status: 'ok' | 'warning' | 'pending';
+}
+
+export interface EvidenceReviewData {
+  review_status?: string;
+  reviewed_by?: string;
+  reviewed_at?: string;
+  source?: string | null;
+  formed_at?: string | null;
+  original_status?: string | null;
+  proof_purpose?: string | null;
+  authenticity_risk?: string | null;
+  legality_risk?: string | null;
+  relevance_risk?: string | null;
+  strengthening_actions?: string[];
+  review_notes?: string | null;
+}
+
+interface ReviewDraft {
+  source: string;
+  formed_at: string;
+  original_status: string;
+  proof_purpose: string;
+  authenticity_risk: string;
+  legality_risk: string;
+  relevance_risk: string;
+  strengthening_actions: string;
+  review_notes: string;
 }
 
 const ELECTRONIC_EXTENSIONS = new Set([
@@ -107,31 +145,98 @@ function riskFromScore(score?: number | null) {
   return '较高';
 }
 
+function getProofPurpose(evidence: EvidenceReviewSource) {
+  const facts = evidence.proves_facts?.map(normalizeFact).filter(Boolean) || [];
+  if (facts.length > 0) return facts.slice(0, 2).join('；');
+  return evidence.summary || '证明目的待人工补录';
+}
+
+function buildReviewDraft(evidence: EvidenceReviewSource): ReviewDraft {
+  const review = evidence.evidence_review;
+  return {
+    source: review?.source || (evidence.source_party ? SOURCE_LABELS[evidence.source_party] || evidence.source_party : ''),
+    formed_at: review?.formed_at || (evidence.created_at ? formatDate(evidence.created_at) : ''),
+    original_status: review?.original_status || inferOriginalStatus(evidence),
+    proof_purpose: review?.proof_purpose || getProofPurpose(evidence),
+    authenticity_risk: review?.authenticity_risk || riskFromScore(evidence.credibility_score),
+    legality_risk: review?.legality_risk || '需核验取得方式、授权范围和是否涉及隐私/商业秘密',
+    relevance_risk: review?.relevance_risk || (
+      (evidence.proves_facts?.length || 0) > 0
+        ? '已有关联事实，仍需确认与诉请/抗辩的对应关系'
+        : '缺少关联事实标注'
+    ),
+    strengthening_actions: (review?.strengthening_actions || []).join('\n'),
+    review_notes: review?.review_notes || '',
+  };
+}
+
 export function buildEvidenceReviewFields(evidence: EvidenceReviewSource): ReviewField[] {
   const facts = evidence.proves_facts?.map(normalizeFact).filter(Boolean) || [];
-  const source = evidence.source_party ? SOURCE_LABELS[evidence.source_party] || evidence.source_party : '来源方待核验';
+  const review = evidence.evidence_review;
+  const source = review?.source || (evidence.source_party ? SOURCE_LABELS[evidence.source_party] || evidence.source_party : '来源方待核验');
   const content = evidence.extracted_content || evidence.raw_content || evidence.summary || '';
-  const proofPurpose = facts.length > 0
-    ? facts.slice(0, 2).join('；')
-    : evidence.summary || '证明目的待人工补录';
-  const authenticityRisk = riskFromScore(evidence.credibility_score);
+  const proofPurpose = review?.proof_purpose || getProofPurpose(evidence);
+  const authenticityRisk = review?.authenticity_risk || riskFromScore(evidence.credibility_score);
+  const originalStatus = review?.original_status || inferOriginalStatus(evidence);
+  const legalityRisk = review?.legality_risk || '需核验取得方式、授权范围和是否涉及隐私/商业秘密';
+  const relevanceRisk = review?.relevance_risk || (facts.length > 0 ? '已有关联事实，仍需确认与诉请/抗辩的对应关系' : '缺少关联事实标注');
 
   return [
-    { label: '材料来源', value: source, status: evidence.source_party ? 'ok' : 'pending' },
-    { label: '形成/取得时间', value: formatDate(evidence.created_at), status: evidence.created_at ? 'ok' : 'pending' },
-    { label: '原件状态', value: inferOriginalStatus(evidence), status: 'warning' },
+    { label: '材料来源', value: source, status: source === '来源方待核验' ? 'pending' : 'ok' },
+    { label: '形成/取得时间', value: review?.formed_at || formatDate(evidence.created_at), status: review?.formed_at || evidence.created_at ? 'ok' : 'pending' },
+    { label: '原件状态', value: originalStatus, status: review?.original_status ? 'ok' : 'warning' },
     { label: '证明目的', value: proofPurpose, status: facts.length > 0 || evidence.summary ? 'ok' : 'pending' },
     { label: '真实性风险', value: authenticityRisk, status: authenticityRisk === '较高' ? 'warning' : authenticityRisk === '待核验' ? 'pending' : 'ok' },
-    { label: '合法性风险', value: '需核验取得方式、授权范围和是否涉及隐私/商业秘密', status: 'warning' },
-    { label: '关联性风险', value: facts.length > 0 ? '已有关联事实，仍需确认与诉请/抗辩的对应关系' : '缺少关联事实标注', status: facts.length > 0 ? 'ok' : 'pending' },
+    { label: '合法性风险', value: legalityRisk, status: review?.legality_risk ? 'ok' : 'warning' },
+    { label: '关联性风险', value: relevanceRisk, status: facts.length > 0 || review?.relevance_risk ? 'ok' : 'pending' },
     { label: '内容可读性', value: content.trim() ? '已提取正文或摘要，可继续复核' : '未提取到正文，需补充扫描、OCR 或原件', status: content.trim() ? 'ok' : 'warning' },
   ];
 }
 
-export function EvidenceReviewFields({ evidence }: EvidenceReviewFieldsProps) {
+export function EvidenceReviewFields({ evidence, onSaved }: EvidenceReviewFieldsProps) {
   const fields = buildEvidenceReviewFields(evidence);
   const facts = evidence.proves_facts?.map(normalizeFact).filter(Boolean) || [];
   const electronic = isLikelyElectronicEvidence(evidence);
+  const [draft, setDraft] = useState<ReviewDraft>(() => buildReviewDraft(evidence));
+  const [saving, setSaving] = useState(false);
+  const reviewSaved = evidence.evidence_review?.review_status === 'reviewed';
+
+  useEffect(() => {
+    setDraft(buildReviewDraft(evidence));
+  }, [evidence]);
+
+  const canSave = useMemo(() => Boolean(evidence.id && draft.proof_purpose.trim()), [draft.proof_purpose, evidence.id]);
+
+  const updateDraft = (field: keyof ReviewDraft, value: string) => {
+    setDraft((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!evidence.id || !canSave) return;
+    setSaving(true);
+    try {
+      const payload: EvidenceFixedReviewPayload = {
+        source: draft.source.trim() || undefined,
+        formed_at: draft.formed_at.trim() || undefined,
+        original_status: draft.original_status.trim(),
+        proof_purpose: draft.proof_purpose.trim(),
+        authenticity_risk: draft.authenticity_risk.trim(),
+        legality_risk: draft.legality_risk.trim(),
+        relevance_risk: draft.relevance_risk.trim(),
+        strengthening_actions: draft.strengthening_actions.split('\n').map((item) => item.trim()).filter(Boolean),
+        review_notes: draft.review_notes.trim() || undefined,
+      };
+      const result = await saveEvidenceFixedReview(String(evidence.id), payload);
+      toast.success('证据固定审查字段已保存');
+      if (result.evidence) {
+        onSaved?.(result.evidence as EvidenceReviewSource);
+      }
+    } catch {
+      toast.error('保存证据审查字段失败');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <Card>
@@ -139,7 +244,7 @@ export function EvidenceReviewFields({ evidence }: EvidenceReviewFieldsProps) {
         <CardTitle className="flex items-center gap-2 text-sm">
           <ClipboardCheck className="h-4 w-4 text-primary" />
           证据固定审查字段
-          <Badge variant="outline">待人工复核</Badge>
+          <Badge variant={reviewSaved ? 'secondary' : 'outline'}>{reviewSaved ? '已人工复核' : '待人工复核'}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -180,6 +285,37 @@ export function EvidenceReviewFields({ evidence }: EvidenceReviewFieldsProps) {
             </p>
           </div>
         )}
+
+        <div className="rounded-md border p-3">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+              人工复核表单
+            </div>
+            {evidence.evidence_review?.reviewed_at && (
+              <span className="text-xs text-muted-foreground">
+                最近复核：{evidence.evidence_review.reviewed_by || '未记录'} · {evidence.evidence_review.reviewed_at}
+              </span>
+            )}
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Input value={draft.source} onChange={(event) => updateDraft('source', event.target.value)} placeholder="材料来源" />
+            <Input value={draft.formed_at} onChange={(event) => updateDraft('formed_at', event.target.value)} placeholder="形成/取得时间" />
+            <Textarea value={draft.original_status} onChange={(event) => updateDraft('original_status', event.target.value)} placeholder="原件状态" />
+            <Textarea value={draft.proof_purpose} onChange={(event) => updateDraft('proof_purpose', event.target.value)} placeholder="证明目的（必填）" />
+            <Textarea value={draft.authenticity_risk} onChange={(event) => updateDraft('authenticity_risk', event.target.value)} placeholder="真实性风险" />
+            <Textarea value={draft.legality_risk} onChange={(event) => updateDraft('legality_risk', event.target.value)} placeholder="合法性风险" />
+            <Textarea value={draft.relevance_risk} onChange={(event) => updateDraft('relevance_risk', event.target.value)} placeholder="关联性风险" />
+            <Textarea value={draft.strengthening_actions} onChange={(event) => updateDraft('strengthening_actions', event.target.value)} placeholder="补强动作，每行一项" />
+          </div>
+          <Textarea className="mt-3" value={draft.review_notes} onChange={(event) => updateDraft('review_notes', event.target.value)} placeholder="复核备注" />
+          <div className="mt-3 flex justify-end">
+            <Button onClick={handleSave} disabled={!canSave || saving}>
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              保存人工复核
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

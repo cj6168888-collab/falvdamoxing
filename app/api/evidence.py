@@ -13,6 +13,7 @@ from app.models.document import Document
 from app.models.case import Case
 from app.models.case_claim import CaseClaim
 from app.models.evidence import EvidenceItem
+from app.core.tenant_context import TenantContext
 from pydantic import BaseModel
 
 from app.services.evidence_system import evidence_service, Evidence
@@ -1357,6 +1358,19 @@ class EvidenceAnnotationRequest(BaseModel):
     highlight_reason: Optional[str] = None  # 高亮原因
 
 
+class EvidenceFixedReviewRequest(BaseModel):
+    """证据固定审查字段人工复核请求"""
+    source: Optional[str] = None
+    formed_at: Optional[str] = None
+    original_status: str
+    proof_purpose: str
+    authenticity_risk: str
+    legality_risk: str
+    relevance_risk: str
+    strengthening_actions: List[str] = []
+    review_notes: Optional[str] = None
+
+
 class SafetyReviewRequest(BaseModel):
     """安全性审核请求"""
     ignored: bool  # 是否忽略警告
@@ -1581,6 +1595,55 @@ def annotate_evidence(
         "usage_direction": item.usage_direction,
         "usage_tags": item.usage_tags,
         "is_highlighted": item.is_highlighted
+    }
+
+
+@router.put("/v2/{evidence_id}/fixed-review")
+def save_fixed_review_fields(
+    evidence_id: str,
+    review: EvidenceFixedReviewRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    保存证据固定审查字段
+    用于把证据详情页的来源、原件状态、证明目的、三性风险和补强动作落为人工复核工作底稿。
+    """
+    item = db.query(EvidenceItem).filter(EvidenceItem.id == evidence_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="证据不存在")
+
+    if not review.proof_purpose.strip():
+        raise HTTPException(status_code=400, detail="证明目的不能为空")
+
+    record = {
+        "id": str(uuid.uuid4()),
+        "type": "fixed_review_fields",
+        "review_status": "reviewed",
+        "reviewed_by": TenantContext.get_user_id() or "用户",
+        "reviewed_at": datetime.utcnow().isoformat(),
+        "source": review.source,
+        "formed_at": review.formed_at,
+        "original_status": review.original_status,
+        "proof_purpose": review.proof_purpose.strip(),
+        "authenticity_risk": review.authenticity_risk,
+        "legality_risk": review.legality_risk,
+        "relevance_risk": review.relevance_risk,
+        "strengthening_actions": [action.strip() for action in review.strengthening_actions if action.strip()],
+        "review_notes": review.review_notes,
+    }
+
+    annotations = item.usage_annotations or []
+    annotations.append(record)
+    item.usage_annotations = annotations
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(item)
+
+    return {
+        "success": True,
+        "message": "证据固定审查字段已保存",
+        "review": item.get_latest_fixed_review(),
+        "evidence": item.to_dict(),
     }
 
 

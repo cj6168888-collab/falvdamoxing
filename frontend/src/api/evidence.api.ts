@@ -48,6 +48,29 @@ export interface EvidenceQuestionResponse {
   suggested_questions?: string[];
 }
 
+export interface EvidenceFixedReviewPayload {
+  source?: string;
+  formed_at?: string;
+  original_status: string;
+  proof_purpose: string;
+  authenticity_risk: string;
+  legality_risk: string;
+  relevance_risk: string;
+  strengthening_actions: string[];
+  review_notes?: string;
+}
+
+export interface EvidenceFixedReviewResponse {
+  success: boolean;
+  message?: string;
+  review?: EvidenceFixedReviewPayload & {
+    review_status?: string;
+    reviewed_by?: string;
+    reviewed_at?: string;
+  };
+  evidence?: Record<string, unknown>;
+}
+
 type EvidenceListResponse = Evidence[] | {
   evidence_list?: Evidence[];
   items?: Evidence[];
@@ -99,6 +122,13 @@ export async function analyzeRisk(caseId: string) {
 
 export async function correctEvidence(data: { evidenceId: string; corrections: Record<string, unknown> }) {
   return axiosInstance.post('/api/v2/evidence-graph/evidence/correct', data).then(res => res.data);
+}
+
+export async function saveEvidenceFixedReview(
+  evidenceId: string,
+  data: EvidenceFixedReviewPayload,
+): Promise<EvidenceFixedReviewResponse> {
+  return axiosInstance.put(`/api/evidence/v2/${evidenceId}/fixed-review`, data).then(res => res.data);
 }
 
 export async function getEvidenceGraph(caseId: string, viewType = 'default'): Promise<EvidenceGraphResponse> {

@@ -46,6 +46,20 @@ interface EvidenceItem {
   created_at: string;
   file_path: string;
   entity_tags: unknown[];
+  evidence_review?: {
+    review_status?: string;
+    reviewed_by?: string;
+    reviewed_at?: string;
+    source?: string | null;
+    formed_at?: string | null;
+    original_status?: string | null;
+    proof_purpose?: string | null;
+    authenticity_risk?: string | null;
+    legality_risk?: string | null;
+    relevance_risk?: string | null;
+    strengthening_actions?: string[];
+    review_notes?: string | null;
+  } | null;
 }
 
 type EvidenceFact = string | { fact?: string };
@@ -438,7 +452,13 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
               </CardContent>
             </Card>
 
-            <EvidenceReviewFields evidence={selectedEvidence} />
+            <EvidenceReviewFields
+              evidence={selectedEvidence}
+              onSaved={(updatedEvidence) => {
+                setSelectedEvidence(updatedEvidence as EvidenceItem);
+                refetch();
+              }}
+            />
 
             {/* 证明事实 */}
             {selectedEvidence.proves_facts && selectedEvidence.proves_facts.length > 0 && (
