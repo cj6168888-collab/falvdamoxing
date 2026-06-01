@@ -124,7 +124,7 @@ class LegalDocService:
         case_info: str,
         first_instance_judgment: str = ""
     ) -> str:
-        """生成上诉状"""
+        """起草上诉状草稿"""
         reqs = f"一审判决：{first_instance_judgment}" if first_instance_judgment else ""
         return self.generate("上诉状", case_info, reqs)
 

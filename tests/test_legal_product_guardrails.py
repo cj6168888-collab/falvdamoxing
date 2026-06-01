@@ -191,3 +191,26 @@ def test_appeal_petition_is_framed_as_reviewable_draft():
     assert "requires_human_review" in service_text
     assert "提交前核验清单" in service_text
     assert not violations, "Appeal petition generation should be framed as a reviewable draft:\n" + "\n".join(violations)
+
+
+def test_appeal_document_generator_uses_draft_wording():
+    files = [
+        PROJECT_ROOT / "frontend" / "src" / "components" / "appeal" / "appeal-doc-generator.tsx",
+        PROJECT_ROOT / "frontend" / "src" / "hooks" / "use-tracking-api.ts",
+        PROJECT_ROOT / "app" / "api" / "tracking_api.py",
+    ]
+    forbidden = ["生成上诉状", "生成答辩意见", "生成新证据清单", "上诉状生成功能"]
+    violations: list[str] = []
+
+    for path in files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), 1):
+            for term in forbidden:
+                if term in line:
+                    rel = path.relative_to(PROJECT_ROOT).as_posix()
+                    violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
+
+    tracking_text = (PROJECT_ROOT / "app" / "api" / "tracking_api.py").read_text(encoding="utf-8", errors="ignore")
+    assert "AI 草稿，待人工核验" in tracking_text
+    assert "requires_human_review" in tracking_text
+    assert not violations, "Appeal document generator should use draft/review wording:\n" + "\n".join(violations)

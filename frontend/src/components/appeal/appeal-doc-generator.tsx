@@ -12,13 +12,13 @@ export function AppealDocGenerator({ caseId: _caseId, onGenerate }: Props) {
       </CardHeader>
       <CardContent className="space-y-3">
         <Button className="w-full" onClick={() => onGenerate('上诉状')}>
-          <FileText className="mr-2 h-4 w-4" />生成上诉状
+          <FileText className="mr-2 h-4 w-4" />起草上诉状草稿
         </Button>
         <Button className="w-full" variant="outline" onClick={() => onGenerate('答辩意见')}>
-          <FileText className="mr-2 h-4 w-4" />生成答辩意见
+          <FileText className="mr-2 h-4 w-4" />起草答辩意见草稿
         </Button>
         <Button className="w-full" variant="outline" onClick={() => onGenerate('新证据清单')}>
-          <FileText className="mr-2 h-4 w-4" />生成新证据清单
+          <FileText className="mr-2 h-4 w-4" />整理新证据清单草稿
         </Button>
       </CardContent>
     </Card>

@@ -393,7 +393,7 @@ async def get_appeal_countdown(appeal_id: int, db: Session = Depends(get_db)):
 
 @router.post("/appeal/{appeal_id}/generate-document")
 async def generate_appeal_document(appeal_id: int, db: Session = Depends(get_db)):
-    """生成上诉状"""
+    """起草上诉状草稿"""
     record = db.query(AppealRecord).filter(AppealRecord.id == appeal_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="上诉记录不存在")
@@ -402,7 +402,16 @@ async def generate_appeal_document(appeal_id: int, db: Session = Depends(get_db)
         "title": "民事上诉状",
         "content": "",
         "status": "pending_llm",
-        "message": "上诉状生成功能需要调用 LLM，请配置 LLM 服务后使用",
+        "document_status": "AI 草稿，待人工核验",
+        "requires_human_review": True,
+        "review_checklist": [
+            "上诉期限和送达日期",
+            "原审法院、案号和裁判文书信息",
+            "当事人主体身份",
+            "上诉请求、事实理由和证据目录",
+            "法条现行有效性、签名盖章和日期",
+        ],
+        "message": "上诉状草稿起草功能需要调用 LLM，请配置 LLM 服务后使用；提交前必须人工核验。",
     }
 
 @router.put("/appeal/{appeal_id}/status", response_model=AppealResponse)

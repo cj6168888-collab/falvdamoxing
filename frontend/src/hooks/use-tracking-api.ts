@@ -109,7 +109,7 @@ export function useAppealCountdown(appealId: string) {
   });
 }
 
-// 生成上诉状
+// 起草上诉状草稿
 export function useGenerateAppealDocument() {
   return useMutation({
     mutationFn: async ({ appealId, template }: { appealId: string; template?: string }) => {
@@ -118,7 +118,7 @@ export function useGenerateAppealDocument() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ template }),
       });
-      if (!response.ok) throw new Error('生成上诉状失败');
+      if (!response.ok) throw new Error('起草上诉状草稿失败');
       return response.json();
     },
   });
