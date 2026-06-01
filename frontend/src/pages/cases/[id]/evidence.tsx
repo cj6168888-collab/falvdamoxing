@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/api/client';
 import { EvidenceList } from '@/components/evidence/evidence-list';
 import { EvidenceUploader } from '@/components/evidence/evidence-uploader';
+import { EvidenceReviewFields } from '@/components/evidence/evidence-review-fields';
 import { uploadEvidence } from '@/api/evidence.api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -436,6 +437,8 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
                 )}
               </CardContent>
             </Card>
+
+            <EvidenceReviewFields evidence={selectedEvidence} />
 
             {/* 证明事实 */}
             {selectedEvidence.proves_facts && selectedEvidence.proves_facts.length > 0 && (
