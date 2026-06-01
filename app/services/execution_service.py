@@ -346,7 +346,7 @@ class ExecutionService:
         return [self._stage_to_dict(s) for s in stages]
 
     def generate_execution_application(self, db: Session, case_id: int) -> Dict:
-        """AI 生成执行申请书"""
+        """起草执行申请书草稿，提交或发送前必须人工核验。"""
         case = db.query(Case).filter(Case.id == case_id).first()
         if not case:
             raise ValueError("案件不存在")
@@ -396,7 +396,7 @@ class ExecutionService:
             fallback="0"
         )
 
-        prompt = f"""请根据以下案件信息，撰写一份完整的强制执行申请书。
+        prompt = f"""请根据以下案件信息，起草一份强制执行申请书草稿。
 
 【案件基本信息】
 - 案件名称：{case.title}
@@ -423,7 +423,7 @@ class ExecutionService:
 【结案结果】
 {case.closure_result or '未填写'}
 
-请按照标准强制执行申请书格式撰写，包含：
+请按照标准强制执行申请书格式起草草稿，包含：
 1. 申请人信息
 2. 被执行人信息
 3. 执行请求
@@ -437,16 +437,30 @@ class ExecutionService:
 2. 必须体现系统已有证据链与函件记录可作为执行申请附件或履行催告、财产线索补充依据；
 3. 如执行法院、案号、金额尚未确定，可以用【待核实/按生效法律文书填写】占位，但不得编造不存在的法院、案号或金额；
 4. 不得引用未经核验的案例号或虚构裁判文书号；
-5. 格式规范、请求明确、法律依据准确。"""
+5. 输出开头必须标注“AI 草稿，待人工核验”；
+6. 末尾必须附“提交前核验清单”，至少包含生效法律文书、执行法院、案号、主体身份、金额计算、履行情况、财产线索、附件目录、签名盖章和日期；
+7. 格式规范、请求明确，法律依据仅作为待核验引用，不得表达为已完成律师最终审查。"""
 
         content = llm_service.chat([
-            {"role": "system", "content": "你是一位资深执行律师，擅长撰写强制执行申请书。请根据提供的案件信息，撰写一份专业、规范的执行申请书。"},
+            {"role": "system", "content": "你是一位资深执行律师，正在协助起草强制执行申请书工作底稿。输出必须保持草稿定位，提示提交前逐项人工核验，不得将结果表述为可直接提交的最终文书。"},
             {"role": "user", "content": prompt}
         ], model="qwen-plus")
 
         return {
             "case_id": case_id,
             "application": content,
+            "document_status": "AI 草稿，待人工核验",
+            "requires_human_review": True,
+            "review_checklist": [
+                "生效法律文书及履行期限",
+                "执行法院和执行案号",
+                "申请人、被执行人主体身份",
+                "申请执行金额、利息和迟延履行金计算",
+                "已履行或部分履行情况",
+                "财产线索来源和可核验材料",
+                "证据及附件目录",
+                "签名盖章、日期和授权手续",
+            ],
             "generated_at": datetime.utcnow().isoformat(),
         }
 

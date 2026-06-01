@@ -263,18 +263,18 @@ def delete_execution_asset(asset_id: int, db: Session = Depends(get_db)):
     return {"message": "财产线索删除成功"}
 
 
-# ============ AI 功能 ============
+# ============ 草稿辅助功能 ============
 
 @router.post("/case/{case_id}/generate-application")
 def generate_execution_application(case_id: int, db: Session = Depends(get_db)):
-    """AI 生成执行申请书"""
+    """起草执行申请书草稿，返回内容需人工核验后使用"""
     try:
         result = execution_service.generate_execution_application(db, case_id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"生成执行申请书失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"起草执行申请书草稿失败: {str(e)}")
 
 
 # ============ 统计 ============

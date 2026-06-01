@@ -62,7 +62,7 @@ export function ExecutionDashboard({ caseId }: Props) {
           <p className="text-sm text-muted-foreground mt-1">判决生效后的强制执行程序管理</p>
         </div>
         <Button variant="outline" onClick={() => generateExecutionApplication(caseId).catch(() => {})}>
-          <Sparkles className="mr-2 h-4 w-4" />AI 生成执行申请书
+          <Sparkles className="mr-2 h-4 w-4" />起草执行申请书草稿
         </Button>
       </div>
 
