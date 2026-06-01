@@ -738,6 +738,9 @@ def generate_document(request: DocumentGenerateRequest, db: Session = Depends(ge
             "name": ev.display_name or ev.original_filename or "未命名证据",
             "type": ev.evidence_type or "未分类",
             "summary": ev.summary or "",
+            "proof_purpose": (ev.get_latest_fixed_review() or {}).get("proof_purpose"),
+            "evidence_review": ev.get_latest_fixed_review(),
+            "proves_facts": ev.proves_facts or [],
             "content_preview": (ev.extracted_content or ev.raw_content or "")[:1200],
         }
         for i, ev in enumerate(evidence_items, 1)
@@ -993,7 +996,9 @@ def modify_document(request: DocumentModifyRequest, db: Session = Depends(get_db
         name = ev.display_name or ev.original_filename or "未命名证据"
         ev_type = ev.evidence_type or "未分类"
         summary = ev.summary or "无摘要"
-        evidence_list_text += f"证据{i}：【{name}】（{ev_type}）- {summary}\n"
+        review = ev.get_latest_fixed_review() or {}
+        proof_purpose = review.get("proof_purpose") or summary
+        evidence_list_text += f"证据{i}：【{name}】（{ev_type}）- 证明目的：{proof_purpose}\n"
 
     is_bokai_audit_modify = (
         "Bokai Audit Doc" in (doc.title or "")

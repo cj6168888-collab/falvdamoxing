@@ -16,6 +16,29 @@ def _limit_text(text: str, limit: int) -> str:
     return text[:limit] + f"\n（内容较长，已截取前{limit}字；完整内容请在证据详情中核对。）"
 
 
+def _normalize_fact_text(fact: Any) -> str:
+    if isinstance(fact, str):
+        return fact.strip()
+    if isinstance(fact, dict):
+        return str(fact.get("fact") or fact.get("description") or "").strip()
+    return str(fact or "").strip()
+
+
+def _get_evidence_proof_purpose(evidence: Dict[str, Any]) -> str:
+    review = evidence.get("evidence_review") or {}
+    proof_purpose = (evidence.get("proof_purpose") or review.get("proof_purpose") or "").strip()
+    if proof_purpose:
+        return proof_purpose
+
+    facts = evidence.get("proves_facts") or []
+    fact_texts = [_normalize_fact_text(fact) for fact in facts]
+    fact_texts = [fact for fact in fact_texts if fact]
+    if fact_texts:
+        return "；".join(fact_texts[:2])
+
+    return (evidence.get("summary") or evidence.get("content_preview") or "待结合原件核验").strip()
+
+
 class DocumentGenerator:
     """法律文书草稿器"""
 
@@ -296,7 +319,7 @@ class DocumentGenerator:
         for ev in evidence_list[:14]:
             refs.append(
                 f"证据{ev.get('index')}《{ev.get('name', '未命名证据')}》："
-                f"{_limit_text(ev.get('summary') or ev.get('content_preview') or '证明事项待人工核对', 120)}"
+                f"{_limit_text(_get_evidence_proof_purpose(ev), 120)}"
             )
         evidence_refs = "\n".join(refs) or "证据目录待补充。"
 
@@ -353,7 +376,7 @@ class DocumentGenerator:
             rows.append(
                 f"{ev.get('index')}. 证据名称：{ev.get('name', '未命名证据')}；"
                 f"证据类型：{ev.get('type', '未分类')}；"
-                f"证明目的：{_limit_text(ev.get('summary') or ev.get('content_preview') or '待结合原件核验', 180)}"
+                f"证明目的：{_limit_text(_get_evidence_proof_purpose(ev), 180)}"
             )
         return f"""证据目录
 
@@ -378,7 +401,7 @@ class DocumentGenerator:
         plaintiff = case_data.get("plaintiff") or "陈靖/佛山吉麟"
         defendant = case_data.get("defendant") or "雷天乾/博凯升华/博凯健康"
         refs = "\n".join(
-            f"- 证据{ev.get('index')}《{ev.get('name', '未命名证据')}》：{_limit_text(ev.get('summary') or ev.get('content_preview') or '待核验', 150)}"
+            f"- 证据{ev.get('index')}《{ev.get('name', '未命名证据')}》：{_limit_text(_get_evidence_proof_purpose(ev), 150)}"
             for ev in evidence_list[:18]
         )
         return f"""代理词
@@ -436,6 +459,7 @@ class DocumentGenerator:
         for ev in evidence_list:
             evidence_catalog += f"证据{ev['index']}：【{ev['name']}】（{ev['type']}）\n"
             evidence_catalog += f"  摘要：{_limit_text(ev.get('summary', '无'), 180)}\n"
+            evidence_catalog += f"  证明目的：{_limit_text(_get_evidence_proof_purpose(ev), 220)}\n"
             evidence_catalog += "\n"
 
         excerpt_limit = 24 if len(evidence_list) > 60 else len(evidence_list)
@@ -446,7 +470,7 @@ class DocumentGenerator:
             evidence_catalog += f"\n证据{ev['index']}：{ev['name']}（{ev['type']}）\n"
             if ev.get('content_preview'):
                 evidence_catalog += f"内容摘录：{_limit_text(ev['content_preview'], 360)}\n"
-            evidence_catalog += f"证明事项：{_limit_text(ev.get('summary', '无'), 220)}\n"
+            evidence_catalog += f"证明事项：{_limit_text(_get_evidence_proof_purpose(ev), 220)}\n"
 
         return evidence_catalog
 
