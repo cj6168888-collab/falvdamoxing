@@ -22,6 +22,12 @@ interface CaseTemplate {
   documents: string[];
 }
 
+interface GuidanceQuestion {
+  key: string;
+  label: string;
+  placeholder: string;
+}
+
 interface AudienceCopy {
   title: string;
   templateHeading: string;
@@ -36,6 +42,8 @@ interface AudienceCopy {
   amountPlaceholder: string;
   descriptionLabel: string;
   descriptionPlaceholder: string;
+  guidanceHeading: string;
+  guidanceDescription: string;
   evidenceTitle: string;
   evidenceDescription: string;
   submitLabel: string;
@@ -172,6 +180,74 @@ const templatesByAudience: Record<AudienceMode, CaseTemplate[]> = {
   personal: personalTemplates,
 };
 
+const guidanceQuestionsByAudience: Record<AudienceMode, GuidanceQuestion[]> = {
+  law_firm: [],
+  enterprise: [
+    {
+      key: 'company_info',
+      label: '公司基本信息',
+      placeholder: '公司名称、经办部门、业务背景、内部审批或负责人员。',
+    },
+    {
+      key: 'counterpart',
+      label: '合同或争议对象',
+      placeholder: '对方是谁、双方是什么关系、交易或用工从什么时候开始。',
+    },
+    {
+      key: 'amount_deadline',
+      label: '金额与期限',
+      placeholder: '合同额、欠款额、付款/交付/解除/仲裁等关键期限。',
+    },
+    {
+      key: 'evidence',
+      label: '已有证据',
+      placeholder: '合同、对账、发票、审批、聊天、邮件、交付、验收、考勤等。',
+    },
+    {
+      key: 'actions_taken',
+      label: '已采取行动',
+      placeholder: '已催告、已协商、已发函、已暂停合作、已内部处理等。',
+    },
+    {
+      key: 'collaboration_need',
+      label: '处理目标',
+      placeholder: '希望内部先处理，还是需要整理给外部律师复核或出具函件。',
+    },
+  ],
+  personal: [
+    {
+      key: 'what_happened',
+      label: '发生了什么',
+      placeholder: '不用专业术语，按时间顺序写：什么时候、谁、做了什么。',
+    },
+    {
+      key: 'main_concern',
+      label: '现在最担心什么',
+      placeholder: '担心钱拿不回、被起诉、被辞退、安全风险、证据丢失等。',
+    },
+    {
+      key: 'urgent_risk',
+      label: '是否有紧急期限或安全风险',
+      placeholder: '例如今天/本周要回复、对方威胁、财产被扣、房屋被清退。',
+    },
+    {
+      key: 'evidence',
+      label: '现在手里有什么材料',
+      placeholder: '聊天、转账、合同、照片、录音、快递、病历、投诉记录等。',
+    },
+    {
+      key: 'first_step',
+      label: '今天最想先解决的一步',
+      placeholder: '先保存证据、先沟通、先投诉、先写说明、先确认期限等。',
+    },
+    {
+      key: 'help_boundary',
+      label: '什么时候需要线下求助',
+      placeholder: '是否涉及人身安全、重大金额、法院/仲裁材料、警方或行政机关。',
+    },
+  ],
+};
+
 const copyByAudience: Record<AudienceMode, AudienceCopy> = {
   law_firm: {
     title: '新建案件',
@@ -187,6 +263,8 @@ const copyByAudience: Record<AudienceMode, AudienceCopy> = {
     amountPlaceholder: '请输入金额',
     descriptionLabel: '案件描述',
     descriptionPlaceholder: '请描述案件情况',
+    guidanceHeading: '诉讼准备问题',
+    guidanceDescription: '可先填写基础信息，后续再在案件详情里补充事实、证据和文书。',
     evidenceTitle: '证据材料管理',
     evidenceDescription: '点击“创建案件”后，系统会自动跳转至案件详情页。届时您可以在“证据”标签页中使用弹窗选择器（支持文件夹选取），一键批量上传您的全部证据材料。',
     submitLabel: '创建案件',
@@ -205,6 +283,8 @@ const copyByAudience: Record<AudienceMode, AudienceCopy> = {
     amountPlaceholder: '可选，填写合同额、欠款额或预计风险金额',
     descriptionLabel: '事项说明',
     descriptionPlaceholder: '说明业务背景、已发生的事实、目前想解决的问题和已采取行动',
+    guidanceHeading: '企业法律顾问第一轮问题',
+    guidanceDescription: '先把公司、相对方、金额期限、证据、已采取行动和处理目标说清楚，后续系统才能生成更可靠的风险清单和律师协作摘要。',
     evidenceTitle: '企业材料留痕',
     evidenceDescription: '创建后优先上传合同、对账、审批、沟通和交付记录。系统输出用于风险识别和行动准备，高风险事项仍需专业复核。',
     submitLabel: '创建事项',
@@ -223,6 +303,8 @@ const copyByAudience: Record<AudienceMode, AudienceCopy> = {
     amountPlaceholder: '可选，不确定可以先不填',
     descriptionLabel: '发生了什么',
     descriptionPlaceholder: '不用专业术语，按时间顺序说清发生了什么、现在最担心什么',
+    guidanceHeading: '个人法律后盾第一轮问题',
+    guidanceDescription: '先稳住处境：把事实、担心、紧急风险、手里材料和今天能做的一步写下来，系统会以此整理下一步清单。',
     evidenceTitle: '先保住证据',
     evidenceDescription: '创建后先保存聊天、转账、合同、照片、录音、快递和投诉记录。系统会帮助你整理事实和下一步清单，不承诺结果，也不替你做最终决定。',
     submitLabel: '创建问题',
@@ -236,6 +318,34 @@ function resolveAudience(tenantType?: TenantType): AudienceMode {
   return 'law_firm';
 }
 
+function buildStructuredDescription({
+  audience,
+  baseDescription,
+  selectedTemplate,
+  answers,
+}: {
+  audience: AudienceMode;
+  baseDescription: string;
+  selectedTemplate?: CaseTemplate;
+  answers: Record<string, string>;
+}) {
+  const questions = guidanceQuestionsByAudience[audience];
+  const answeredLines = questions
+    .map((question) => {
+      const answer = answers[question.key]?.trim();
+      return answer ? `${question.label}：${answer}` : '';
+    })
+    .filter(Boolean);
+
+  const sections = [
+    baseDescription.trim() ? `【原始说明】\n${baseDescription.trim()}` : '',
+    selectedTemplate ? `【事项类型】\n${selectedTemplate.label}` : '',
+    answeredLines.length > 0 ? `【${copyByAudience[audience].guidanceHeading}】\n${answeredLines.join('\n')}` : '',
+  ].filter(Boolean);
+
+  return sections.join('\n\n') || baseDescription;
+}
+
 export default function CaseNewPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -243,10 +353,12 @@ export default function CaseNewPage() {
   const audience = resolveAudience(tenantType);
   const templates = templatesByAudience[audience];
   const copy = copyByAudience[audience];
+  const guidanceQuestions = guidanceQuestionsByAudience[audience];
   const initialTemplate = searchParams.get('template') ?? '';
   const [title, setTitle] = useState('');
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
+  const [guidanceAnswers, setGuidanceAnswers] = useState<Record<string, string>>({});
   const [plaintiffName, setPlaintiffName] = useState('');
   const [defendantName, setDefendantName] = useState('');
   const [amount, setAmount] = useState('');
@@ -270,7 +382,12 @@ export default function CaseNewPage() {
         title,
         case_type: selectedTemplate?.caseType ?? 'civil',
         cause: selectedTemplate?.label,
-        description,
+        description: buildStructuredDescription({
+          audience,
+          baseDescription: description,
+          selectedTemplate,
+          answers: guidanceAnswers,
+        }),
         plaintiff: plaintiffName,
         defendant: defendantName,
         claim_amount: amount || undefined,
@@ -334,6 +451,32 @@ export default function CaseNewPage() {
               <Label>{copy.descriptionLabel}</Label>
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={copy.descriptionPlaceholder} />
             </div>
+
+            {guidanceQuestions.length > 0 && (
+              <section className="space-y-4 rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900/60 dark:bg-teal-950/20">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-950 dark:text-slate-50">{copy.guidanceHeading}</h3>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{copy.guidanceDescription}</p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {guidanceQuestions.map((question) => (
+                    <div key={question.key} className="space-y-2">
+                      <Label>{question.label}</Label>
+                      <Textarea
+                        value={guidanceAnswers[question.key] ?? ''}
+                        onChange={(e) =>
+                          setGuidanceAnswers((current) => ({
+                            ...current,
+                            [question.key]: e.target.value,
+                          }))
+                        }
+                        placeholder={question.placeholder}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <div className="rounded-lg border bg-muted/50 p-4">
               <h3 className="text-sm font-medium text-foreground">{copy.evidenceTitle}</h3>
