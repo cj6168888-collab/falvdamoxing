@@ -122,7 +122,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
 4. 对费用主张逐笔核对权源：谁支付、付给谁、用于何事、是否经审批、是否对公司或合作项目受益。
 5. 对缺少原件、缺少合同或缺少送达凭证的材料，优先补公证、原件核验、银行流水、工商内档、社保税务记录或书证提出申请。
 
-结论：本案有较强的证据量基础，但胜败取决于能否把 177 条材料拆解到具体请求权路径中，尤其是合作基础、停业归责和费用权源三处。当前最优策略不是泛泛问胜算，而是先完成证据链映射和诉讼请求分层，再生成起诉状、证据目录和保全/调查取证申请。"""
+初步分析：本案已有较充分的证据材料基础，但裁判支持度主要取决于能否把 177 条材料拆解到具体请求权路径中，尤其是合作基础、停业归责和费用权源三处。当前更稳妥的工作路径不是泛泛询问结果，而是先完成证据链映射和诉讼请求分层，再形成起诉状、证据目录和保全/调查取证申请等诉讼工作底稿。"""
         return {
             "case_id": request.case_id,
             "answer": answer,
@@ -131,7 +131,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
             "clarification_questions": [],
             "suggestions": [
                 {"type": "action", "priority": "high", "message": "建议生成证据链映射表", "action": "证据链映射"},
-                {"type": "action", "priority": "medium", "message": "建议按请求权路径生成诉讼策略", "action": "生成策略"},
+                {"type": "action", "priority": "medium", "message": "建议按请求权路径生成诉讼工作底稿", "action": "生成工作底稿"},
             ],
             "evidence_gaps": [],
             "evidence_suggestions": [],

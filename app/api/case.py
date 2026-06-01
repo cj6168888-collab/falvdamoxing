@@ -1277,7 +1277,7 @@ def ask_case_question(case_id: int, data: AskQuestion, db: Session = Depends(get
             )]
         doc_count = len(valid_docs)
         
-        analysis_prompt = f"""【任务】分析所有 {doc_count} 份函件文件，逐一给出法律意见。
+        analysis_prompt = f"""【任务】分析所有 {doc_count} 份函件文件，逐一形成待核验分析意见。
 
 【身份】你是执业律师，代理甲方。与用户进行专业讨论。
 

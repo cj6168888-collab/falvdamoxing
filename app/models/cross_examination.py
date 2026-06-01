@@ -233,7 +233,7 @@ class CrossExaminationTemplate(Base):
                 "applicable_evidence_types": ["TESTIMONY"],
                 "authenticity_template": """对{evidence_name}的真实性提出如下异议：
 
-1. 【证人与当事人关系】证人{ witness_name }系{relationship}，与{related_party}存在利害关系，其证言可信度存疑。
+1. 【证人与当事人关系】证人{ witness_name }系{relationship}，与{related_party}存在利害关系，其证言证明力需结合利害关系审查。
 
 2. 【传闻证据】证言内容系证人听{witness_source}所说，属于传来证据，未经亲身经历。
 

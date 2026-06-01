@@ -121,3 +121,24 @@ def test_user_facing_confidence_wording_uses_reference_language():
                     violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
 
     assert not violations, "User-facing confidence wording should use reference language:\n" + "\n".join(violations)
+
+
+def test_lawyer_workpaper_guidance_avoids_outcome_and_attack_language():
+    files = [
+        PROJECT_ROOT / "app" / "api" / "assistant_api.py",
+        PROJECT_ROOT / "app" / "api" / "case.py",
+        PROJECT_ROOT / "app" / "services" / "defense_advisor.py",
+        PROJECT_ROOT / "app" / "models" / "cross_examination.py",
+    ]
+    forbidden = ["胜败取决于", "最优策略", "攻击性问题", "动摇可信度", "逐一给出法律意见", "证言可信度存疑"]
+    violations: list[str] = []
+
+    for path in files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), 1):
+            for term in forbidden:
+                if term in line:
+                    rel = path.relative_to(PROJECT_ROOT).as_posix()
+                    violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
+
+    assert not violations, "Lawyer-facing guidance should stay in workpaper/review language:\n" + "\n".join(violations)

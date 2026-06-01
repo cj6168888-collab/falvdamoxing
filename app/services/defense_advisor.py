@@ -531,7 +531,7 @@ class RealTimeDefenseAdvisor:
 {evidence_section}
 
 {'【我方证人询问策略】' if witness_role == 'my_side' else '【对方证人询问策略】'}
-{'需要通过询问强化证人证言的可信度' if witness_role == 'my_side' else '需要通过询问揭示证人证言的漏洞或矛盾'}
+{'需要通过询问强化证人证言的稳定性和证明力' if witness_role == 'my_side' else '需要通过询问揭示证人证言的漏洞或矛盾'}
 
 请设计5-8个关键问题，必须严格围绕博凯升华案，不得使用图书馆、监控录像、无关微信聊天等本案未出现的虚构示例。每个问题必须：
 1. 引导性问题（用于确认事实）
@@ -540,7 +540,7 @@ class RealTimeDefenseAdvisor:
 
 如为对方证人，还需包含：
 4. 质疑性问题（揭示矛盾，必须引用证据条款）
-5. 攻击性问题（动摇可信度）
+5. 质证追问（揭示证明力风险）
 
 请用JSON格式返回，包含：questions（问题列表，每个问题包含question、purpose、expected_answer、tip、evidence_anchor、legal_basis）。每个问题都必须提到博凯升华/陈靖/佛山吉麟/雷天乾中的至少一个，并引用证据编号或证据名称。"""
 
