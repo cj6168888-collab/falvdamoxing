@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axiosInstance from '@/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ClaimBasisMatrix } from '@/components/senior-analysis/claim-basis-matrix';
 import { Sparkles, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTaskStore, pollTaskStatus } from '@/stores/task.store';
@@ -20,7 +21,9 @@ interface SeniorAnalysisResult {
   case_understanding?: unknown;
   evidence_inventory?: unknown;
   evidence_review?: unknown;
-  requirements_check?: unknown;
+  requirements_check?: {
+    requirements?: Array<Record<string, unknown>>;
+  };
   issues?: unknown;
   risk_assessment?: unknown;
   recommendations?: unknown;
@@ -160,6 +163,7 @@ export default function SeniorAnalysisPage() {
             <AnalysisSection title="分析摘要" value={analysisResult.summary} />
             <AnalysisSection title="案件理解" value={analysisResult.case_understanding} />
             <AnalysisSection title="证据盘点" value={analysisResult.evidence_inventory ?? analysisResult.evidence_review} />
+            <ClaimBasisMatrix requirementsCheck={analysisResult.requirements_check} />
             <AnalysisSection title="要件核对" value={analysisResult.requirements_check} />
             <AnalysisSection title="问题发现" value={analysisResult.issues} />
             <AnalysisSection title="风险评估" value={analysisResult.risk_assessment} />
