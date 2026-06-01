@@ -477,7 +477,7 @@ export function AppealOverview({ caseId }: { caseId: string }) {
                   </TabsList>
                   <Button variant="outline" size="sm" onClick={() => {
                     generateAppealPetition(String(selectedAppealId)).then(() => {});
-                  }}><Sparkles className="mr-1 h-4 w-4" />AI 生成上诉状</Button>
+                  }}><Sparkles className="mr-1 h-4 w-4" />起草上诉状草稿</Button>
                 </div>
                 <TabsContent value="arguments"><AppealArgumentsPanel appealId={selectedAppealId} caseId={caseId} /></TabsContent>
                 <TabsContent value="deadlines"><AppealDeadlinePanel appealId={selectedAppealId} /></TabsContent>

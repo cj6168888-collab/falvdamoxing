@@ -326,18 +326,18 @@ def create_appeal_strategy(appeal_id: int, request: SecondTrialStrategyCreateReq
         raise HTTPException(status_code=500, detail=f"创建二审策略失败: {str(e)}")
 
 
-# ============ AI 功能 ============
+# ============ 草稿辅助功能 ============
 
 @router.post("/appeal/{appeal_id}/generate-petition")
 def generate_appeal_petition(appeal_id: int, db: Session = Depends(get_db)):
-    """AI 生成上诉状"""
+    """起草上诉状草稿，返回内容需人工核验后使用"""
     try:
         result = appeal_service.generate_appeal_petition(db, appeal_id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"生成上诉状失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"起草上诉状草稿失败: {str(e)}")
 
 
 @router.get("/appeal/{appeal_id}/countdown")

@@ -390,7 +390,7 @@ class AppealService:
         }
 
     def generate_appeal_petition(self, db: Session, appeal_id: int) -> Dict:
-        """AI 生成上诉状"""
+        """起草上诉状草稿，提交或发送前必须人工核验。"""
         record = db.query(AppealRecord).filter(AppealRecord.id == appeal_id).first()
         if not record:
             raise ValueError("上诉记录不存在")
@@ -406,7 +406,7 @@ class AppealService:
             for a in arguments
         ]) if arguments else "暂无论点"
 
-        prompt = f"""请根据以下案件信息，撰写一份完整的民事上诉状。
+        prompt = f"""请根据以下案件信息，起草一份民事上诉状草稿。
 
 【案件基本信息】
 - 案件名称：{case.title if case else '未知'}
@@ -433,7 +433,7 @@ class AppealService:
 【事实和理由】
 {record.appeal_facts or '未填写'}
 
-请按照标准民事上诉状格式撰写，包含：
+请按照标准民事上诉状格式起草草稿，包含：
 1. 标题
 2. 当事人信息
 3. 上诉请求
@@ -441,10 +441,16 @@ class AppealService:
 5. 此致（上诉法院）
 6. 具状人及日期
 
-要求：法律依据准确、论证充分、逻辑清晰、格式规范。"""
+要求：
+1. 输出开头必须标注“AI 草稿，待人工核验”；
+2. 原审法院、案号、当事人身份、上诉期限、上诉请求和金额如未核实，必须使用【待核实】占位，不得编造；
+3. 法律依据仅作为待核验引用，不得表达为已完成律师最终审查；
+4. 不得引用未经核验的案例号、指导案例编号或虚构裁判文书号；
+5. 末尾必须附“提交前核验清单”，至少包含上诉期限、原审案号、当事人身份、上诉请求、事实理由、证据目录、法条现行有效性、法院/管辖、签名盖章和日期；
+6. 结构完整、论证清晰，但保持工作底稿和草稿定位。"""
 
         content = llm_service.chat([
-            {"role": "system", "content": "你是一位资深上诉律师，擅长撰写上诉状。请根据提供的案件信息，撰写一份专业、规范的民事上诉状。"},
+            {"role": "system", "content": "你是一位资深上诉律师，正在协助起草民事上诉状工作底稿。输出必须保持草稿定位，提示提交前逐项人工核验，不得将结果表述为可直接提交的最终文书。"},
             {"role": "user", "content": prompt}
         ], model="qwen-plus")
 
@@ -454,6 +460,18 @@ class AppealService:
         return {
             "appeal_id": appeal_id,
             "petition": content,
+            "document_status": "AI 草稿，待人工核验",
+            "requires_human_review": True,
+            "review_checklist": [
+                "上诉期限和送达日期",
+                "原审法院、案号和裁判文书信息",
+                "上诉人、被上诉人及第三人主体身份",
+                "上诉请求、金额和计算依据",
+                "事实与理由对应的证据目录",
+                "法条和司法解释现行有效性",
+                "二审法院/管辖信息",
+                "签名盖章、日期和授权手续",
+            ],
             "generated_at": datetime.utcnow().isoformat(),
         }
 

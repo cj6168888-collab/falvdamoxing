@@ -167,3 +167,27 @@ def test_execution_application_is_framed_as_reviewable_draft():
     assert "requires_human_review" in service_text
     assert "提交前核验清单" in service_text
     assert not violations, "Execution application generation should be framed as a reviewable draft:\n" + "\n".join(violations)
+
+
+def test_appeal_petition_is_framed_as_reviewable_draft():
+    files = [
+        PROJECT_ROOT / "frontend" / "src" / "components" / "appeal" / "appeal-overview.tsx",
+        PROJECT_ROOT / "app" / "api" / "appeal.py",
+        PROJECT_ROOT / "app" / "services" / "appeal_service.py",
+    ]
+    forbidden = ["AI 生成上诉状", "撰写一份完整的民事上诉状", "专业、规范的民事上诉状"]
+    violations: list[str] = []
+
+    for path in files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), 1):
+            for term in forbidden:
+                if term in line:
+                    rel = path.relative_to(PROJECT_ROOT).as_posix()
+                    violations.append(f"{rel}:{line_no}: contains {term!r}: {line.strip()}")
+
+    service_text = (PROJECT_ROOT / "app" / "services" / "appeal_service.py").read_text(encoding="utf-8", errors="ignore")
+    assert "AI 草稿，待人工核验" in service_text
+    assert "requires_human_review" in service_text
+    assert "提交前核验清单" in service_text
+    assert not violations, "Appeal petition generation should be framed as a reviewable draft:\n" + "\n".join(violations)
