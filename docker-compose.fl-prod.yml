@@ -1,6 +1,6 @@
 # ============================================================
 # 法律大模型 - 生产部署 (fl.jilinpc.com)
-# 独立容器名/端口，不干扰 数字员工(jilin) 和 睡了么(shuileme)
+# 独立容器名/端口，不干扰数字员工(jilin)和睡了么(shuileme)
 # ============================================================
 name: legal-ai
 
@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    image: legal-ai-assistant:latest
+    image: ${BACKEND_IMAGE:-legal-ai-assistant:latest}
     container_name: legal-ai-app
     restart: always
     ports:

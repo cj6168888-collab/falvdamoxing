@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     environment:
       name: production
-      url: https://your-domain.com
+      url: https://fl.jilinpc.com
 
     steps:
       - uses: actions/checkout@v4
@@ -130,35 +130,27 @@ jobs:
             if [ -n "${GHCR_USERNAME}" ] && [ -n "${GHCR_TOKEN}" ]; then
               printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             fi
-            if grep -q '^BACKEND_IMAGE=' .env.prod; then
-              sed -i "s|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${BACKEND_IMAGE}|" .env.prod
+            if grep -q '^BACKEND_IMAGE=' .env.fl-prod; then
+              sed -i "s|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${BACKEND_IMAGE}|" .env.fl-prod
             else
-              printf '\nBACKEND_IMAGE=%s\n' "${BACKEND_IMAGE}" >> .env.prod
+              printf '\nBACKEND_IMAGE=%s\n' "${BACKEND_IMAGE}" >> .env.fl-prod
             fi
-            if grep -q '^WORKER_IMAGE=' .env.prod; then
-              sed -i "s|^WORKER_IMAGE=.*|WORKER_IMAGE=${WORKER_IMAGE}|" .env.prod
-            else
-              printf 'WORKER_IMAGE=%s\n' "${WORKER_IMAGE}" >> .env.prod
-            fi
-            export BACKEND_IMAGE WORKER_IMAGE
-            docker compose --env-file .env.prod -f docker-compose.prod.yml pull app
-            docker compose --env-file .env.prod -f docker-compose.prod.yml --profile migrate run --rm migrate
-            docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm app python -m app.db.migrate_all --check
-            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --no-deps app
+            export BACKEND_IMAGE
+            docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml pull app
+            docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml run --rm app python -m app.db.migrate_all
+            docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml run --rm app python -m app.db.migrate_all --check
+            docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml up -d --no-deps app
             for i in $(seq 1 30); do
-              if docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T app python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=5).read()" >/dev/null 2>&1; then
+              if docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml exec -T app python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=5).read()" >/dev/null 2>&1; then
                 break
               fi
               if [ "$i" -eq 30 ]; then
-                docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=200 app
+                docker compose --env-file .env.fl-prod -f docker-compose.fl-prod.yml logs --tail=200 app
                 exit 1
               fi
               sleep 5
             done
-            if [ -n "$(docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery ps -q celery_worker)" ]; then
-              docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery pull celery_worker
-              docker compose --env-file .env.prod -f docker-compose.prod.yml --profile celery up -d --no-deps celery_worker
-            fi
+            printf '%s\n' "${GITHUB_SHA}" > DEPLOYED_COMMIT
             docker image prune -f
 
   # ============================================================
