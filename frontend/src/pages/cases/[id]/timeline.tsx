@@ -7,6 +7,8 @@ import { PageSkeleton } from '@/components/common/loading-skeleton';
 import { Calendar, MapPin, Scale, Plus, Gavel, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import styles from './timeline.module.css';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels, getAudienceMode } from '@/lib/audience-copy';
 
 interface TimelineNode {
   title?: string;
@@ -39,6 +41,32 @@ function normalizeTimelineNode(node: BackendTimelineNode): TimelineNode {
 
 export default function CaseTimelinePage() {
   const { id } = useParams<{ id: string }>();
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const audience = getAudienceMode(tenantType);
+  const labels = getAudienceLabels(tenantType);
+  const pageCopy = {
+    law_firm: {
+      title: '案件时间线与庭审记录',
+      description: '记录诉讼全周期的时间节点（立案、排期、开庭、宣判等）',
+      addNow: '立即添加立案/开庭登记',
+      hearingTitle: '法庭调查/质证记录',
+      hearingEmpty: '暂无庭审笔记',
+    },
+    enterprise: {
+      title: '期限台账与行动记录',
+      description: '记录合同履行、回款催告、协商发函、内部审批和外部律师协作节点',
+      addNow: '立即添加期限或行动节点',
+      hearingTitle: '争议应对记录',
+      hearingEmpty: '暂无争议应对记录',
+    },
+    personal: {
+      title: '下一步与沟通记录',
+      description: '记录事实发生、证据保存、沟通协商、投诉调解和求助节点',
+      addNow: '立即添加下一步记录',
+      hearingTitle: '沟通/求助记录',
+      hearingEmpty: '暂无沟通记录',
+    },
+  }[audience];
 
   // Fetch timeline / nodes
   const { data: nodes, isLoading } = useQuery({
@@ -53,8 +81,8 @@ export default function CaseTimelinePage() {
     <div className={`${styles.container} space-y-6`}>
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2"><Scale className="h-5 w-5 text-primary" />案件时间线与庭审记录</h2>
-          <p className="text-sm text-muted-foreground mt-1">记录诉讼全周期的时间节点（立案、排期、开庭、宣判等）</p>
+          <h2 className="text-xl font-bold flex items-center gap-2"><Scale className="h-5 w-5 text-primary" />{pageCopy.title}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{pageCopy.description}</p>
         </div>
         <Button><Plus className="h-4 w-4 mr-2" />新增节点</Button>
       </div>
@@ -64,7 +92,7 @@ export default function CaseTimelinePage() {
           <CardContent className="h-64 flex flex-col items-center justify-center text-center">
             <Calendar className="h-12 w-12 text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground">暂无时间节点记录</p>
-            <Button variant="outline" className="mt-4"><Plus className="h-4 w-4 mr-2" />立即添加立案/开庭登记</Button>
+            <Button variant="outline" className="mt-4"><Plus className="h-4 w-4 mr-2" />{pageCopy.addNow}</Button>
           </CardContent>
         </Card>
       ) : (
@@ -91,7 +119,7 @@ export default function CaseTimelinePage() {
                     <div className="mt-3 flex flex-wrap gap-2">
                       {node.related_evidence_ids.map((evId) => (
                         <Badge key={evId} variant="secondary" className="px-2 py-0 h-5 text-[10px] bg-blue-50 text-blue-700 border-blue-100 flex items-center gap-1 cursor-pointer hover:bg-blue-100" onClick={() => window.location.href=`/cases/${id}/evidence?highlight=${evId}`}>
-                          <FileText className="h-2 w-2" /> 证据 ID: {evId}
+                          <FileText className="h-2 w-2" /> {labels.evidenceTab} ID: {evId}
                         </Badge>
                       ))}
                     </div>
@@ -100,8 +128,8 @@ export default function CaseTimelinePage() {
                   {/* Hearing Special Block */}
                   {node.node_type === 'hearing' && (
                     <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-primary/10">
-                      <h4 className="text-sm font-medium flex items-center gap-1 mb-2"><Gavel className="h-4 w-4 text-primary" />法庭调查/质证记录</h4>
-                      <p className="text-xs text-muted-foreground whitespace-pre-wrap">{node.hearing_notes || '暂无庭审笔记'}</p>
+                      <h4 className="text-sm font-medium flex items-center gap-1 mb-2"><Gavel className="h-4 w-4 text-primary" />{pageCopy.hearingTitle}</h4>
+                      <p className="text-xs text-muted-foreground whitespace-pre-wrap">{node.hearing_notes || pageCopy.hearingEmpty}</p>
                     </div>
                   )}
                 </CardContent>

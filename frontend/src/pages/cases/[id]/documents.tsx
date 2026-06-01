@@ -20,6 +20,8 @@ import {
   Eye, X, Edit3
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels, getAudienceMode } from '@/lib/audience-copy';
 
 interface DocTemplate {
   type: string;
@@ -59,6 +61,32 @@ export default function CaseDocumentsPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const audience = getAudienceMode(tenantType);
+  const labels = getAudienceLabels(tenantType);
+  const documentCopy = {
+    law_firm: {
+      title: '文书草稿',
+      description: '选择文书类型，系统将基于案件信息起草待核验文书草稿',
+      requestLabel: '您的要求（可选）',
+      requestPlaceholder: '例如：\n- 强调对方违约事实，引用民法典第577条\n- 要求赔偿损失及利息\n- 重点说明证据1、3、5的关联性\n- 语气要强硬/温和',
+      basisNotice: '系统将基于案件全部证据起草文书草稿，并在草稿中标注证据序号；提交或对外发送前请逐项核验。',
+    },
+    enterprise: {
+      title: '合同与函件草稿',
+      description: '选择函件、说明、清单或申请类模板，系统将基于法律事项材料起草待核验草稿',
+      requestLabel: '企业处理要求（可选）',
+      requestPlaceholder: '例如：\n- 语气保持克制但明确保留权利\n- 突出合同、对账、催告和交付记录\n- 先用于内部审批，再交外部律师复核\n- 需要形成催告函或协商提纲',
+      basisNotice: '系统将基于当前法律事项全部材料起草草稿，并尽量标注材料依据；对外发送、提交或归档前请逐项核验。',
+    },
+    personal: {
+      title: '文书与沟通草稿',
+      description: '选择情况说明、投诉材料、调解申请或其他模板，系统将基于你的法律问题材料起草待核验草稿',
+      requestLabel: '你希望怎么表达（可选）',
+      requestPlaceholder: '例如：\n- 用普通人能看懂的话写清楚\n- 语气克制，避免激化矛盾\n- 重点说明时间线、付款记录和聊天记录\n- 先生成一份可以核对的情况说明',
+      basisNotice: '系统将基于当前法律问题的事实和材料起草草稿。发送、提交或签名前，请逐项核验事实、金额、身份信息和材料来源。',
+    },
+  }[audience];
 
   // 状态
   const [viewMode, setViewMode] = useState<'select' | 'generate' | 'chat' | 'result'>('select');
@@ -460,8 +488,8 @@ export default function CaseDocumentsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold">文书草稿</h2>
-          <p className="text-sm text-muted-foreground">选择文书类型，系统将基于案件信息起草待核验文书草稿</p>
+          <h2 className="text-xl font-bold">{documentCopy.title}</h2>
+          <p className="text-sm text-muted-foreground">{documentCopy.description}</p>
         </div>
 
         <Tabs defaultValue="templates" className="w-full">
@@ -472,7 +500,7 @@ export default function CaseDocumentsPage() {
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              历史文书 ({documents?.length || 0})
+              历史{labels.documentsTab} ({documents?.length || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -627,11 +655,11 @@ export default function CaseDocumentsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">您的要求（可选）</label>
+              <label className="mb-2 block text-sm font-medium">{documentCopy.requestLabel}</label>
               <Textarea
                 value={userRequirements}
                 onChange={(e) => setUserRequirements(e.target.value)}
-                placeholder={`例如：\n- 强调对方违约事实，引用民法典第577条\n- 要求赔偿损失及利息\n- 重点说明证据1、3、5的关联性\n- 语气要强硬/温和`}
+                placeholder={documentCopy.requestPlaceholder}
                 rows={6}
                 className="font-mono text-sm"
               />
@@ -648,7 +676,7 @@ export default function CaseDocumentsPage() {
               )}
             </Button>
             <p className="text-xs text-muted-foreground">
-              系统将基于案件全部证据起草文书草稿，并在草稿中标注证据序号；提交或对外发送前请逐项核验。
+              {documentCopy.basisNotice}
             </p>
           </CardContent>
         </Card>

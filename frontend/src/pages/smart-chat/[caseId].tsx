@@ -17,6 +17,8 @@ import {
   Briefcase, Gavel, ListChecks, Scale
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels, getAudienceMode, type AudienceMode } from '@/lib/audience-copy';
 
 interface ChatMessage {
   id: string;
@@ -79,8 +81,8 @@ interface CaseInfo {
   evidence_count: number;
 }
 
-const ANALYSIS_STEPS = [
-  '正在读取案件完整档案...',
+const baseAnalysisSteps = [
+  '正在读取事项完整档案...',
   '正在逐一分析全部证据...',
   '正在建立证据关联网络...',
   '正在分析可主张的权利...',
@@ -109,9 +111,104 @@ const ROLE_OPTIONS = [
   { value: 'third_party', label: '我是第三方', helper: '厘清责任' },
 ];
 
+const roleOptionsByAudience: Record<AudienceMode, typeof ROLE_OPTIONS> = {
+  law_firm: ROLE_OPTIONS,
+  enterprise: [
+    { value: 'plaintiff', label: '我是企业经办方', helper: '整理风险' },
+    { value: 'defendant', label: '我是被主张方', helper: '控制损失' },
+    { value: 'third_party', label: '我是协作/管理方', helper: '厘清责任' },
+  ],
+  personal: [
+    { value: 'plaintiff', label: '我是受影响的一方', helper: '先稳住' },
+    { value: 'defendant', label: '我是被要求的一方', helper: '先看清' },
+    { value: 'third_party', label: '我在帮家人/朋友', helper: '整理事实' },
+  ],
+};
+
+const promptTemplatesByAudience: Record<AudienceMode, string[]> = {
+  law_firm: LAWYER_PROMPT_TEMPLATES,
+  enterprise: [
+    '请按企业法律顾问口径审查这个事项：先列经营风险，再匹配材料依据，最后给出内部处理和外部律师协作清单。',
+    '请检查合同、对账、交付、验收、催告等材料是否足够支撑下一步行动，并列出缺口。',
+    '请站在相对方角度反驳我方主张，指出最容易被攻击的事实、证据和流程问题。',
+    '请判断这个事项适合先内部协商、发函催告、暂停履行还是交给外部律师复核，并说明触发条件。',
+  ],
+  personal: [
+    '请先帮我稳住处境：按时间线整理事实，指出哪些证据要马上保存，今天先做哪一步。',
+    '请用普通人能理解的话说明这个问题的主要风险、不要急着做的事、以及需要核验的材料。',
+    '请站在对方角度看这件事，指出我现在说法或证据里最容易被质疑的地方。',
+    '请帮我生成一份下一步清单：今天能做什么、暂时别做什么、什么时候需要线下求助。',
+  ],
+};
+
+const guideCopyByAudience: Record<AudienceMode, {
+  eyebrow: string;
+  title: string;
+  description: string;
+  outputMode: string;
+  riskView: string;
+  cardTitle: string;
+  cardDescription: string;
+  descriptionPlaceholder: string;
+  expectationLabel: string;
+  expectationPlaceholder: string;
+  startButton: string;
+  chatPlaceholder: string;
+}> = {
+  law_firm: {
+    eyebrow: '法律工作辅助台',
+    title: '全案证据驱动分析',
+    description: '先让 AI 读取案件基础事实和证据链，再围绕争议焦点、举证责任、诉讼请求、反驳风险输出可复核的律师意见。',
+    outputMode: '律师复核',
+    riskView: '对抗审查',
+    cardTitle: '启动一次可复核的法律工作分析',
+    cardDescription: '建议直接写明时间线、交易背景、对方行为、你想达成的结果。系统会结合全部证据链生成待核验分析。',
+    descriptionPlaceholder: '例如：请按时间线梳理我方已经掌握的事实，说明对方可能构成的违约或侵权点，并指出证据中还缺哪些关键材料。',
+    expectationLabel: '您的目标或底线（可选）',
+    expectationPlaceholder: '例如：优先固定主体责任，其次准备诉讼和保全，不接受只给泛泛建议',
+    startButton: '开始全案分析',
+    chatPlaceholder: '追问法律 AI 助手：要求补充证据出处、重新按对方视角反驳、生成证据目录或文书草稿...',
+  },
+  enterprise: {
+    eyebrow: '企业法律顾问工作台',
+    title: '法律事项风险整理',
+    description: '先让 AI 读取事项事实和经营材料，再围绕合同、回款、用工、交付、审批和沟通记录输出可复核的风险台账。',
+    outputMode: '顾问复核',
+    riskView: '经营风险',
+    cardTitle: '启动一次企业法律事项整理',
+    cardDescription: '建议写明业务背景、相对方行为、金额期限、已有材料和希望达成的处理目标。',
+    descriptionPlaceholder: '例如：请基于这起客户欠款事项，按合同、对账、发票、催告记录梳理事实，列出回款风险、材料缺口和下一步行动。',
+    expectationLabel: '企业处理目标（可选）',
+    expectationPlaceholder: '例如：优先内部协商和发函催告，必要时整理给外部律师复核',
+    startButton: '开始事项分析',
+    chatPlaceholder: '追问法律顾问助手：要求补充材料缺口、生成催告提纲、整理律师协作摘要...',
+  },
+  personal: {
+    eyebrow: '个人法律后盾',
+    title: '法律问题事实整理',
+    description: '先把处境稳住：让 AI 读取事实和材料，帮你厘清风险、保住证据、拆出今天能做的下一步。',
+    outputMode: '行动清单',
+    riskView: '先稳住',
+    cardTitle: '启动一次个人法律问题整理',
+    cardDescription: '不用专业术语，按时间顺序说清发生了什么、最担心什么、手里有什么材料。',
+    descriptionPlaceholder: '例如：房东不退押金，我有租赁合同、付款记录和聊天记录，请帮我整理事实、证据和今天能先做什么。',
+    expectationLabel: '现在最想解决什么（可选）',
+    expectationPlaceholder: '例如：先保存证据，再准备一段克制的沟通话术，不想把事情闹大',
+    startButton: '开始整理问题',
+    chatPlaceholder: '追问法律后盾助手：请用普通话解释风险、列出下一步、提醒哪些话暂时别说...',
+  },
+};
+
 export default function SmartChatPage() {
   const params = useParams<{ caseId: string; id: string }>();
   const currentCaseId = params.caseId || params.id || '';
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const audience = getAudienceMode(tenantType);
+  const labels = getAudienceLabels(tenantType);
+  const guideCopy = guideCopyByAudience[audience];
+  const promptTemplates = promptTemplatesByAudience[audience];
+  const roleOptions = roleOptionsByAudience[audience];
+  const analysisSteps = [baseAnalysisSteps[0].replace('事项', labels.caseNoun), ...baseAnalysisSteps.slice(1)];
 
   // Core state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -119,7 +216,7 @@ export default function SmartChatPage() {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  const [currentSteps, setCurrentSteps] = useState<string[]>(ANALYSIS_STEPS);
+  const [currentSteps, setCurrentSteps] = useState<string[]>(analysisSteps);
 
   // Countdown timer state (for better UX)
   const [countdownSeconds, setCountdownSeconds] = useState(0);
@@ -163,7 +260,7 @@ export default function SmartChatPage() {
         ]);
         const c = caseRes.data;
         setCaseInfo({
-          title: c.title || `案件 #${currentCaseId}`,
+          title: c.title || `${labels.caseNoun} #${currentCaseId}`,
           plaintiff: c.plaintiff || '未填写',
           defendant: c.defendant || '未填写',
           cause: c.cause || '待分析',
@@ -199,7 +296,7 @@ export default function SmartChatPage() {
         }
       } catch (err) {
         console.error('[SmartChat] Failed to load case info:', err);
-        setApiError('无法加载案件信息，请检查后端服务是否运行');
+        setApiError(`无法加载${labels.caseNoun}信息，请检查后端服务是否运行`);
       }
     };
     loadCaseInfo();
@@ -239,7 +336,7 @@ export default function SmartChatPage() {
     const startTs = Date.now();
 
     let currentStep = 0;
-    const stepDuration = steps === ANALYSIS_STEPS ? 4000 : 3000;
+    const stepDuration = steps.length === analysisSteps.length ? 4000 : 3000;
 
     // Countdown timer
     countdownTimerRef.current = setInterval(() => {
@@ -275,7 +372,7 @@ export default function SmartChatPage() {
       return;
     }
     if (!currentCaseId) {
-      toast.error('无法获取案件ID');
+      toast.error(`无法获取${labels.caseNoun}ID`);
       return;
     }
 
@@ -283,7 +380,7 @@ export default function SmartChatPage() {
     setIsAnalyzing(true);
     setHasStarted(true); // 确保进入聊天界面
     setApiError(null);
-    startProgress(ANALYSIS_STEPS);
+    startProgress(analysisSteps);
 
     // 设置 5 分钟超时
     const timeoutId = setTimeout(() => {
@@ -480,7 +577,7 @@ export default function SmartChatPage() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('case_id', String(parseInt(currentCaseId)));
-        formData.append('user_message', followUpInput.trim() || `请分析这份${file.name}文件的内容，结合案件已有证据判断其证明力和关联性`);
+        formData.append('user_message', followUpInput.trim() || `请分析这份${file.name}文件的内容，结合当前${labels.caseNoun}已有材料判断其证明力和关联性`);
         
         console.log('[SmartChat] Uploading file:', file.name, 'case_id:', currentCaseId);
         const res = await axiosInstance.post('/api/smart-chat/upload-analysis', formData, {
@@ -635,7 +732,7 @@ export default function SmartChatPage() {
 
       const res = await axiosInstance.post('/api/exports', {
         content: conversationContent,
-        title: `完整对话记录_${caseInfo?.title || '案件'}_${new Date().toLocaleDateString('zh-CN')}`,
+        title: `完整对话记录_${caseInfo?.title || labels.caseNoun}_${new Date().toLocaleDateString('zh-CN')}`,
         format,
       }, { responseType: 'blob' });
 
@@ -762,12 +859,12 @@ export default function SmartChatPage() {
                 <Scale className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-medium text-teal-200">法律工作辅助台</p>
-                <h1 className="text-xl font-bold">全案证据驱动分析</h1>
+                <p className="text-xs font-medium text-teal-200">{guideCopy.eyebrow}</p>
+                <h1 className="text-xl font-bold">{guideCopy.title}</h1>
               </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-300">
-              先让 AI 读取案件基础事实和证据链，再围绕争议焦点、举证责任、诉讼请求、反驳风险输出可复核的律师意见。
+              {guideCopy.description}
             </p>
             {caseInfo && (
               <div className="mt-5 rounded-md border border-white/10 bg-white/5 p-4">
@@ -782,11 +879,11 @@ export default function SmartChatPage() {
                     <p className="font-medium">{caseInfo.defendant}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">案由</p>
+                    <p className="text-slate-400">{labels.caseNoun}类型</p>
                     <p className="font-medium">{caseInfo.cause}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">诉讼金额</p>
+                    <p className="text-slate-400">{labels.amountLabel}</p>
                     <p className="font-medium">{caseInfo.claim_amount}</p>
                   </div>
                 </div>
@@ -794,26 +891,26 @@ export default function SmartChatPage() {
             )}
             <div className="mt-5 grid grid-cols-3 gap-2">
               <div className="rounded-md border border-teal-400/20 bg-teal-400/10 p-3">
-                <p className="text-xs text-teal-100">证据读取</p>
+                <p className="text-xs text-teal-100">{labels.evidenceTab}</p>
                 <p className="mt-1 text-2xl font-bold">{caseInfo?.evidence_count ?? evidenceList.length}</p>
               </div>
               <div className="rounded-md border border-white/10 bg-white/5 p-3">
                 <p className="text-xs text-slate-300">输出模式</p>
-                <p className="mt-1 text-sm font-semibold">律师复核</p>
+                <p className="mt-1 text-sm font-semibold">{guideCopy.outputMode}</p>
               </div>
               <div className="rounded-md border border-amber-300/20 bg-amber-300/10 p-3">
                 <p className="text-xs text-amber-100">风险视角</p>
-                <p className="mt-1 text-sm font-semibold">对抗审查</p>
+                <p className="mt-1 text-sm font-semibold">{guideCopy.riskView}</p>
               </div>
             </div>
             <div className="mt-5 space-y-3 text-sm text-slate-300">
               <div className="flex items-start gap-2">
                 <ListChecks className="mt-0.5 h-4 w-4 text-teal-200" />
-                <span>输出必须区分事实、证据、法律评价和下一步动作。</span>
+                <span>输出必须区分事实、材料依据、风险评价和下一步动作。</span>
               </div>
               <div className="flex items-start gap-2">
                 <Gavel className="mt-0.5 h-4 w-4 text-teal-200" />
-                <span>优先暴露证据缺口和对方可能抗辩，避免只给乐观结论。</span>
+                <span>优先暴露材料缺口和对方可能反驳，避免只给乐观结论。</span>
               </div>
             </div>
           </div>
@@ -822,16 +919,16 @@ export default function SmartChatPage() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Briefcase className="h-5 w-5 text-teal-700" />
-                启动一次可复核的法律工作分析
+                {guideCopy.cardTitle}
               </CardTitle>
               <CardDescription>
-                建议直接写明时间线、交易背景、对方行为、你想达成的结果。系统会结合全部证据链生成待核验分析。
+                {guideCopy.cardDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <LegalDisclaimer variant="analysis" />
               <div className="grid gap-2 sm:grid-cols-3">
-                {ROLE_OPTIONS.map((option) => (
+                {roleOptions.map((option) => (
                   <Button
                     key={option.value}
                     variant={userRole === option.value ? 'default' : 'outline'}
@@ -848,22 +945,22 @@ export default function SmartChatPage() {
               <Textarea
                 value={factDescription}
                 onChange={(e) => setFactDescription(e.target.value)}
-                placeholder="例如：请基于博凯升华违背合作案，按时间线梳理我方已经掌握的事实，说明雷天乾/对方公司可能构成的违约或侵权点，并指出 177 份证据中还缺哪些关键材料。"
+                placeholder={guideCopy.descriptionPlaceholder}
                 rows={9}
                 className="text-sm leading-6"
               />
               <div>
-                <label className="mb-2 block text-sm font-medium">您的目标或底线（可选）</label>
+                <label className="mb-2 block text-sm font-medium">{guideCopy.expectationLabel}</label>
                 <Input
                   value={userExpectation}
                   onChange={(e) => setUserExpectation(e.target.value)}
-                  placeholder="例如：优先固定主体责任，其次准备诉讼和保全，不接受只给泛泛建议"
+                  placeholder={guideCopy.expectationPlaceholder}
                 />
               </div>
               <div className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
                 <p className="mb-2 text-xs font-medium text-slate-600 dark:text-slate-300">可直接套用的问题</p>
                 <div className="flex flex-wrap gap-2">
-                  {LAWYER_PROMPT_TEMPLATES.map((template) => (
+                  {promptTemplates.map((template) => (
                     <button
                       key={template}
                       type="button"
@@ -876,7 +973,7 @@ export default function SmartChatPage() {
                 </div>
               </div>
               <Button onClick={handleStartAnalysis} disabled={!factDescription.trim()} className="w-full bg-teal-700 hover:bg-teal-800">
-                <Sparkles className="mr-2 h-4 w-4" />开始全案分析
+                <Sparkles className="mr-2 h-4 w-4" />{guideCopy.startButton}
               </Button>
             </CardContent>
           </Card>
@@ -902,8 +999,8 @@ export default function SmartChatPage() {
                     <div className="absolute inset-0 h-8 w-8 rounded-full border-2 border-primary/30 animate-ping" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-primary">AI 正在分析案情</h2>
-                    <p className="text-sm text-muted-foreground">基于案件全部证据进行深度分析</p>
+                    <h2 className="text-xl font-bold text-primary">AI 正在分析{labels.caseNoun}</h2>
+                    <p className="text-sm text-muted-foreground">基于当前{labels.caseNoun}全部材料进行深度分析</p>
                   </div>
                 </div>
                 {/* 倒计时显示 */}
@@ -956,7 +1053,7 @@ export default function SmartChatPage() {
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
-                  <span>正在阅读全部 {evidenceList.length} 份证据</span>
+                  <span>正在阅读全部 {evidenceList.length} 份材料</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
@@ -982,17 +1079,17 @@ export default function SmartChatPage() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <Scale className="h-3.5 w-3.5" />
-              <span>法律 AI 助手 · 全案对话</span>
+              <span>{labels.chatTab} · 全程对话</span>
               <span>·</span>
-              <span>{caseInfo?.cause || '待分析案由'}</span>
+              <span>{caseInfo?.cause || `待分析${labels.caseNoun}类型`}</span>
             </div>
             <h2 className="mt-1 truncate text-base font-semibold text-slate-950 dark:text-slate-100">
-              {caseInfo?.title || `案件 #${currentCaseId}`}
+              {caseInfo?.title || `${labels.caseNoun} #${currentCaseId}`}
             </h2>
           </div>
           <div className="grid grid-cols-3 gap-2 text-right">
             <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-xs text-slate-500">证据</p>
+              <p className="text-xs text-slate-500">{labels.evidenceTab}</p>
               <p className="text-sm font-semibold">{evidenceList.length} 份</p>
             </div>
             <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-slate-800 dark:bg-slate-900">
@@ -1001,7 +1098,7 @@ export default function SmartChatPage() {
             </div>
             <div className="rounded-md border border-teal-200 bg-teal-50 px-3 py-1.5 text-teal-800 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-200">
               <p className="text-xs">模式</p>
-              <p className="text-sm font-semibold">律师复核</p>
+              <p className="text-sm font-semibold">{guideCopy.outputMode}</p>
             </div>
           </div>
         </div>
@@ -1010,10 +1107,10 @@ export default function SmartChatPage() {
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/20 lg:hidden">
           <div className="flex items-center gap-2 text-sm">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="truncate">{caseInfo?.title || '法律 AI 助手'} · {evidenceList.length} 份证据</span>
+            <span className="truncate">{caseInfo?.title || labels.chatTab} · {evidenceList.length} 份材料</span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => setShowEvidenceDrawer(!showEvidenceDrawer)}>
-            <Eye className="h-4 w-4 mr-1" />查看证据
+            <Eye className="h-4 w-4 mr-1" />查看材料
           </Button>
         </div>
 
@@ -1110,7 +1207,7 @@ export default function SmartChatPage() {
           {/* Input */}
           <div className="p-3">
             <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
-              {LAWYER_PROMPT_TEMPLATES.map((template) => (
+              {promptTemplates.map((template) => (
                 <button
                   key={template}
                   type="button"
@@ -1179,7 +1276,7 @@ export default function SmartChatPage() {
                 <option value="执行异议">执行异议申请书</option>
               </select>
               <Textarea value={followUpInput} onChange={(e) => setFollowUpInput(e.target.value)}
-                placeholder="追问法律 AI 助手：要求补充证据出处、重新按对方视角反驳、生成证据目录或文书草稿..." className="min-h-[72px] resize-none" rows={2}
+                placeholder={guideCopy.chatPlaceholder} className="min-h-[72px] resize-none" rows={2}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleFollowUp(); } }} />
               <Button onClick={() => handleFollowUp()} disabled={isAnalyzing || isUploading || (!followUpInput.trim() && uploadedFiles.length === 0)} className="self-end bg-teal-700 hover:bg-teal-800">
                 {isAnalyzing || isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
