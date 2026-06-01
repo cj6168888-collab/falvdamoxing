@@ -24,9 +24,14 @@ def _normalize_fact_text(fact: Any) -> str:
     return str(fact or "").strip()
 
 
+def _get_evidence_review(evidence: Dict[str, Any]) -> Dict[str, Any]:
+    review = evidence.get("evidence_review")
+    return review if isinstance(review, dict) else {}
+
+
 def _get_evidence_proof_purpose(evidence: Dict[str, Any]) -> str:
-    review = evidence.get("evidence_review") or {}
-    proof_purpose = (evidence.get("proof_purpose") or review.get("proof_purpose") or "").strip()
+    review = _get_evidence_review(evidence)
+    proof_purpose = (review.get("proof_purpose") or evidence.get("proof_purpose") or "").strip()
     if proof_purpose:
         return proof_purpose
 
@@ -37,6 +42,25 @@ def _get_evidence_proof_purpose(evidence: Dict[str, Any]) -> str:
         return "；".join(fact_texts[:2])
 
     return (evidence.get("summary") or evidence.get("content_preview") or "待结合原件核验").strip()
+
+
+def _get_evidence_three_natures(evidence: Dict[str, Any]) -> str:
+    review = _get_evidence_review(evidence)
+    authenticity = (review.get("authenticity_risk") or "待人工核验").strip()
+    legality = (review.get("legality_risk") or "待人工核验").strip()
+    relevance = (review.get("relevance_risk") or "待人工核验").strip()
+    return f"真实性：{authenticity}；合法性：{legality}；关联性：{relevance}"
+
+
+def _get_evidence_strengthening_actions(evidence: Dict[str, Any]) -> str:
+    review = _get_evidence_review(evidence)
+    actions = review.get("strengthening_actions") or []
+    if isinstance(actions, str):
+        actions = [actions]
+    action_texts = [str(action).strip() for action in actions if str(action).strip()]
+    if action_texts:
+        return "；".join(action_texts)
+    return "暂无补强动作，提交前仍需核验原件和上下文"
 
 
 class DocumentGenerator:
@@ -376,7 +400,9 @@ class DocumentGenerator:
             rows.append(
                 f"{ev.get('index')}. 证据名称：{ev.get('name', '未命名证据')}；"
                 f"证据类型：{ev.get('type', '未分类')}；"
-                f"证明目的：{_limit_text(_get_evidence_proof_purpose(ev), 180)}"
+                f"证明目的：{_limit_text(_get_evidence_proof_purpose(ev), 180)}；"
+                f"三性风险：{_limit_text(_get_evidence_three_natures(ev), 180)}；"
+                f"补强动作：{_limit_text(_get_evidence_strengthening_actions(ev), 180)}"
             )
         return f"""证据目录
 
@@ -460,6 +486,8 @@ class DocumentGenerator:
             evidence_catalog += f"证据{ev['index']}：【{ev['name']}】（{ev['type']}）\n"
             evidence_catalog += f"  摘要：{_limit_text(ev.get('summary', '无'), 180)}\n"
             evidence_catalog += f"  证明目的：{_limit_text(_get_evidence_proof_purpose(ev), 220)}\n"
+            evidence_catalog += f"  三性风险：{_limit_text(_get_evidence_three_natures(ev), 220)}\n"
+            evidence_catalog += f"  补强动作：{_limit_text(_get_evidence_strengthening_actions(ev), 220)}\n"
             evidence_catalog += "\n"
 
         excerpt_limit = 24 if len(evidence_list) > 60 else len(evidence_list)
@@ -471,6 +499,8 @@ class DocumentGenerator:
             if ev.get('content_preview'):
                 evidence_catalog += f"内容摘录：{_limit_text(ev['content_preview'], 360)}\n"
             evidence_catalog += f"证明事项：{_limit_text(_get_evidence_proof_purpose(ev), 220)}\n"
+            evidence_catalog += f"三性风险：{_limit_text(_get_evidence_three_natures(ev), 220)}\n"
+            evidence_catalog += f"补强动作：{_limit_text(_get_evidence_strengthening_actions(ev), 220)}\n"
 
         return evidence_catalog
 

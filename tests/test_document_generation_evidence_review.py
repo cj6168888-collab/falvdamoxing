@@ -45,10 +45,13 @@ def _create_case_with_many_reviewed_evidence() -> int:
                         "reviewed_at": "2026-06-01T07:00:00",
                         "proof_purpose": review_purpose,
                         "original_status": "已核验原件",
-                        "authenticity_risk": "低",
-                        "legality_risk": "低",
-                        "relevance_risk": "直接相关",
-                        "strengthening_actions": [],
+                        "authenticity_risk": "需保留原始聊天记录" if index == 0 else "低",
+                        "legality_risk": "由我方账号依法导出" if index == 0 else "低",
+                        "relevance_risk": "与欠款确认直接相关" if index == 0 else "直接相关",
+                        "strengthening_actions": [
+                            "补充原始聊天导出文件",
+                            "核对对方账号主体",
+                        ] if index == 0 else [],
                     }
                 ],
             )
@@ -77,3 +80,8 @@ async def test_generated_large_evidence_catalog_uses_manual_review_proof_purpose
     content = response.json()["content"]
     assert "人工复核：证明对方确认欠款本金" in content
     assert "证明目的：人工复核：证明对方确认欠款本金" in content
+    assert "三性风险" in content
+    assert "真实性：需保留原始聊天记录" in content
+    assert "合法性：由我方账号依法导出" in content
+    assert "关联性：与欠款确认直接相关" in content
+    assert "补强动作：补充原始聊天导出文件；核对对方账号主体" in content
