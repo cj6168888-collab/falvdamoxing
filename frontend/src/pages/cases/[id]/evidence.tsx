@@ -6,6 +6,7 @@ import { EvidenceList } from '@/components/evidence/evidence-list';
 import { EvidenceUploader } from '@/components/evidence/evidence-uploader';
 import { EvidenceReviewFields } from '@/components/evidence/evidence-review-fields';
 import { uploadEvidence } from '@/api/evidence.api';
+import { buildEvidenceWorkpaperExportText } from '@/lib/evidence-export-workpaper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +65,15 @@ interface EvidenceItem {
 
 type EvidenceFact = string | { fact?: string };
 type EvidenceBookFormat = 'markdown' | 'pdf' | 'docx';
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 export default function CaseEvidencePage() {
   const { id } = useParams<{ id: string }>();
@@ -185,19 +195,13 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
     if (!selectedEvidence) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    const content = selectedEvidence.extracted_content || selectedEvidence.raw_content || selectedEvidence.summary || '无内容';
+    const workpaperText = buildEvidenceWorkpaperExportText(selectedEvidence);
     printWindow.document.write(`
       <html><head><title>${selectedEvidence.display_name || selectedEvidence.original_filename}</title>
-      <style>body{font-family:SimSun,serif;padding:40px;line-height:1.8;}h1{font-size:18px;border-bottom:2px solid #333;padding-bottom:10px;}.meta{color:#666;margin-bottom:20px;}.content{white-space:pre-wrap;}</style>
+      <style>body{font-family:SimSun,serif;padding:40px;line-height:1.8;}h1{font-size:18px;border-bottom:2px solid #333;padding-bottom:10px;}pre{white-space:pre-wrap;font-family:SimSun,serif;font-size:14px;}</style>
       </head><body>
       <h1>${selectedEvidence.display_name || selectedEvidence.original_filename}</h1>
-      <div class="meta">
-        <p>证据类型：${selectedEvidence.evidence_type || '未分类'}</p>
-        <p>证明力参考：${selectedEvidence.credibility_score || '未评估'}（仅作工作底稿参考）</p>
-        <p>来源方：${selectedEvidence.source_party || '未知'}</p>
-        <p>创建时间：${selectedEvidence.created_at ? new Date(selectedEvidence.created_at).toLocaleString('zh-CN') : '-'}</p>
-      </div>
-      <div class="content">${content}</div>
+      <pre>${escapeHtml(workpaperText)}</pre>
       </body></html>
     `);
     printWindow.document.close();
@@ -206,8 +210,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
 
   const handleDownload = useCallback(() => {
     if (!selectedEvidence) return;
-    const content = selectedEvidence.extracted_content || selectedEvidence.raw_content || selectedEvidence.summary || '无内容';
-    const blob = new Blob([`证据名称：${selectedEvidence.display_name || selectedEvidence.original_filename}\n证据类型：${selectedEvidence.evidence_type || '未分类'}\n证明力参考：${selectedEvidence.credibility_score || '未评估'}（仅作工作底稿参考）\n\n${content}`], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([buildEvidenceWorkpaperExportText(selectedEvidence)], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
