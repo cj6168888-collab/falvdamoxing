@@ -38,7 +38,7 @@ class MediationAnalysis:
 
 
 class MediationService:
-    """调解策略引擎 — "法庭外的胜负手" """
+    """调解策略引擎：输出可复核的调解工作底稿。"""
 
     _READINESS_FACTORS = {
         "双方有继续合作的商业需求": 25,
@@ -82,23 +82,23 @@ class MediationService:
         readiness = min(readiness, 95)
 
         readiness_level = (
-            "高 — 调解成功概率大，应立即启动" if readiness >= 70
+            "高 — 调解达成可能性较高，建议优先准备谈判方案" if readiness >= 70
             else "中 — 调解有空间，需配合诉讼施压" if readiness >= 40
             else "低 — 建议先通过诉讼建立谈判优势，再寻求调解窗口"
         )
 
         # 2. BATNA 分析
         if evidence_strength == "strong":
-            best_alt = f"诉讼胜诉，预期可获赔 {claim_amount * 0.75:.0f} 元"
-            worst_alt = f"诉讼败诉，损失诉讼费约 {claim_amount * 0.05:.0f} 元"
+            best_alt = f"诉讼请求获得较高支持时，参考回收金额约 {claim_amount * 0.75:.0f} 元"
+            worst_alt = f"诉讼请求未获支持时，可能承担诉讼费约 {claim_amount * 0.05:.0f} 元"
             batna_value = claim_amount * 0.70
         elif evidence_strength == "medium":
-            best_alt = f"诉讼部分胜诉，预期获赔 {claim_amount * 0.50:.0f} 元"
+            best_alt = f"诉讼请求获得部分支持时，参考回收金额约 {claim_amount * 0.50:.0f} 元"
             worst_alt = f"诉讼被驳回，损失诉讼费和律师费约 {claim_amount * 0.10:.0f} 元"
             batna_value = claim_amount * 0.40
         else:
-            best_alt = f"诉讼侥幸胜诉，预期获赔 {claim_amount * 0.30:.0f} 元"
-            worst_alt = "败诉并承担对方诉讼费"
+            best_alt = f"证据补强后请求获得有限支持时，参考回收金额约 {claim_amount * 0.30:.0f} 元"
+            worst_alt = "诉讼请求未获支持并可能承担对方诉讼费"
             batna_value = claim_amount * 0.20
 
         # 3. 和解区间
@@ -117,7 +117,7 @@ class MediationService:
         # 4. 谈判策略
         opening_position = (
             f"正式提出¥{claim_amount * 0.90:,.0f}的和解方案（预留让步空间），"
-            f"同时递交起诉状副本以展示诉讼决心。"
+            f"同时准备诉讼材料作为谈判备选路径。"
         )
 
         concession_plan = [
@@ -128,12 +128,12 @@ class MediationService:
 
         pressure_points = [
             "已准备好全部证据材料，可随时立案",
-            "如进入诉讼，将申请财产保全冻结对方账户",
+            "如进入诉讼，可评估是否申请财产保全及其担保成本",
             "诉讼期间对方需承担律师费和利息损失",
             "判决公开将对对方商业信誉造成损害",
         ] if evidence_strength != "weak" else [
             "持续诉讼将消耗对方管理精力",
-            "申请法院调查取证可能暴露对方其他合规问题",
+            "可评估申请法院调查取证的必要性和可行性",
         ]
 
         face_saving_options = [
@@ -149,11 +149,11 @@ class MediationService:
 我们已经准备好了全部法律文件，但更希望通过对话解决问题。"
 
 【核心主张】
-"我们的底线很明确：事实已经很清楚，3月11日董事会决议是三方共识。
+"我们的底线很明确：现有材料显示，3月11日董事会决议可能是三方共同确认的基础。
 但为了表示诚意，我们在金额上可以谈。关键是恢复公司正常运营。"
 
 【回应对方可能的"出资"论点】
-"出资义务和当前的欠薪、违法停业是两个独立的法律关系。
+"出资义务和当前欠薪、停业争议可能涉及不同法律关系。
 如果贵方坚持混为一谈，我们只能请法官来厘清。但那样对谁都没有好处。"
 
 【最后推动】
@@ -210,7 +210,7 @@ class MediationService:
 ### 让步计划
 {chr(10).join(f'- {c}' for c in analysis.concession_plan)}
 
-### 施压点
+### 谈判风险提示
 {chr(10).join(f'- {p}' for p in analysis.pressure_points)}
 
 ### 给对方台阶

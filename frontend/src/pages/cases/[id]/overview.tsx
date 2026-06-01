@@ -62,10 +62,11 @@ export default function CaseOverviewPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">预估获胜概率</p>
+                  <p className="text-xs font-medium uppercase text-muted-foreground">裁判支持度参考</p>
                   <p className="mt-1 text-2xl font-bold text-green-600">
                     {panorama.financial_summary?.win_rate_estimate || '待评估'}
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">仅作风险工作底稿参考，需结合证据和律师复核。</p>
                 </div>
               </>
             ) : (

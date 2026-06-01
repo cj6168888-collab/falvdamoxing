@@ -146,7 +146,7 @@ function AppealArgumentsPanel({ appealId, caseId }: { appealId: number; caseId: 
                     <SelectContent><SelectItem value="high">高</SelectItem><SelectItem value="medium">中</SelectItem><SelectItem value="low">低</SelectItem></SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2"><Label>成功概率 (%)</Label><Input type="number" min={0} max={100} value={formData.success_probability || ''} onChange={(e) => setFormData({ ...formData, success_probability: parseFloat(e.target.value) })} /></div>
+                <div className="space-y-2"><Label>支持度参考 (%)</Label><Input type="number" min={0} max={100} value={formData.success_probability || ''} onChange={(e) => setFormData({ ...formData, success_probability: parseFloat(e.target.value) })} /></div>
               </div>
               <div className="space-y-2"><Label>原审认定</Label><Textarea value={formData.original_finding || ''} onChange={(e) => setFormData({ ...formData, original_finding: e.target.value })} rows={2} /></div>
               <div className="space-y-2"><Label>上诉主张</Label><Textarea value={formData.appeal_finding || ''} onChange={(e) => setFormData({ ...formData, appeal_finding: e.target.value })} rows={2} /></div>
@@ -177,7 +177,7 @@ function AppealArgumentsPanel({ appealId, caseId }: { appealId: number; caseId: 
                     </div>
                     {arg.success_probability !== undefined && (
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">成功概率:</span>
+                        <span className="text-muted-foreground">支持度参考:</span>
                         <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div className="h-full bg-blue-500 rounded-full" style={{ width: `${arg.success_probability * 100}%` }} />
                         </div>
