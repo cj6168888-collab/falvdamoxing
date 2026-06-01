@@ -519,7 +519,7 @@ def _assess_risks(task_id, task, case, db, results):
 被告：{case.defendant or '未填写'}
 
 请评估：
-1. 诉讼风险（胜诉/败诉概率）
+1. 诉讼风险（裁判支持度参考、不利后果和关键触发条件，避免作结果概率承诺）
 2. 证据风险
 3. 法律适用风险
 4. 时间风险

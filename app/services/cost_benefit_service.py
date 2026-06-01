@@ -187,7 +187,7 @@ class CostBenefitService:
             "小额案件可自行诉讼，减少律师费支出",
         ]
         if claim_amount > 100000:
-            cost_saving_tips.append("可协商风险代理（胜诉后按比例付费），降低前期支出")
+            cost_saving_tips.append("可协商结果关联收费安排（需核验合规边界和收费规则），降低前期支出")
         if complexity == "simple":
             cost_saving_tips.append("可适用简易程序，诉讼费减半")
 
