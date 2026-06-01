@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageSkeleton } from '@/components/common/loading-skeleton';
 import { MarkdownContent } from '@/components/common/markdown-content';
 import { HistoryDocumentList, type HistoryDocument } from '@/components/document/history-document-list';
+import { DocumentExportReviewDialog } from '@/components/document/document-export-review-dialog';
 import { downloadExportFile, exportCaseDocument } from '@/api/export.api';
 import {
   FileText, Sparkles, Send, Loader2, Download, FileDown,
@@ -48,6 +49,11 @@ interface GeneratedDocumentRecord {
   modification_history?: unknown[];
 }
 
+type PendingDocumentExport =
+  | { kind: 'download'; docId: string | number; format: 'docx' | 'pdf'; documentTitle?: string }
+  | { kind: 'markdown'; documentTitle?: string }
+  | { kind: 'evidence-book'; documentTitle?: string };
+
 export default function CaseDocumentsPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
@@ -63,7 +69,9 @@ export default function CaseDocumentsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoFormatting, setIsAutoFormatting] = useState(false);
   const [isExportingMarkdown, setIsExportingMarkdown] = useState(false);
+  const [isReviewExporting, setIsReviewExporting] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [pendingExport, setPendingExport] = useState<PendingDocumentExport | null>(null);
 
   // 对话修改
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -125,17 +133,25 @@ export default function CaseDocumentsPage() {
     setPreviewDocument(doc);
   }, []);
 
+  const requestDocumentDownload = useCallback((
+    docId: string | number,
+    format: 'docx' | 'pdf',
+    documentTitle?: string,
+  ) => {
+    setPendingExport({ kind: 'download', docId, format, documentTitle });
+  }, []);
+
   // 下载 Word
   const handleDownloadDocx = useCallback((docId: string) => {
-    window.open(`/api/documents/${docId}/download?format=docx&doc_type=generated`, '_blank');
-    toast.success('正在下载 Word 文档');
-  }, []);
+    const documentTitle = documents?.find((doc) => doc.id === docId)?.title;
+    requestDocumentDownload(docId, 'docx', documentTitle);
+  }, [documents, requestDocumentDownload]);
 
   // 下载 PDF
   const handleDownloadPdf = useCallback((docId: string) => {
-    window.open(`/api/documents/${docId}/download?format=pdf&doc_type=generated`, '_blank');
-    toast.success('正在下载 PDF 文档');
-  }, []);
+    const documentTitle = documents?.find((doc) => doc.id === docId)?.title;
+    requestDocumentDownload(docId, 'pdf', documentTitle);
+  }, [documents, requestDocumentDownload]);
 
   // 删除历史文书
   const deleteMutation = useMutation({
@@ -273,24 +289,21 @@ export default function CaseDocumentsPage() {
   // 下载文书
   const handleDownloadDoc = async (format: 'pdf' | 'docx' = 'docx') => {
     if (!currentDocId) return;
-    try {
-      const url = `/api/documents/${currentDocId}/download?format=${format}`;
-      window.open(url, '_blank');
-      toast.success(`正在下载 ${format.toUpperCase()} 格式`);
-    } catch {
-      toast.error('下载失败');
-    }
+    requestDocumentDownload(currentDocId, format, currentDocTitle);
   };
 
   // 下载证据册
   const handleDownloadEvidenceBook = () => {
     if (!id || !currentDocTitle) return;
-    const url = `/api/evidence/export-book-for-document/${id}?document_type=${encodeURIComponent(currentDocTitle)}&format=pdf`;
-    window.open(url, '_blank');
-    toast.success('正在生成对应证据册...');
+    setPendingExport({ kind: 'evidence-book', documentTitle: currentDocTitle });
   };
 
   const handleExportDocumentMarkdown = async () => {
+    if (!id || !generatedContent) return;
+    setPendingExport({ kind: 'markdown', documentTitle: currentDocTitle || selectedTemplate?.name });
+  };
+
+  const executeExportDocumentMarkdown = async () => {
     if (!id || !generatedContent) return;
 
     setIsExportingMarkdown(true);
@@ -306,6 +319,32 @@ export default function CaseDocumentsPage() {
       toast.error(getRequestErrorMessage(err, '文书导出失败'));
     } finally {
       setIsExportingMarkdown(false);
+    }
+  };
+
+  const executePendingExport = async () => {
+    if (!pendingExport) return;
+
+    setIsReviewExporting(true);
+    try {
+      if (pendingExport.kind === 'download') {
+        const url = `/api/documents/${pendingExport.docId}/download?format=${pendingExport.format}&doc_type=generated`;
+        window.open(url, '_blank');
+        toast.success(`正在下载 ${pendingExport.format.toUpperCase()} 格式`);
+      } else if (pendingExport.kind === 'evidence-book') {
+        if (!id || !pendingExport.documentTitle) return;
+        const url = `/api/evidence/export-book-for-document/${id}?document_type=${encodeURIComponent(pendingExport.documentTitle)}&format=pdf`;
+        window.open(url, '_blank');
+        toast.success('正在生成对应证据册...');
+      } else {
+        await executeExportDocumentMarkdown();
+      }
+
+      setPendingExport(null);
+    } catch {
+      toast.error('导出失败');
+    } finally {
+      setIsReviewExporting(false);
     }
   };
 
@@ -359,6 +398,28 @@ export default function CaseDocumentsPage() {
     }
     return '起诉状';
   };
+
+  const getPendingExportLabel = () => {
+    if (!pendingExport) return '导出文书';
+    if (pendingExport.kind === 'markdown') return '导出 Markdown';
+    if (pendingExport.kind === 'evidence-book') return '下载证据册';
+    return pendingExport.format === 'pdf' ? '下载 PDF' : '下载 Word';
+  };
+
+  const renderExportReviewDialog = () => (
+    <DocumentExportReviewDialog
+      open={!!pendingExport}
+      documentTitle={pendingExport?.documentTitle || currentDocTitle || selectedTemplate?.name}
+      exportLabel={getPendingExportLabel()}
+      isLoading={isReviewExporting || isExportingMarkdown}
+      onOpenChange={(open) => {
+        if (!open && !isReviewExporting && !isExportingMarkdown) {
+          setPendingExport(null);
+        }
+      }}
+      onConfirm={executePendingExport}
+    />
+  );
 
   if (loadingTemplates) return <PageSkeleton />;
 
@@ -505,6 +566,7 @@ export default function CaseDocumentsPage() {
             </div>
           </div>
         )}
+        {renderExportReviewDialog()}
       </div>
     );
   }
@@ -555,6 +617,7 @@ export default function CaseDocumentsPage() {
             </p>
           </CardContent>
         </Card>
+        {renderExportReviewDialog()}
       </div>
     );
   }
@@ -713,6 +776,7 @@ export default function CaseDocumentsPage() {
             </Card>
           </div>
         </div>
+        {renderExportReviewDialog()}
       </div>
     );
   }
@@ -792,6 +856,7 @@ export default function CaseDocumentsPage() {
             </div>
           </CardContent>
         </Card>
+        {renderExportReviewDialog()}
       </div>
     );
   }
