@@ -8,7 +8,16 @@ from app.models.case import Case
 from app.models.document import DocumentExportReviewAudit, GeneratedDocument
 
 
-REVIEW_ITEMS = ["parties", "claims", "facts", "evidence", "law", "signature"]
+REVIEW_ITEMS = [
+    "parties",
+    "court_jurisdiction",
+    "claims_amounts",
+    "facts_evidence",
+    "law_validity",
+    "evidence_catalog",
+    "dates_signature",
+    "authorization_consequences",
+]
 
 
 def _create_generated_document() -> tuple[int, int]:
@@ -60,7 +69,7 @@ async def test_document_export_review_audit_requires_full_checklist(client: Asyn
     )
 
     assert response.status_code == 400, response.text
-    assert "signature" in response.text
+    assert "authorization_consequences" in response.text
 
 
 @pytest.mark.asyncio

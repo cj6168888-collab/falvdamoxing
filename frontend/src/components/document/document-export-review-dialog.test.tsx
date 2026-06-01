@@ -18,13 +18,16 @@ describe('DocumentExportReviewDialog', () => {
 
     const confirmButton = screen.getByRole('button', { name: '导出 Word' });
     expect(confirmButton).toBeDisabled();
-    expect(screen.getByText('0/6 项已核验')).toBeInTheDocument();
+    expect(screen.getByText('0/8 项已核验')).toBeInTheDocument();
+    expect(screen.getByText('法院、管辖依据和案由已核对')).toBeInTheDocument();
+    expect(screen.getByText('法条、案例、案号和现行有效性已另行核验')).toBeInTheDocument();
+    expect(screen.getByText('授权材料和对外发送后果已向委托人确认')).toBeInTheDocument();
 
     for (const checkbox of screen.getAllByRole('checkbox')) {
       fireEvent.click(checkbox);
     }
 
-    expect(screen.getByText('6/6 项已核验')).toBeInTheDocument();
+    expect(screen.getByText('8/8 项已核验')).toBeInTheDocument();
     expect(confirmButton).toBeEnabled();
 
     fireEvent.click(confirmButton);
@@ -42,7 +45,7 @@ describe('DocumentExportReviewDialog', () => {
     );
 
     fireEvent.click(screen.getAllByRole('checkbox')[0]);
-    expect(screen.getByText('1/6 项已核验')).toBeInTheDocument();
+    expect(screen.getByText('1/8 项已核验')).toBeInTheDocument();
 
     rerender(
       <DocumentExportReviewDialog
@@ -62,6 +65,6 @@ describe('DocumentExportReviewDialog', () => {
       />,
     );
 
-    expect(screen.getByText('0/6 项已核验')).toBeInTheDocument();
+    expect(screen.getByText('0/8 项已核验')).toBeInTheDocument();
   });
 });

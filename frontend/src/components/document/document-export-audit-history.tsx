@@ -31,7 +31,14 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const CHECK_ITEM_LABELS: Record<string, string> = {
-  parties: '当事人',
+  parties: '当事人身份',
+  court_jurisdiction: '法院/管辖/案由',
+  claims_amounts: '请求/金额/利息',
+  facts_evidence: '事实证据对应',
+  law_validity: '法条有效性',
+  evidence_catalog: '证据目录编号',
+  dates_signature: '日期签章版本',
+  authorization_consequences: '授权/发送后果',
   claims: '请求/金额',
   facts: '事实依据',
   evidence: '证据目录',

@@ -12,12 +12,14 @@ import {
 } from '@/components/ui/dialog';
 
 const REVIEW_ITEMS = [
-  { id: 'parties', label: '当事人信息、主体身份和授权材料已核对' },
-  { id: 'claims', label: '诉讼请求、金额、利息和计算方式已核对' },
-  { id: 'facts', label: '事实陈述均能回到证据或待补证事项' },
-  { id: 'evidence', label: '证据目录、证据编号和证明目的已核对' },
-  { id: 'law', label: '法条、案例、案号和管辖依据已另行核验' },
-  { id: 'signature', label: '日期、签名盖章、提交或发送后果已确认' },
+  { id: 'parties', label: '当事人名称、身份证号或统一社会信用代码已核对' },
+  { id: 'court_jurisdiction', label: '法院、管辖依据和案由已核对' },
+  { id: 'claims_amounts', label: '诉讼请求、金额、利息和计算方式已核对' },
+  { id: 'facts_evidence', label: '事实与理由均已对应证据或列入待补证事项' },
+  { id: 'law_validity', label: '法条、案例、案号和现行有效性已另行核验' },
+  { id: 'evidence_catalog', label: '证据目录、证据编号和证明目的已核对' },
+  { id: 'dates_signature', label: '日期、签名、盖章和提交版本已确认' },
+  { id: 'authorization_consequences', label: '授权材料和对外发送后果已向委托人确认' },
 ] as const;
 
 interface Props {

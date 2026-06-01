@@ -42,8 +42,17 @@ describe('DocumentExportAuditHistory', () => {
             user_id: 'pytest-user',
             export_action: 'download',
             export_format: 'pdf',
-            checked_items: ['parties', 'claims', 'facts', 'evidence', 'law', 'signature'],
-            checked_item_count: 6,
+            checked_items: [
+              'parties',
+              'court_jurisdiction',
+              'claims_amounts',
+              'facts_evidence',
+              'law_validity',
+              'evidence_catalog',
+              'dates_signature',
+              'authorization_consequences',
+            ],
+            checked_item_count: 8,
             confirmed_at: '2026-06-01T06:30:00Z',
           },
         ],
@@ -54,7 +63,10 @@ describe('DocumentExportAuditHistory', () => {
 
     await waitFor(() => expect(screen.getByText('文书下载')).toBeInTheDocument());
     expect(screen.getByText('PDF')).toBeInTheDocument();
-    expect(screen.getByText('当事人')).toBeInTheDocument();
+    expect(screen.getByText('当事人身份')).toBeInTheDocument();
+    expect(screen.getByText('法院/管辖/案由')).toBeInTheDocument();
+    expect(screen.getByText('授权/发送后果')).toBeInTheDocument();
+    expect(screen.getByText(/已确认 8 项/)).toBeInTheDocument();
     expect(screen.getByText(/pytest-user/)).toBeInTheDocument();
     expect(mockGet).toHaveBeenCalledWith('/api/documents/9/export-review-audits');
   });

@@ -31,11 +31,13 @@ from pydantic import BaseModel, Field
 
 REQUIRED_DOCUMENT_EXPORT_REVIEW_ITEMS = {
     "parties",
-    "claims",
-    "facts",
-    "evidence",
-    "law",
-    "signature",
+    "court_jurisdiction",
+    "claims_amounts",
+    "facts_evidence",
+    "law_validity",
+    "evidence_catalog",
+    "dates_signature",
+    "authorization_consequences",
 }
 
 # ============ 安全常量 ============
