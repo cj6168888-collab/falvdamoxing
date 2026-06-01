@@ -200,7 +200,7 @@ export function CrossExamination({
               </div>
               {target.credibility !== undefined && (
                 <div className="mt-2">
-                  <div className="text-xs text-muted-foreground">可信度</div>
+                  <div className="text-xs text-muted-foreground">证明力参考</div>
                   <Progress value={target.credibility} className="h-1 mt-1" />
                 </div>
               )}

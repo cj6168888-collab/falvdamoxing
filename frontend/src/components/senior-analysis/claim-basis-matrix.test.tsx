@@ -31,7 +31,7 @@ describe('ClaimBasisMatrix', () => {
       risk_level: 'medium',
       requires_human_review: true,
     });
-    expect(rows[0].supporting_evidence).toContain('ev-1/合同/信度88');
+    expect(rows[0].supporting_evidence).toContain('ev-1/合同/证明力参考88');
     expect(rows[0].missing_evidence).toEqual(['违约行为', '损失事实']);
   });
 
@@ -43,7 +43,7 @@ describe('ClaimBasisMatrix', () => {
     expect(screen.getByText('合同违约责任')).toBeInTheDocument();
     expect(screen.getByText('部分要件待补强')).toBeInTheDocument();
     expect(screen.getByText('中风险')).toBeInTheDocument();
-    expect(screen.getByText('ev-1/合同/信度88')).toBeInTheDocument();
+    expect(screen.getByText('ev-1/合同/证明力参考88')).toBeInTheDocument();
     expect(screen.getAllByText('违约行为').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('损失金额计算不清')).toBeInTheDocument();
   });

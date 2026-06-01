@@ -310,7 +310,7 @@ class CaseInsightEngine:
         
         每个证据被分析并创建节点，包括：
         - 证据基本信息
-        - 信度评分及因素
+        - 证明力参考及影响因素
         - 与其他证据的关系
         - 关键词索引
         """
@@ -322,7 +322,7 @@ class CaseInsightEngine:
                 f"{ev.get('name', '')}{ev.get('content', '')}".encode()
             ).hexdigest()
             
-            # 分析证据信度
+            # 分析证据证明力参考
             credibility_analysis = await self._analyze_evidence_credibility(ev)
             
             # 提取关键词
@@ -356,8 +356,8 @@ class CaseInsightEngine:
         return nodes
     
     async def _analyze_evidence_credibility(self, evidence: Dict) -> Dict:
-        """分析单个证据的信度"""
-        prompt = f"""分析以下证据的信度 - 法律应用：证据完整性优先：
+        """分析单个证据的证明力参考"""
+        prompt = f"""分析以下证据的证明力参考 - 法律应用：证据完整性优先：
 
 【证据名称】{evidence.get('name', '')}
 【证据类型】{evidence.get('type', '')}
@@ -366,8 +366,8 @@ class CaseInsightEngine:
 【举证方】{evidence.get('custody', '')}
 
 请分析：
-1. 证据信度评分 (0-1)
-2. 影响信度的因素
+1. 证据证明力参考 (0-1，仅作工作底稿参考，不等同于法院采信结论)
+2. 影响证明力参考的因素
 3. 这个证据能证明什么事实
 
 返回JSON格式：

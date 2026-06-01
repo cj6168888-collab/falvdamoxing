@@ -60,8 +60,8 @@ class EvidenceCorrectionRequest(BaseModel):
     related_facts: Optional[List[str]] = None  # 关联事实
     related_evidence_ids: Optional[List[str]] = None  # 关联证据ID
     contradicted_evidence_ids: Optional[List[str]] = None  # 矛盾证据ID
-    # 可信度纠偏
-    credibility_corrected: Optional[float] = None  # 可信度评分 0-100
+    # 证明力参考纠偏（兼容内部 credibility 字段）
+    credibility_corrected: Optional[float] = None  # 证明力参考 0-100
     authenticity_corrected: Optional[float] = None  # 真实性评分 0-100
     reliability_corrected: Optional[float] = None  # 可靠性评分 0-100
     # 分析备注
@@ -89,7 +89,7 @@ class SingleEvidenceAnalysisRequest(BaseModel):
 async def process_evidence(request: ProcessEvidenceRequest, db: Session = Depends(get_db)):
     """
     处理证据
-    自动完成：去重检查 → 内容提取 → 分类 → 信度评估 → 关键词提取
+    自动完成：去重检查 → 内容提取 → 分类 → 证明力参考 → 关键词提取
     """
     # 验证案件
     case = db.query(Case).filter(Case.id == request.case_id).first()
@@ -183,7 +183,7 @@ async def correct_evidence(request: EvidenceCorrectionRequest, db: Session = Dep
     - 基本信息（名称、类型、摘要）
     - 证明方向（证明什么事实）
     - 关联性（关联证据、矛盾证据）
-    - 可信度评分
+    - 证明力参考
     - 人工备注
     """
     updates = {}
@@ -213,7 +213,7 @@ async def correct_evidence(request: EvidenceCorrectionRequest, db: Session = Dep
     if request.contradicted_evidence_ids is not None:
         updates['contradicted_evidence_ids'] = request.contradicted_evidence_ids
 
-    # 可信度
+    # 证明力参考
     if request.credibility_corrected is not None:
         updates['credibility_score'] = request.credibility_corrected / 100.0
     if request.authenticity_corrected is not None:
@@ -408,7 +408,7 @@ async def analyze_single_evidence(
     对单条证据进行深度分析
 
     分析内容：
-    1. 信度评估 - 形式真实性、来源可靠性、内容一致性、印证程度
+    1. 证明力参考 - 形式真实性、来源可靠性、内容一致性、印证程度
     2. 证明事实 - 这份证据能证明什么
     3. 潜在质疑 - 对方可能如何质疑
     4. 应对建议 - 如何应对质疑
@@ -532,12 +532,12 @@ async def _perform_ai_analysis(
 
 请从以下维度进行专业分析：
 
-## 1. 信度评估
+## 1. 证明力与证据风险参考
 - 形式真实性评分 (0-100)
 - 来源可靠性评分 (0-100)
 - 内容一致性评分 (0-100)
 - 与其他证据印证程度 (0-100)
-- 综合信度评分 (0-100)
+- 综合证明力参考 (0-100，仅作工作底稿参考，不等同于法院采信结论)
 
 ## 2. 证明事实
 这份证据能证明哪些事实？请列出具体事实及其证明强度。
@@ -555,7 +555,7 @@ async def _perform_ai_analysis(
 什么时机出示这份证据效果最好？
 
 请用 JSON 格式返回分析结果，包含以下字段：
-- credibility_score: 综合信度评分 (0-100)
+- credibility_score: 综合证明力参考 (0-100，仅作工作底稿参考)
 - authenticity_score: 真实性评分 (0-100)
 - reliability_score: 可靠性评分 (0-100)
 - consistency_score: 一致性评分 (0-100)
@@ -569,7 +569,7 @@ async def _perform_ai_analysis(
 - presentation_tips: "呈现技巧"
 - risk_points: ["风险点1", "风险点2"]
 - risk_level: "high/medium/low"
-- confidence: AI置信度 (0-1)"""
+- confidence: AI输出稳定性参考 (0-1)"""
 
     try:
         import asyncio
@@ -665,7 +665,7 @@ def _perform_rule_based_analysis(evidence: EvidenceItem, content: str) -> dict:
         'authenticity_score': scores['authenticity'],
         'reliability_score': scores['reliability'],
         'consistency_score': 65,
-        'summary': f'{EvidenceItem.get_type_display(ev_type)["name"]}，基础信度评估',
+        'summary': f'{EvidenceItem.get_type_display(ev_type)["name"]}，基础证明力参考',
         'proves_facts': proves_facts,
         'proves_strength': [f['strength'] for f in proves_facts],
         'potential_challenges': potential_challenges,
@@ -695,6 +695,8 @@ def _format_analysis_report(record: EvidenceAnalysisRecord, evidence: EvidenceIt
             'type_icon': type_info['icon']
         },
         'credibility': {
+            'label': '证明力参考',
+            'notice': '仅为法律工作底稿中的证据风险参考，不等同于法院对真实性、合法性、关联性的最终认定。',
             'overall': record.credibility_score,
             'authenticity': record.authenticity_score,
             'reliability': record.reliability_score,

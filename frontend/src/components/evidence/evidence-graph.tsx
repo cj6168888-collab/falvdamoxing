@@ -130,7 +130,7 @@ export function EvidenceGraph({ caseId }: Props) {
                       {score !== null && (
                         <div className="mt-3">
                           <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-                            <span>可信度/强度</span>
+                            <span>证明力参考</span>
                             <span>{score}%</span>
                           </div>
                           <Progress value={score} />

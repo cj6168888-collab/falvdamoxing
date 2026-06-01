@@ -209,8 +209,8 @@ function AnalysisSection({ title, value }: { title: string; value: unknown }) {
 const FIELD_LABELS: Record<string, string> = {
   action: '行动',
   analysis_level: '分析深度',
-  avg_credibility: '平均可信度',
-  by_credibility: '可信度分布',
+  avg_credibility: '平均证明力参考',
+  by_credibility: '证明力参考分布',
   by_source: '来源分布',
   by_type: '类型分布',
   case_number: '案号',

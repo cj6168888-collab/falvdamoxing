@@ -77,7 +77,7 @@ export interface ReviewTask {
 function evidenceLabel(anchor: EvidenceAnchor) {
   const id = anchor.evidence_id ?? '未编号证据';
   const type = anchor.type ? `/${anchor.type}` : '';
-  const credibility = typeof anchor.credibility === 'number' ? `/信度${anchor.credibility}` : '';
+  const credibility = typeof anchor.credibility === 'number' ? `/证明力参考${anchor.credibility}` : '';
   return `${id}${type}${credibility}`;
 }
 

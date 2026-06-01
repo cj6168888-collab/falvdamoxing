@@ -14,7 +14,8 @@ describe('CredibilityScore', () => {
       />,
     );
 
-    expect(screen.getByText('信度评分')).toBeInTheDocument();
+    expect(screen.getByText('证明力参考')).toBeInTheDocument();
+    expect(screen.getByText('仅作工作底稿中的证据风险参考，不等同于法院采信结论。')).toBeInTheDocument();
     expect(screen.getAllByText(/85%/).length).toBeGreaterThanOrEqual(1);
   });
 

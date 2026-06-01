@@ -1044,9 +1044,9 @@ class EvidenceServiceV2:
                 },
                 'edge_types': {k: v for k, v in self.RELATIONSHIP_TYPES.items()},
                 'credibility': [
-                    {'range': '80-100', 'color': '#52c41a', 'label': '高信度'},
-                    {'range': '60-79', 'color': '#faad14', 'label': '中信度'},
-                    {'range': '40-59', 'color': '#fa8c16', 'label': '低信度'},
+                    {'range': '80-100', 'color': '#52c41a', 'label': '高证明力参考'},
+                    {'range': '60-79', 'color': '#faad14', 'label': '中证明力参考'},
+                    {'range': '40-59', 'color': '#fa8c16', 'label': '低证明力参考'},
                     {'range': '0-39', 'color': '#f5222d', 'label': '待补充'}
                 ]
             }

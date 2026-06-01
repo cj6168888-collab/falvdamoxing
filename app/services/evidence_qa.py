@@ -61,7 +61,7 @@ class EvidenceQuestionContext:
 - 证据类型：{self.evidence_type}
 - 证据内容：{self.evidence_content}
 - 证明事实：{', '.join(self.proves_facts) if self.proves_facts else '待分析'}
-- 证据信度：{self.credibility_score:.0f}%
+- 证明力参考：{self.credibility_score:.0f}%（仅作工作底稿参考）
 - 案件类型：{self.case_type}
 """
 
@@ -73,7 +73,7 @@ class TopicBoundary:
     on_topic_patterns: List[str] = field(default_factory=lambda: [
         # 证明力相关
         r"证明力",
-        r"可信度",
+        r"证据风险",
         r"真实性",
         r"可靠性",
         r"有效",
@@ -450,7 +450,7 @@ class EvidenceSpecificQAService:
             ]
         },
         "credibility_assessment": {
-            "name": "可信度评估",
+            "name": "证明力与证据风险评估",
             "icon": "✅",
             "questions": [
                 "这份证据的真实性和合法性如何？",
@@ -589,13 +589,13 @@ class EvidenceSpecificQAService:
         question_lower = question.lower()
 
         # 证明力相关
-        if any(kw in question_lower for kw in ["证明力", "可信度", "有效性", "能证明"]):
+        if any(kw in question_lower for kw in ["证明力", "证据风险", "有效性", "能证明"]):
             strength = self._assess_strength_simple(evidence_context)
             return f"""【{evidence_context.evidence_name}】的证明力分析：
 
 📊 **证明力评估**：{strength['level']}
 - 证据类型：{evidence_context.evidence_type}
-- 信度评分：{evidence_context.credibility_score:.0f}%
+- 证明力参考：{evidence_context.credibility_score:.0f}%（仅作工作底稿参考）
 
 💡 **分析说明**：
 {strength['analysis']}

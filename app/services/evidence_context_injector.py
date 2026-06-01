@@ -378,7 +378,7 @@ class EvidenceContextInjector:
             credibility = ev.get('credibility', 0)
             proves = ev.get('proves_facts', [])
 
-            lines.append(f"{i}. {icon} **[{ev_type}]** 证据{i} (信度: {credibility:.0f}%)")
+            lines.append(f"{i}. {icon} **[{ev_type}]** 证据{i} (证明力参考: {credibility:.0f}%)")
             lines.append(f"   {full_content}")
             if proves:
                 lines.append(f"   证明：{', '.join(proves)}")

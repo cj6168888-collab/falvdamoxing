@@ -16,7 +16,7 @@ const UPLOAD_STEPS = [
   '正在识别文字（OCR）...',
   '正在分析证据类型...',
   '正在提取关键信息...',
-  '正在评估证据信度...',
+  '正在评估证据证明力参考...',
   '正在生成规范名称...',
   '即将完成...',
 ];
@@ -161,7 +161,7 @@ export function EvidenceList({ caseId }: Props) {
                 </p>
               )}
               {(e.credibility_score != null || e.credibilityScore != null) && (
-                <p className="text-sm mt-1">信度: {e.credibility_score ?? e.credibilityScore}%</p>
+                <p className="text-sm mt-1">证明力参考: {e.credibility_score ?? e.credibilityScore}%</p>
               )}
             </CardContent>
           </Card>

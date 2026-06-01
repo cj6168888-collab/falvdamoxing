@@ -1343,7 +1343,7 @@ def 生成完整对抗性分析(
 
                 if cred > 0:
 
-                    case_info += f"  可信度: {cred*100:.0f}%\n"
+                    case_info += f"  证明力参考: {cred*100:.0f}%（仅作工作底稿参考）\n"
 
                 # 如果有摘要，追加摘要内容
 
@@ -1743,7 +1743,7 @@ def 生成完整对抗性分析_en(
 
                 if cred > 0:
 
-                    case_info += f"  可信度: {cred*100:.0f}%\n"
+                    case_info += f"  证明力参考: {cred*100:.0f}%（仅作工作底稿参考）\n"
 
                 if ev.get('summary') and len(ev.get('summary', '')) > 100:
 

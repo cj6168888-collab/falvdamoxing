@@ -123,7 +123,7 @@ export function EvidenceSummary({
                   {ev.credibility && (
                     <div className="flex items-center gap-1">
                       <Star className="h-3 w-3 text-amber-500" />
-                      <span className="text-xs">信度：{ev.credibility}</span>
+                      <span className="text-xs">证明力参考：{ev.credibility}</span>
                     </div>
                   )}
                   {ev.relevance && (

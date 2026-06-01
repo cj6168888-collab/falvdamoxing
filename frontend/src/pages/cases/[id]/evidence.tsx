@@ -140,7 +140,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
 请从以下方面分析：
 1. 证据的证明力评估
 2. 证据的法律效力
-3. 证据的可信度
+3. 证据的证明力参考
 4. 需要关联的其他证据
 5. 是否需要补充扫描或补充证据
 6. 对用户指导意见的专业评价`;
@@ -193,7 +193,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
       <h1>${selectedEvidence.display_name || selectedEvidence.original_filename}</h1>
       <div class="meta">
         <p>证据类型：${selectedEvidence.evidence_type || '未分类'}</p>
-        <p>信度评分：${selectedEvidence.credibility_score || '未评估'}</p>
+        <p>证明力参考：${selectedEvidence.credibility_score || '未评估'}（仅作工作底稿参考）</p>
         <p>来源方：${selectedEvidence.source_party || '未知'}</p>
         <p>创建时间：${selectedEvidence.created_at ? new Date(selectedEvidence.created_at).toLocaleString('zh-CN') : '-'}</p>
       </div>
@@ -207,7 +207,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
   const handleDownload = useCallback(() => {
     if (!selectedEvidence) return;
     const content = selectedEvidence.extracted_content || selectedEvidence.raw_content || selectedEvidence.summary || '无内容';
-    const blob = new Blob([`证据名称：${selectedEvidence.display_name || selectedEvidence.original_filename}\n证据类型：${selectedEvidence.evidence_type || '未分类'}\n信度评分：${selectedEvidence.credibility_score || '未评估'}\n\n${content}`], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([`证据名称：${selectedEvidence.display_name || selectedEvidence.original_filename}\n证据类型：${selectedEvidence.evidence_type || '未分类'}\n证明力参考：${selectedEvidence.credibility_score || '未评估'}（仅作工作底稿参考）\n\n${content}`], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -376,7 +376,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline">{selectedEvidence.evidence_type || '未分类'}</Badge>
                 {selectedEvidence.credibility_score != null && (
-                  <Badge variant="outline">信度 {selectedEvidence.credibility_score}%</Badge>
+                  <Badge variant="outline">证明力参考 {selectedEvidence.credibility_score}%</Badge>
                 )}
                 <StatusBadge status={selectedEvidence.status} />
               </div>
@@ -553,7 +553,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
                 证据列表 ({filteredEvidences.length}/{evidences.length})
               </h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                按证明力、证据类型和处理状态快速定位材料，先处理低信度、失败解析和关键主体材料。
+                按证明力参考、证据类型和处理状态快速定位材料，先处理低证明力参考、失败解析和关键主体材料。
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -572,7 +572,7 @@ ${guidance ? `【用户指导意见】\n用户认为该证据可以证明：${gu
 
           <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             <EvidenceStatCard icon={ShieldCheck} label="已完成解析" value={evidenceStats.processed} suffix="份" tone="teal" />
-            <EvidenceStatCard icon={AlertTriangle} label="低信度/待核验" value={evidenceStats.lowCredibility} suffix="份" tone="amber" />
+            <EvidenceStatCard icon={AlertTriangle} label="低证明力参考/待核验" value={evidenceStats.lowCredibility} suffix="份" tone="amber" />
             <EvidenceStatCard icon={FileText} label="有证明事实" value={evidenceStats.withFacts} suffix="份" tone="slate" />
             <EvidenceStatCard icon={X} label="失败或无内容" value={evidenceStats.problematic} suffix="份" tone="red" />
           </div>
@@ -772,7 +772,7 @@ function CredibilityPill({ score }: { score: number }) {
 
   return (
     <span className={`inline-flex h-5 items-center rounded border px-1.5 text-[10px] font-medium ${colorClass}`}>
-      信度 {score}%
+      证明力参考 {score}%
     </span>
   );
 }

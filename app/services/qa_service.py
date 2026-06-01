@@ -164,7 +164,7 @@ class QAService:
             evidence_name: 证据名称
             case_type: 案件类型
             proves_facts: 该证据证明的事实
-            credibility_score: 证据信度评分
+            credibility_score: 证据证明力参考
 
         Returns:
             问答结果（含跑偏检测、话题引导等）

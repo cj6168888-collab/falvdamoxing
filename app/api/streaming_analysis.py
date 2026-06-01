@@ -352,7 +352,7 @@ def _analyze_evidence_chunks(task_id, task, case, db, results):
 原始文件：{ev.original_filename or '无'}
 规范名称：{ev.display_name or '无'}
 证明事实：{ev.proves_facts or '未指定'}
-信度评分：{ev.credibility_score or '未评估'}
+证明力参考：{ev.credibility_score or '未评估'}（仅作工作底稿参考）
 摘要：{ev.summary or '无'}
 """
             if ev.extracted_content:
@@ -379,7 +379,7 @@ def _analyze_evidence_chunks(task_id, task, case, db, results):
 
 对每条证据请分析：
 1. 证据的法律效力和证明力（必须基于证据原文内容）
-2. 证据的真实性和可信度评估
+2. 证据的真实性、合法性、关联性风险与证明力参考
 3. 证据与案件争议焦点的关联度
 4. 证据的潜在弱点或可被对方质疑的点
 5. 补强建议

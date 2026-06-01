@@ -10,7 +10,7 @@ export function EvidenceDetail({ evidence }: Props) {
       <CardContent className="space-y-3">
         <div><p className="text-sm text-muted-foreground">类型</p><p>{evidence.type}</p></div>
         <div><p className="text-sm text-muted-foreground">来源</p><p>{evidence.source}</p></div>
-        {evidence.credibilityScore != null && <div><p className="text-sm text-muted-foreground">信度评分</p><p>{evidence.credibilityScore}%</p></div>}
+        {evidence.credibilityScore != null && <div><p className="text-sm text-muted-foreground">证明力参考</p><p>{evidence.credibilityScore}%</p></div>}
         {evidence.description && <div><p className="text-sm text-muted-foreground">描述</p><p>{evidence.description}</p></div>}
       </CardContent>
     </Card>

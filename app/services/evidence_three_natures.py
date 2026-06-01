@@ -359,9 +359,9 @@ class EvidenceThreeNaturesService:
             positive.append("有原始文件载体")
         
         if evidence.get("credibility_score", 0) >= 80:
-            positive.append(f"系统信度评分高({evidence['credibility_score']})")
+            positive.append(f"系统证明力参考较高({evidence['credibility_score']})")
         elif evidence.get("credibility_score", 0) <= 30:
-            negative.append(f"系统信度评分低({evidence['credibility_score']})")
+            negative.append(f"系统证明力参考较低({evidence['credibility_score']})")
         
         # 公证证据 - 法律应用：检查所有内容字段
         raw_content = evidence.get("raw_content", "")

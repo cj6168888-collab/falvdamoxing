@@ -163,7 +163,7 @@ async def build_evidence_graph(request: EvidenceAnalysisRequest, db: Session = D
     构建证据知识图谱
     
     对案件的所有证据进行深度分析，包括：
-    - 证据信度评分
+    - 证据证明力参考
     - 证据关联关系
     - 矛盾证据识别
     - 关键词索引

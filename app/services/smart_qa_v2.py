@@ -746,7 +746,7 @@ class SmartQAServiceV2:
             lines.append(f"{i}. [{ev.get('type_name', '证据')}] 证据{i}")
             # 法律应用：使用完整内容，不截断
             lines.append(f"   内容：{ev.get('summary', '')}")
-            lines.append(f"   信度：{ev.get('credibility', 0):.0f}%\n")
+            lines.append(f"   证明力参考：{ev.get('credibility', 0):.0f}%\n")
 
         return "\n".join(lines)
 

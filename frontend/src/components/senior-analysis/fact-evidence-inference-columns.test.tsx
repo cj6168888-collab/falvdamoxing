@@ -43,8 +43,8 @@ describe('FactEvidenceInferenceColumns', () => {
     const columns = buildFactInferenceColumns(analysisData);
 
     expect(columns.establishedFacts).toEqual([
-      '合同签署事实（证据：ev-1/合同/信度90）',
-      '付款事实（证据：ev-2/转账记录/信度82）',
+      '合同签署事实（证据：ev-1/合同/证明力参考90）',
+      '付款事实（证据：ev-2/转账记录/证明力参考82）',
     ]);
     expect(columns.establishedFacts.join('\n')).not.toContain('未锚定的案件描述');
     expect(columns.aiInferences).toContain('争议焦点推断：是否存在违约行为');
@@ -72,7 +72,7 @@ describe('FactEvidenceInferenceColumns', () => {
     expect(screen.getByText('已有事实')).toBeInTheDocument();
     expect(screen.getByText('AI 推断')).toBeInTheDocument();
     expect(screen.getByText('待核验事项')).toBeInTheDocument();
-    expect(screen.getByText('合同签署事实（证据：ev-1/合同/信度90）')).toBeInTheDocument();
+    expect(screen.getByText('合同签署事实（证据：ev-1/合同/证明力参考90）')).toBeInTheDocument();
     expect(screen.getByText('下一步建议：补充付款流水原件')).toBeInTheDocument();
     expect(screen.getByText('管辖法院待确认；核对合同管辖条款')).toBeInTheDocument();
     expect(screen.getByText('待核验任务清单')).toBeInTheDocument();

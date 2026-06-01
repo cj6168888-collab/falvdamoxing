@@ -72,7 +72,7 @@ export function buildClaimBasisRows(requirementsCheck?: RequirementsCheck | null
       (coverage.evidence || []).map((evidence) => {
         const id = evidence.evidence_id ?? '未编号证据';
         const type = evidence.type ? `/${evidence.type}` : '';
-        const credibility = typeof evidence.credibility === 'number' ? `/信度${evidence.credibility}` : '';
+        const credibility = typeof evidence.credibility === 'number' ? `/证明力参考${evidence.credibility}` : '';
         return `${id}${type}${credibility}`;
       }),
     );

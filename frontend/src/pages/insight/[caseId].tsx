@@ -81,7 +81,7 @@ function EvidenceNodeCard({ node }: { node: EvidenceGraphNode }) {
             <p className="truncate font-medium">{node.name}</p>
             <p className="text-sm text-muted-foreground">{node.type}</p>
           </div>
-          {score !== null && <Badge variant={score >= 80 ? 'default' : 'secondary'}>信度 {score}%</Badge>}
+          {score !== null && <Badge variant={score >= 80 ? 'default' : 'secondary'}>证明力参考 {score}%</Badge>}
         </div>
         <div className="space-y-1 text-sm">
           <p className="font-medium">证明事实</p>
@@ -368,13 +368,13 @@ export default function InsightPage() {
                   <Card>
                     <CardContent className="p-4">
                       <p className="text-2xl font-bold">{String(graph.summary?.high_credibility_count ?? 0)}</p>
-                      <p className="text-sm text-muted-foreground">高信度</p>
+                      <p className="text-sm text-muted-foreground">高证明力参考</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="p-4">
                       <p className="text-2xl font-bold">{String(graph.summary?.low_credibility_count ?? 0)}</p>
-                      <p className="text-sm text-muted-foreground">低信度</p>
+                      <p className="text-sm text-muted-foreground">低证明力参考</p>
                     </CardContent>
                   </Card>
                 </div>
