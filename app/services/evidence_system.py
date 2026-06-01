@@ -28,6 +28,10 @@ class Evidence:
     authenticity: str = "待核实"        # 真实性
     legitimacy: str = "待核实"          # 合法性
     relevance: str = "待核实"           # 关联性
+    original_status: str = "待核实"     # 原件状态
+    formed_at: str = ""                 # 形成/取得时间
+    strengthening_actions: List[str] = field(default_factory=list)  # 补强动作
+    review_notes: str = ""              # 复核备注
     file_path: Optional[str] = None     # 文件路径
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
@@ -43,6 +47,10 @@ class Evidence:
             "authenticity": self.authenticity,
             "legitimacy": self.legitimacy,
             "relevance": self.relevance,
+            "original_status": self.original_status,
+            "formed_at": self.formed_at,
+            "strengthening_actions": self.strengthening_actions,
+            "review_notes": self.review_notes,
             "file_path": self.file_path,
             "created_at": self.created_at
         }
@@ -640,6 +648,11 @@ class EvidenceBookGenerator:
         custody = ev.custody or "待填写"
         proof = ev.proof_point or "待填写"
         content = ev.content or "无内容摘要"
+        original_status = ev.original_status or "待核实"
+        formed_at = ev.formed_at or "待核实"
+        strengthening_actions = ev.strengthening_actions or ["提交前核验原件、页码、形成时间和上下文"]
+        strengthening_text = "；".join(str(action).strip() for action in strengthening_actions if str(action).strip()) or "提交前核验原件、页码、形成时间和上下文"
+        review_notes = ev.review_notes or "无"
         
         # 证据编号
         ev_num = f"{self._get_type_abbr(group_name)}{index:03d}"
@@ -661,6 +674,8 @@ class EvidenceBookGenerator:
 │ 证据类型：{e_type:<80}│
 │ 证据来源：{source:<80}│
 │ 举证方  ：{custody:<80}│
+│ 原件状态：{original_status:<80}│
+│ 形成/取得时间：{formed_at:<74}│
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ 【证明事项】                                                                                         │
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
@@ -670,6 +685,14 @@ class EvidenceBookGenerator:
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ {display_content:<80}│
 │                                                                                                    │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 【人工复核与补强动作】                                                                               │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 真实性风险：{ev.authenticity:<72}│
+│ 合法性风险：{ev.legitimacy:<72}│
+│ 关联性风险：{ev.relevance:<72}│
+│ 补强动作：{strengthening_text:<76}│
+│ 复核备注：{review_notes:<76}│
 └──────────────────────────────────────────────────────────────────────────────────────────────��────────────────────────────────────────────────┘
 """
         return page
@@ -934,12 +957,25 @@ class EvidenceBookGenerator:
             custody = str(ev.custody or "待填写")
             proof = str(ev.proof_point or "待填写")
             content = str(ev.content or "无内容摘要")
+            original_status = str(ev.original_status or "待核实")
+            formed_at = str(ev.formed_at or "待核实")
+            strengthening_actions = ev.strengthening_actions or ["提交前核验原件、页码、形成时间和上下文"]
+            strengthening_text = "；".join(str(action).strip() for action in strengthening_actions if str(action).strip()) or "提交前核验原件、页码、形成时间和上下文"
+            review_notes = str(ev.review_notes or "无")
 
             output.append(f"### 第 {i} 份：{name}\n")
             output.append(f"**证据类型**：{e_type}")
             output.append(f"**证据来源**：{source}")
             output.append(f"**举证方**：{custody}")
+            output.append(f"**原件状态**：{original_status}")
+            output.append(f"**形成/取得时间**：{formed_at}")
             output.append(f"**证明目的**：{proof}\n")
+            output.append("**人工复核与补强动作**：")
+            output.append(f"- 真实性风险：{ev.authenticity}")
+            output.append(f"- 合法性风险：{ev.legitimacy}")
+            output.append(f"- 关联性风险：{ev.relevance}")
+            output.append(f"- 补强动作：{strengthening_text}")
+            output.append(f"- 复核备注：{review_notes}\n")
 
             embedded = self._embed_evidence_content(ev)
             if embedded:

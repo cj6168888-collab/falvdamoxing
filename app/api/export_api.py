@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from typing import Optional, List
+from typing import Any, Optional, List
 from datetime import datetime
 from pydantic import BaseModel
 import json
@@ -90,6 +90,30 @@ def _format_proves_facts(proves_facts) -> str:
                 parts.append(str(item))
         return "；".join(part for part in parts if part)
     return json.dumps(proves_facts, ensure_ascii=False)
+
+
+def _latest_fixed_review(item: Any) -> dict:
+    getter = getattr(item, "get_latest_fixed_review", None)
+    if callable(getter):
+        return getter() or {}
+    if isinstance(item, dict):
+        return item.get("evidence_review") or item.get("review") or {}
+    return {}
+
+
+def _format_risks(review: dict) -> str:
+    authenticity = review.get("authenticity_risk") or "待人工核验"
+    legality = review.get("legality_risk") or "待人工核验"
+    relevance = review.get("relevance_risk") or "待人工核验"
+    return f"真实性：{authenticity}；合法性：{legality}；关联性：{relevance}"
+
+
+def _format_actions(actions: Any) -> str:
+    if isinstance(actions, str):
+        return actions
+    if isinstance(actions, list):
+        return "；".join(str(action).strip() for action in actions if str(action).strip())
+    return ""
 
 
 # ============ 通用导出 API ============
@@ -630,6 +654,10 @@ def export_evidence_list(
                     'evidence_type': normalize_evidence_type(doc.doc_type) if doc.doc_type else '其他',
                     'source_party': '己方',
                     'summary': doc.content_summary.replace('[证据]', '') if doc.content_summary else '',
+                    'proof_purpose': doc.content_summary.replace('[证据]', '') if doc.content_summary else '',
+                    'original_status': '待人工核验',
+                    'three_natures_risk': _format_risks({}),
+                    'strengthening_actions': '',
                     'extracted_content': doc.content if include_content else ''
                 })
         else:
@@ -637,13 +665,19 @@ def export_evidence_list(
             evidence_list = []
             for i, ev in enumerate(evidence_items, 1):
                 ev_type = ev.evidence_type if hasattr(ev.evidence_type, 'value') else str(ev.evidence_type)
+                review = _latest_fixed_review(ev)
+                proof_purpose = review.get("proof_purpose") or _format_proves_facts(ev.proves_facts) or ev.summary or ''
                 evidence_list.append({
                     'index': i,
                     'id': ev.id,
                     'original_filename': ev.original_filename,
                     'evidence_type': ev_type,
                     'source_party': ev.source_party or '未填写',
-                    'summary': ev.summary or _format_proves_facts(ev.proves_facts),
+                    'summary': proof_purpose,
+                    'proof_purpose': proof_purpose,
+                    'original_status': review.get("original_status") or "待人工核验",
+                    'three_natures_risk': _format_risks(review),
+                    'strengthening_actions': _format_actions(review.get("strengthening_actions") or []),
                     'extracted_content': ev.extracted_content if include_content else ''
                 })
             evidence_items = evidence_list
@@ -662,8 +696,8 @@ def export_evidence_list(
 
 ## 证据目录
 
-| 序号 | 证据名称 | 类型 | 来源 | 证明事项 |
-|------|---------|------|------|---------|
+| 序号 | 证据名称 | 类型 | 来源 | 证明事项 | 原件状态 | 三性风险 | 补强动作 |
+|------|---------|------|------|---------|---------|---------|---------|
 """
 
         for ev in evidence_items:
@@ -672,15 +706,26 @@ def export_evidence_list(
                 ev_type = ev.get('evidence_type', '其他')
                 source = ev.get('source_party', '未填写')
                 summary = ev.get('summary', '未填写')
+                original_status = ev.get('original_status', '待人工核验')
+                three_natures_risk = ev.get('three_natures_risk', _format_risks({}))
+                strengthening_actions = ev.get('strengthening_actions', '')
             else:
                 ev_name = ev.original_filename or str(ev.id)
                 ev_type = ev.evidence_type if hasattr(ev.evidence_type, 'value') else str(ev.evidence_type)
                 source = ev.source_party or '未填写'
                 summary = ev.summary or ''
+                review = _latest_fixed_review(ev)
+                original_status = review.get("original_status") or "待人工核验"
+                three_natures_risk = _format_risks(review)
+                strengthening_actions = _format_actions(review.get("strengthening_actions") or [])
             
             if len(summary) > 50:
                 summary = summary[:50] + '...'
-            content += f"| {ev.get('index', 0) if isinstance(ev, dict) else 0} | {ev_name} | {ev_type} | {source} | {summary} |\n"
+            if len(three_natures_risk) > 90:
+                three_natures_risk = three_natures_risk[:90] + '...'
+            if len(strengthening_actions) > 70:
+                strengthening_actions = strengthening_actions[:70] + '...'
+            content += f"| {ev.get('index', 0) if isinstance(ev, dict) else 0} | {ev_name} | {ev_type} | {source} | {summary} | {original_status} | {three_natures_risk} | {strengthening_actions} |\n"
 
         # 导出
         result = export_service.export_content(

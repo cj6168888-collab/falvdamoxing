@@ -109,6 +109,67 @@ def normalize_evidence_type(doc_type: str) -> str:
 
     # 默认返回 other
     return "other"
+
+
+def _item_value(item: Any, key: str, default: Any = None) -> Any:
+    if isinstance(item, dict):
+        return item.get(key, default)
+    return getattr(item, key, default)
+
+
+def _normalize_fact_text(fact: Any) -> str:
+    if isinstance(fact, str):
+        return fact.strip()
+    if isinstance(fact, dict):
+        return str(fact.get("fact") or fact.get("description") or "").strip()
+    return str(fact or "").strip()
+
+
+def _latest_fixed_review(item: Any) -> dict:
+    if isinstance(item, dict):
+        return item.get("evidence_review") or item.get("review") or {}
+    getter = getattr(item, "get_latest_fixed_review", None)
+    if callable(getter):
+        return getter() or {}
+    return {}
+
+
+def _proof_point_from_item(item: Any, review: Optional[dict]) -> str:
+    proof = (review or {}).get("proof_purpose")
+    if proof:
+        return str(proof).strip()
+
+    facts = [_normalize_fact_text(fact) for fact in (_item_value(item, "proves_facts", []) or [])]
+    facts = [fact for fact in facts if fact]
+    if facts:
+        return "；".join(facts[:2])
+
+    return _item_value(item, "summary", "") or "待结合原件核验"
+
+
+def _evidence_from_item(item: Any, source_label: str) -> Evidence:
+    review = _latest_fixed_review(item)
+    actions = review.get("strengthening_actions") or []
+    if isinstance(actions, str):
+        actions = [actions]
+
+    return Evidence(
+        id=str(_item_value(item, "id", "")),
+        name=_item_value(item, "display_name", None) or _item_value(item, "original_filename", None) or "未命名证据",
+        evidence_type=normalize_evidence_type(_item_value(item, "evidence_type", None) or "其他"),
+        content=_item_value(item, "extracted_content", None) or _item_value(item, "raw_content", None) or _item_value(item, "summary", "") or "",
+        source=review.get("source") or source_label,
+        custody=_item_value(item, "source_party", "") or "",
+        proof_point=_proof_point_from_item(item, review),
+        authenticity=review.get("authenticity_risk") or "待人工核验",
+        legitimacy=review.get("legality_risk") or "待人工核验",
+        relevance=review.get("relevance_risk") or "待人工核验",
+        original_status=review.get("original_status") or "待人工核验",
+        formed_at=review.get("formed_at") or "",
+        strengthening_actions=[str(action).strip() for action in actions if str(action).strip()],
+        review_notes=review.get("review_notes") or "",
+        file_path=_item_value(item, "file_path", None),
+    )
 from app.services.export_service import export_service
 
 router = APIRouter(prefix="/api/evidence", tags=["证据管理"])
@@ -1006,17 +1067,7 @@ def export_evidence_book(
     if passed_evidence_items:
         evidence_list = []
         for ev_item in passed_evidence_items:
-            ev = Evidence(
-                id=str(ev_item.id),
-                name=ev_item.display_name or ev_item.original_filename or "未命名证据",
-                evidence_type=normalize_evidence_type(ev_item.evidence_type or "其他"),
-                content=ev_item.extracted_content or ev_item.raw_content or "",
-                source="战役关联",
-                custody=ev_item.source_party or "",
-                proof_point=json.dumps(ev_item.proves_facts, ensure_ascii=False) if getattr(ev_item, 'proves_facts', None) else "",
-                file_path=getattr(ev_item, 'file_path', None)
-            )
-            evidence_list.append(ev)
+            evidence_list.append(_evidence_from_item(ev_item, "战役关联"))
     else:
         # 获取案件证据 - 从 Document 和 EvidenceItem 两个表获取
         docs = db.query(Document).filter(
@@ -1033,17 +1084,7 @@ def export_evidence_book(
         
         # 从 EvidenceItem 添加证据（文件夹扫描的）
         for ev_item in evidence_items:
-            ev = Evidence(
-                id=str(ev_item.id),
-                name=ev_item.display_name or ev_item.original_filename or "未命名证据",
-                evidence_type=normalize_evidence_type(ev_item.evidence_type or "其他"),
-                content=ev_item.extracted_content or ev_item.raw_content or "",
-                source="文件夹扫描",
-                custody=ev_item.source_party or "",
-                proof_point=json.dumps(ev_item.proves_facts, ensure_ascii=False) if ev_item.proves_facts else "",
-                file_path=ev_item.file_path  # 传递原始文件路径，用于嵌入证据册
-            )
-            evidence_list.append(ev)
+            evidence_list.append(_evidence_from_item(ev_item, "文件夹扫描"))
     
         # 从 Document 添加证据（上传的）
         for doc in docs:
