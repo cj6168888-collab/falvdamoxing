@@ -10,7 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatChineseDate, formatChineseWeekday } from '@/lib/date';
 import type { UrgentTask } from '@/types/dashboard.types';
+import { useAuthStore } from '@/stores/auth.store';
 import { RefreshCw } from 'lucide-react';
+import { EnterpriseDashboard, PersonalDashboard } from './audience-dashboards';
 
 const FALLBACK_URGENT_TYPE: UrgentTask['type'] = 'other';
 
@@ -28,7 +30,7 @@ function normalizeUrgentTaskType(type: string): UrgentTask['type'] {
   }
 }
 
-export default function DashboardPage() {
+function LawFirmDashboard() {
   const { data, isLoading, isError, refetch } = useDashboard();
   const today = new Date();
 
@@ -144,4 +146,18 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+}
+
+export default function DashboardPage() {
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+
+  if (tenantType === 'enterprise') {
+    return <EnterpriseDashboard />;
+  }
+
+  if (tenantType === 'personal') {
+    return <PersonalDashboard />;
+  }
+
+  return <LawFirmDashboard />;
 }
