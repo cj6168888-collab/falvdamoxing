@@ -49,10 +49,92 @@ def _format_evidence_refs(evidences: List[EvidenceItem], limit: int = 16) -> str
     return "\n".join(lines) or "- 暂未检索到证据"
 
 
+def _evidence_name(ev: EvidenceItem) -> str:
+    return ev.display_name or ev.original_filename or ev.evidence_number or ev.id or "未命名证据"
+
+
+def _format_review_risks(review: Optional[Dict[str, Any]]) -> str:
+    if not review:
+        return "真实性：待人工核验；合法性：待人工核验；关联性：待人工核验"
+    return (
+        f"真实性：{review.get('authenticity_risk') or '待人工核验'}；"
+        f"合法性：{review.get('legality_risk') or '待人工核验'}；"
+        f"关联性：{review.get('relevance_risk') or '待人工核验'}"
+    )
+
+
+def _build_reviewable_scope_section(evidences: List[EvidenceItem], limit: int = 20) -> str:
+    evidence_count = len(evidences)
+    displayed = evidences[:limit]
+    reviewed_count = sum(1 for ev in evidences if ev.get_latest_fixed_review())
+    unreviewed_count = evidence_count - reviewed_count
+    omitted_count = max(evidence_count - len(displayed), 0)
+
+    scope_lines = [
+        "## 已读取证据范围",
+        f"- 当前系统证据总数：{evidence_count} 份；本区块列示前 {len(displayed)} 份用于复核索引。",
+        f"- 人工复核状态：已完成固定字段复核 {reviewed_count} 份；未完整复核 {unreviewed_count} 份。",
+    ]
+    if omitted_count:
+        scope_lines.append(f"- 另有 {omitted_count} 份证据未在本区块逐条展开，但仍计入本轮案件档案和证据总数。")
+
+    unverified_lines = []
+    for index, ev in enumerate(displayed, 1):
+        review = ev.get_latest_fixed_review()
+        proof_purpose = review.get("proof_purpose") if review else None
+        original_status = review.get("original_status") if review else None
+        content_available = bool(ev.summary or ev.extracted_content or ev.raw_content)
+        scope_lines.append(
+            f"- 证据{index}《{_evidence_name(ev)}》："
+            f"类型：{ev.evidence_type or '未分类'}；"
+            f"证明目的：{proof_purpose or '待人工填写'}；"
+            f"{_format_review_risks(review)}"
+        )
+
+        issues = []
+        if not review:
+            issues.append("未完成人工复核")
+        if not original_status:
+            issues.append("原件状态待核验")
+        if not proof_purpose:
+            issues.append("证明目的待确认")
+        if review and not all(review.get(field) for field in ("authenticity_risk", "legality_risk", "relevance_risk")):
+            issues.append("三性风险未完整填写")
+        if not content_available:
+            issues.append("缺少可读内容/摘要")
+        if issues:
+            unverified_lines.append(f"- 证据{index}《{_evidence_name(ev)}》：" + "；".join(issues))
+
+    if evidence_count == 0:
+        unverified_lines.append("- 当前案件暂无证据；任何事实判断都只能作为用户陈述整理，不能写成已由证据证明的事实。")
+    if omitted_count:
+        unverified_lines.append(f"- 未展开的 {omitted_count} 份证据：提交或对外使用前仍需逐项核验原件、页码、形成时间、来源和上下文。")
+
+    if not unverified_lines:
+        unverified_lines.append("- 已列示证据均有人工复核记录；提交前仍需核对原件、页码、形成时间、签章/签名和完整上下文。")
+
+    return "\n".join([
+        *scope_lines,
+        "",
+        "## 待核验材料",
+        *unverified_lines,
+        "",
+        "## 工作底稿核验清单",
+        "- 事实：区分证据直接证明、证据间接推断、用户单方陈述和待补证事项。",
+        "- 证据：逐项核验来源、原件状态、形成/取得时间、页码编号、三性风险和补强动作。",
+        "- 法律：未接入权威法条/类案检索时，不得输出未经核验的具体案号、指导案例或条文编号。",
+        "- 文书：提交、发送或导出前核验当事人、金额、诉请、事实证据对应、管辖、日期和签章。",
+    ])
+
+
+def _attach_reviewable_scope(content: str, evidences: List[EvidenceItem]) -> str:
+    return f"{_build_reviewable_scope_section(evidences)}\n\n{content}"
+
+
 def _build_bokai_stable_analysis(case: Case, evidences: List[EvidenceItem], user_message: str, title: str = "案件分析") -> str:
     evidence_count = len(evidences)
     refs = _format_evidence_refs(evidences, 18)
-    return f"""## {title}
+    analysis = f"""## {title}
 
 本次分析以系统当前记录的共 {evidence_count} 条证据链为基础，案件对象为博凯升华违背合作案。核心主体包括陈靖、佛山吉麟、雷天乾、博凯升华及博凯健康。以下意见用于诉讼策略校准，正式提交前仍应核验原件、页码、形成时间和送达/沟通载体。
 
@@ -77,6 +159,7 @@ def _build_bokai_stable_analysis(case: Case, evidences: List[EvidenceItem], user
 ## 五、下一步
 围绕用户问题“{_limit_prompt_text(user_message, 260)}”，建议先形成五张表：款项性质表、证据对应表、主体责任表、损失计算表、对方抗辩回应表。每个诉讼请求必须绑定至少一组证据名称/编号和一条法律依据方向；刑事、行政、税务风险只能列为核验线索，不能直接替代司法机关作最终定性。
 """
+    return _attach_reviewable_scope(analysis, evidences)
 
 
 # Health check
@@ -191,7 +274,7 @@ def analyze_case(request: CaseAnalysisRequest, db: Session = Depends(get_db)):
 
         # 解析结果
         if isinstance(analysis_result, dict):
-            response_text = analysis_result.get("response", "")
+            response_text = _attach_reviewable_scope(analysis_result.get("response", ""), all_evidences)
             
             # 使用统一情报同步逻辑
             intelligence_service.sync_intelligence(db, case_id, response_text)
@@ -204,10 +287,11 @@ def analyze_case(request: CaseAnalysisRequest, db: Session = Depends(get_db)):
                 "document_type": analysis_result.get("document_type"),
             }
         else:
+            response_text = _attach_reviewable_scope(str(analysis_result), all_evidences)
             return {
                 "success": True,
                 "analysis_type": "general",
-                "response": str(analysis_result),
+                "response": response_text,
                 "suggested_claims": [],
             }
 
@@ -246,16 +330,16 @@ def global_analysis(user_input: UserInput, db: Session = Depends(get_db)):
 
     # 证据数量统计
     evidence_count = db.query(EvidenceItem).filter(EvidenceItem.case_id == user_input.case_id).count()
+    evidences_for_scope = db.query(EvidenceItem).filter(EvidenceItem.case_id == user_input.case_id).order_by(EvidenceItem.created_at.asc()).all()
     if evidence_count > 100:
-        evidences = db.query(EvidenceItem).filter(EvidenceItem.case_id == user_input.case_id).order_by(EvidenceItem.created_at.asc()).all()
-        analysis_content = _build_bokai_stable_analysis(case, evidences, user_input.fact_description, "全局案情分析")
+        analysis_content = _build_bokai_stable_analysis(case, evidences_for_scope, user_input.fact_description, "全局案情分析")
         analysis = ConversationAnalysis(
             case_id=user_input.case_id,
             session_id=user_input.session_id or str(uuid.uuid4())[:12],
             analysis_type="global",
             content=analysis_content,
             summary=analysis_content[:500],
-            evidence_ids=[ev.id for ev in evidences],
+            evidence_ids=[ev.id for ev in evidences_for_scope],
             party_roles={"plaintiff": case.plaintiff, "defendant": case.defendant, "third_party": case.third_party},
             recommended_documents=["起诉状", "证据目录", "代理词"],
         )
@@ -276,6 +360,9 @@ def global_analysis(user_input: UserInput, db: Session = Depends(get_db)):
     prompt = f"""你是一位经验丰富的资深律师。在回答用户问题之前，你必须先完整、仔细地阅读以下案件档案。
 
 {dossier}
+
+【服务端已读取证据范围与核验清单】
+{_build_reviewable_scope_section(evidences_for_scope)}
 
 【用户补充的事实描述】
 {user_input.fact_description}
@@ -368,6 +455,7 @@ def global_analysis(user_input: UserInput, db: Session = Depends(get_db)):
             {"role": "system", "content": "你是一位经验丰富的资深律师。在回答用户问题之前，你必须先完整、仔细地阅读以下案件档案。当前上下文没有权威类案检索结果时，禁止输出具体案号、法院或指导案例编号。"},
             {"role": "user", "content": prompt}
         ], model="qwen-plus")
+        analysis_content = _attach_reviewable_scope(analysis_content, evidences_for_scope)
         suggestions = _extract_json_suggestions(analysis_content)
 
         # 保存分析结果
@@ -377,7 +465,7 @@ def global_analysis(user_input: UserInput, db: Session = Depends(get_db)):
             analysis_type="global",
             content=analysis_content,
             summary=suggestions.get("summary_for_user", "")[:500] if suggestions else analysis_content[:500],
-            evidence_ids=[ev.id for ev in db.query(EvidenceItem).filter(EvidenceItem.case_id == user_input.case_id).all()],
+            evidence_ids=[ev.id for ev in evidences_for_scope],
             party_roles={"plaintiff": case.plaintiff, "defendant": case.defendant, "third_party": case.third_party},
             recommended_documents=suggestions.get("recommended_documents", []) if suggestions else [],
         )
@@ -411,13 +499,13 @@ def follow_up(request: FollowUpInput, db: Session = Depends(get_db)):
     # 构建完整档案（确保 AI 始终基于完整证据回答）
     dossier = _build_complete_case_dossier(request.case_id, db)
     evidence_count = db.query(EvidenceItem).filter(EvidenceItem.case_id == request.case_id).count()
+    evidences_for_scope = db.query(EvidenceItem).filter(EvidenceItem.case_id == request.case_id).order_by(EvidenceItem.created_at.asc()).all()
     case = db.query(Case).filter(Case.id == request.case_id).first()
     if not case:
         raise HTTPException(status_code=404, detail="案件不存在")
 
     if evidence_count > 100:
-        evidences = db.query(EvidenceItem).filter(EvidenceItem.case_id == request.case_id).order_by(EvidenceItem.created_at.asc()).all()
-        refs = _format_evidence_refs(evidences, 18)
+        refs = _format_evidence_refs(evidences_for_scope, 18)
         analysis_content = f"""## 后续追问分析
 
 本次回答继续以博凯升华案系统内 {evidence_count} 条证据链为基础。用户追问为：“{_limit_prompt_text(request.message, 260)}”。以下内容只作诉讼策略校准；正式提交前必须核验原件、页码、形成时间、签章/签名、送达记录和完整上下文。
@@ -441,6 +529,7 @@ def follow_up(request: FollowUpInput, db: Session = Depends(get_db)):
 2. 对每项请求标明至少一组证据名称或编号，避免用笼统“完整证据链”替代举证。
 3. 对未核验的判例、法条条号、司法解释条文只写为“需另行检索核验”，不得作为确定依据。
 4. 对刑事、行政、税务风险只列核验路径和证据缺口，不替代司法或行政机关作最终定性。"""
+        analysis_content = _attach_reviewable_scope(analysis_content, evidences_for_scope)
 
         analysis = ConversationAnalysis(
             case_id=request.case_id,
@@ -489,6 +578,9 @@ def follow_up(request: FollowUpInput, db: Session = Depends(get_db)):
 
 {dossier}
 
+【服务端已读取证据范围与核验清单】
+{_build_reviewable_scope_section(evidences_for_scope)}
+
 {context_text}
 
 【用户的问题/补充】
@@ -532,6 +624,7 @@ def follow_up(request: FollowUpInput, db: Session = Depends(get_db)):
             {"role": "system", "content": "你是用户的代理律师。你的回答必须基于档案中的具体证据，引用证据时写明证据编号和名称。当前上下文没有权威类案检索结果时，禁止输出具体案号、法院或指导案例编号。"},
             {"role": "user", "content": prompt}
         ], model="qwen-plus")
+        analysis_content = _attach_reviewable_scope(analysis_content, evidences_for_scope)
         suggestions = _extract_json_suggestions(analysis_content)
 
         analysis = ConversationAnalysis(
