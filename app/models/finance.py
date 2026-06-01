@@ -1,5 +1,5 @@
 """
-案件财务模型 - 费用记录、成本收益分析、胜诉概率评估
+案件财务模型 - 费用记录、成本收益分析、诉讼风险评估
 """
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, JSON, Float
 from sqlalchemy.orm import relationship
@@ -30,7 +30,7 @@ class ExpenseStatus(str, enum.Enum):
 
 
 class WinRateFactor(str, enum.Enum):
-    """胜诉概率评估因素"""
+    """诉讼风险评估因素"""
     EVIDENCE_STRENGTH = "evidence_strength"      # 证据强度
     LEGAL_BASIS = "legal_basis"                   # 法律依据
     PROCEDURAL_COMPLIANCE = "procedural_compliance"  # 程序合规
@@ -63,8 +63,8 @@ class CaseFinance(Base):
     cost_benefit_ratio = Column(Float, nullable=True)  # 成本收益比
     net_benefit = Column(Float, nullable=True)         # 净收益
 
-    # 胜诉概率
-    win_rate = Column(Float, nullable=True)            # 胜诉概率 0-100
+    # 裁判支持度参考
+    win_rate = Column(Float, nullable=True)            # 裁判支持度参考 0-100
     win_rate_confidence = Column(Float, nullable=True)  # 评估置信度
     win_rate_assessed_at = Column(DateTime, nullable=True)  # 评估时间
 
@@ -124,7 +124,7 @@ class ExpenseRecord(Base):
 
 class WinRateAssessment(Base):
     """
-    胜诉概率评估
+    诉讼风险评估
     """
     __tablename__ = "win_rate_assessments"
 
@@ -133,7 +133,7 @@ class WinRateAssessment(Base):
     case_id = Column(Integer, ForeignKey("cases.id", ondelete="CASCADE"), index=True)
 
     # 评估结果
-    win_rate = Column(Float, nullable=False)             # 胜诉概率 0-100
+    win_rate = Column(Float, nullable=False)             # 裁判支持度参考 0-100
     confidence = Column(Float, nullable=True)            # 置信度 0-100
 
     # 评估因素

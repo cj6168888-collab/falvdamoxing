@@ -263,7 +263,7 @@ class ScenarioPrediction(Base):
 
     # 结果预测
     predicted_outcome = Column(Text, nullable=True)  # 预测结果
-    win_probability = Column(Float, nullable=True)  # 胜诉概率 (0-1)
+    win_probability = Column(Float, nullable=True)  # 裁判支持度参考 (0-1)
     estimated_amount = Column(String(100), nullable=True)  # 预估金额
     time_estimate = Column(String(100), nullable=True)  # 预估时间
 

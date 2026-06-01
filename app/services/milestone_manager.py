@@ -66,7 +66,7 @@ class Milestone:
     is_milestone: bool = True        # 是否是关键节点
     
     # AI建议
-    ai_tip: str = ""                 # AI律师提示
+    ai_tip: str = ""                 # 法律 AI 助手提示
     checklist: List[str] = field(default_factory=list)  # 执行清单
     
     # 去重

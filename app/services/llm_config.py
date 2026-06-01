@@ -180,7 +180,7 @@ ROUTING_RULES: Dict[TaskType, RoutingRule] = {
         primary_model="cloud",
         fallback_model=None,
         local_priority=3,
-        description="胜诉概率评估（仅云端）"
+        description="诉讼风险评估（仅云端）"
     ),
 }
 

@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageSkeleton } from '@/components/common/loading-skeleton';
 import { EmptyState } from '@/components/common/empty-state';
+import { LegalDisclaimer } from '@/components/common/legal-disclaimer';
 import { Plus, Trash2, TrendingUp, TrendingDown, DollarSign, PieChart, Sparkles, Target } from 'lucide-react';
 import type { ExpenseRecord } from '@/types/finance.types';
 
@@ -60,11 +61,11 @@ export default function FinancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">案件财务</h1>
-          <p className="text-sm text-muted-foreground mt-1">费用管理、成本分析和胜诉评估</p>
+          <p className="text-sm text-muted-foreground mt-1">费用管理、成本分析和诉讼风险评估</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => assessWinRate.mutate(true)} disabled={assessWinRate.isPending}>
-            <Sparkles className="mr-1 h-4 w-4" />{assessWinRate.isPending ? '评估中...' : 'AI 评估胜诉率'}
+            <Sparkles className="mr-1 h-4 w-4" />{assessWinRate.isPending ? '评估中...' : 'AI 评估诉讼风险'}
           </Button>
           <Dialog open={expenseDialog} onOpenChange={setExpenseDialog}>
             <DialogTrigger asChild><Button size="sm"><Plus className="mr-1 h-3 w-3" />添加费用</Button></DialogTrigger>
@@ -106,7 +107,7 @@ export default function FinancePage() {
           <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-green-600">¥{finance.total_paid.toLocaleString()}</div><p className="text-xs text-muted-foreground">已支付</p></CardContent></Card>
           <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-amber-600">¥{finance.total_pending.toLocaleString()}</div><p className="text-xs text-muted-foreground">待支付</p></CardContent></Card>
           {finance.win_rate !== null && finance.win_rate !== undefined && (
-            <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-blue-600">{finance.win_rate}%</div><p className="text-xs text-muted-foreground">胜诉概率</p></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-blue-600">{finance.win_rate}%</div><p className="text-xs text-muted-foreground">裁判支持度参考</p></CardContent></Card>
           )}
         </div>
       )}
@@ -146,7 +147,7 @@ export default function FinancePage() {
         <TabsList>
           <TabsTrigger value="expenses">费用记录 ({expenses.length})</TabsTrigger>
           <TabsTrigger value="breakdown">费用分类</TabsTrigger>
-          {winRateData && <TabsTrigger value="winrate">胜诉评估</TabsTrigger>}
+          {winRateData && <TabsTrigger value="winrate">风险评估</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="expenses" className="space-y-3">
@@ -203,12 +204,13 @@ export default function FinancePage() {
         <TabsContent value="winrate">
           {winRateData ? (
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Target className="h-5 w-5" />胜诉概率评估</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Target className="h-5 w-5" />诉讼风险评估</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                <LegalDisclaimer variant="analysis" compact />
                 <div className="flex items-center gap-6">
                   <div className="text-center">
                     <div className="text-4xl font-bold text-blue-600">{winRateData.win_rate ?? '—'}%</div>
-                    <p className="text-sm text-muted-foreground mt-1">胜诉概率</p>
+                    <p className="text-sm text-muted-foreground mt-1">裁判支持度参考</p>
                   </div>
                   {winRateData.win_rate_confidence !== undefined && winRateData.win_rate_confidence !== null && (
                     <div className="text-center">
@@ -237,7 +239,7 @@ export default function FinancePage() {
               </CardContent>
             </Card>
           ) : (
-            <EmptyState title="暂无胜诉评估" description={'点击"AI 评估胜诉率"生成评估报告'} />
+            <EmptyState title="暂无风险评估" description={'点击"AI 评估诉讼风险"生成评估报告'} />
           )}
         </TabsContent>
       </Tabs>

@@ -1,5 +1,5 @@
 """
-法律文书生成服务
+法律文书草稿服务
 """
 from typing import Dict, Any, Optional, List
 from datetime import datetime
@@ -9,7 +9,7 @@ from app.services.legal_prompts import get_document_generation_prompt
 
 
 def _limit_text(text: str, limit: int) -> str:
-    """控制单次文书生成 prompt 体积，避免长证据链导致超时。"""
+    """控制单次文书草稿 prompt 体积，避免长证据链导致超时。"""
     text = (text or "").strip()
     if len(text) <= limit:
         return text
@@ -17,7 +17,7 @@ def _limit_text(text: str, limit: int) -> str:
 
 
 class DocumentGenerator:
-    """法律文书生成器"""
+    """法律文书草稿器"""
 
     # 文书模板类型（biz-6: 补全高频文书）
     TEMPLATE_TYPES = {
@@ -274,7 +274,7 @@ class DocumentGenerator:
             result = self.llm.chat(messages, model="qwen-plus")
             return result
         except Exception as e:
-            return f"文书生成失败：{str(e)}"
+            return f"文书草稿生成失败：{str(e)}"
 
     def _generate_large_evidence_complaint(
         self,
@@ -510,7 +510,7 @@ class DocumentGenerator:
                 {"role": "user", "content": prompt}
             ])
         except Exception as e:
-            return f"文书生成失败：{str(e)}"
+            return f"文书草稿生成失败：{str(e)}"
 
     def generate_settlement_agreement(
         self,
@@ -585,7 +585,7 @@ class DocumentGenerator:
                 {"role": "user", "content": prompt}
             ])
         except Exception as e:
-            return f"文书生成失败：{str(e)}"
+            return f"文书草稿生成失败：{str(e)}"
 
     def generate_counterclaim(
         self,
@@ -659,7 +659,7 @@ class DocumentGenerator:
                 {"role": "user", "content": prompt}
             ])
         except Exception as e:
-            return f"文书生成失败：{str(e)}"
+            return f"文书草稿生成失败：{str(e)}"
 
     def get_templates(self) -> List[Dict]:
         """获取可用模板列表（biz-6: 补全后）"""
@@ -741,7 +741,7 @@ class DocumentGenerator:
     def _get_additional_case_info(self, case_id: int, db) -> str:
         """
         从数据库读取补充信息：
-        1. AI律师分析结论
+        1. 法律 AI 助手分析结论
         2. 已上传证据文档内容（完整）
         3. 对抗性分析结论
         4. 往来函件内容
@@ -760,10 +760,10 @@ class DocumentGenerator:
             if not case:
                 return ""
 
-            # 1. AI律师分析结论（法律分析）
+            # 1. 法律 AI 助手分析结论（法律分析）
             if case.legal_analysis:
                 legal_analysis = _limit_text(case.legal_analysis, 6000)
-                parts.append(f"\n{'='*60}\n【AI律师分析结论】（重要参考）\n{'='*60}\n{legal_analysis}\n")
+                parts.append(f"\n{'='*60}\n【法律 AI 助手分析结论】（重要参考）\n{'='*60}\n{legal_analysis}\n")
 
             # 2. 策略建议
             if case.strategy_suggestion:

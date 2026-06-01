@@ -47,9 +47,9 @@ const TABS: Array<{
   component: React.LazyExoticComponent<React.ComponentType<Record<string, never>>>;
 }> = [
   { id: 'overview', label: '概览', group: '态势', icon: Briefcase, component: CaseOverviewPage },
-  { id: 'chat', label: 'AI律师', group: '智能', icon: Bot, component: CaseChatPage },
+  { id: 'chat', label: '法律 AI 助手', group: '智能', icon: Bot, component: CaseChatPage },
   { id: 'evidence', label: '证据链', group: '证据', icon: ShieldCheck, component: CaseEvidencePage },
-  { id: 'analysis', label: '对抗分析', group: '策略', icon: LineChart, component: CaseAnalysisPage },
+  { id: 'analysis', label: '诉讼风险分析', group: '策略', icon: LineChart, component: CaseAnalysisPage },
   { id: 'reports', label: '报告', group: '输出', icon: FileText, component: CaseReportsPage },
   { id: 'timeline', label: '时间线', group: '时控', icon: CalendarClock, component: CaseTimelinePage },
   { id: 'letters', label: '函件', group: '沟通', icon: MessageSquareText, component: CaseLettersPage },
@@ -159,7 +159,7 @@ export default function CaseDetailPage() {
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">案件工作流</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">AI律师协同面板</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">法律 AI 助手协同面板</p>
               </div>
               <Button
                 variant="outline"
@@ -205,7 +205,7 @@ export default function CaseDetailPage() {
                       当前工作区：{TABS.find(t => t.id === activeTab)?.label || '概览'}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                      围绕证据目录、时间线、对抗分析和可提交文书组织案件材料，优先输出律师可复核的工作成果。
+                      围绕证据目录、时间线、诉讼风险分析和文书草稿组织案件材料，优先输出律师可复核的工作成果。
                     </p>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default function CaseDetailPage() {
                   下一步校验
                 </div>
                 <p className="leading-6">
-                  生成报告或模拟辩论后，重点检查是否绑定 177 条证据链、主体责任、停业节点、工资社保、保证金和信息服务费。
+                  生成报告或风险推演后，重点检查是否绑定 177 条证据链、主体责任、停业节点、工资社保、保证金和信息服务费。
                 </p>
               </div>
             </div>

@@ -40,7 +40,7 @@ class CostBenefitResult:
     claim_amount: float               # 诉讼标的额
     cost: CostEstimate                # 费用明细
     estimated_recovery: float         # 预估回收金额
-    win_probability: float            # 预估胜诉概率
+    win_probability: float            # 预估裁判支持度参考
     time_to_resolution_months: int    # 预估审理周期（月）
     net_expected_value: float         # 净期望收益
     roi: float                        # 投资回报率
@@ -133,7 +133,7 @@ class CostBenefitService:
             cost.travel_expenses, cost.notary_fee, cost.other
         ])
 
-        # 2. 胜诉概率估算
+        # 2. 裁判支持度参考估算
         prob_map = {
             ("strong", "simple"): 0.85,
             ("strong", "medium"): 0.75,
@@ -177,7 +177,7 @@ class CostBenefitService:
         if evidence_strength == "weak":
             risk_factors.append("证据力度不足，需尽快补充关键证据")
         if win_prob < 0.5:
-            risk_factors.append("胜诉概率偏低，对方可能利用程序拖延")
+            risk_factors.append("裁判支持度参考偏低，对方可能利用程序拖延")
         if claim_amount > 500000:
             risk_factors.append("标的额较大，建议申请财产保全以保障判决执行")
 

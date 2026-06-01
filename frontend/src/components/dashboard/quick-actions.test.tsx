@@ -40,8 +40,8 @@ describe('QuickActions', () => {
 
     expect(screen.getByText('新建案件')).toBeInTheDocument();
     expect(screen.getByText('证据上传')).toBeInTheDocument();
-    expect(screen.getByText('文书生成')).toBeInTheDocument();
-    expect(screen.getByText('法律咨询')).toBeInTheDocument();
+    expect(screen.getByText('文书草稿')).toBeInTheDocument();
+    expect(screen.getByText('问题整理')).toBeInTheDocument();
   });
 
   it('shows descriptions for each action', () => {
@@ -49,8 +49,8 @@ describe('QuickActions', () => {
 
     expect(screen.getByText('创建新的法律案件')).toBeInTheDocument();
     expect(screen.getByText('上传案件相关证据材料')).toBeInTheDocument();
-    expect(screen.getByText('AI 自动生成法律文书')).toBeInTheDocument();
-    expect(screen.getByText('在线法律问题分析')).toBeInTheDocument();
+    expect(screen.getByText('起草待核验法律文书')).toBeInTheDocument();
+    expect(screen.getByText('整理问题并提示风险')).toBeInTheDocument();
   });
 
   it('calls navigate with correct route when new case is clicked', async () => {

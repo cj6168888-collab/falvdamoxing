@@ -160,7 +160,7 @@ class IntelligenceService:
         
         fin = d.get('financial_summary', {})
         if fin.get('win_rate_estimate'):
-            md += f"\n## 5. 综合评估\n- **胜诉概率预估**: {fin['win_rate_estimate']}\n"
+            md += f"\n## 5. 综合评估\n- **裁判支持度参考**: {fin['win_rate_estimate']}\n"
 
         md += "\n---\n⚠️ 法律分析与策略建议（参考）：\n"
         md += f"- 分析：{d['case_metadata']['legal_analysis'] or '待生成'}\n"

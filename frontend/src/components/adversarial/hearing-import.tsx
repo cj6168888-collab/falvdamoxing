@@ -11,7 +11,7 @@ export function HearingImport({ caseId: _caseId, onImport }: Props) {
         <CardTitle>导入到庭审</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">将对抗性分析结果导入到出庭抗辩模块</p>
+        <p className="text-sm text-muted-foreground">将诉讼风险分析结果导入到庭审辅助模块</p>
         <Button onClick={onImport}>
           <FileText className="mr-2 h-4 w-4" />导入
         </Button>

@@ -33,7 +33,7 @@ class QuestionIntent(str, enum.Enum):
     LEGAL_ADVICE = "LEGAL_ADVICE"              # 法律建议
     EVIDENCE_ADVICE = "EVIDENCE_ADVICE"        # 证据建议
     STRATEGY_ADVICE = "STRATEGY_ADVICE"        # 策略建议
-    DOCUMENT_GENERATION = "DOCUMENT_GENERATION" # 文书生成
+    DOCUMENT_GENERATION = "DOCUMENT_GENERATION" # 文书草稿
     RISK_ASSESSMENT = "RISK_ASSESSMENT"         # 风险评估
     CASE_STATUS = "CASE_STATUS"                 # 案件状态
 
@@ -374,7 +374,7 @@ class QuestionAnalysis(Base):
         'LEGAL_ADVICE': {'name': '法律建议', 'icon': '⚖️', 'color': '#52c41a'},
         'EVIDENCE_ADVICE': {'name': '证据建议', 'icon': '📎', 'color': '#faad14'},
         'STRATEGY_ADVICE': {'name': '策略建议', 'icon': '🎯', 'color': '#722ed1'},
-        'DOCUMENT_GENERATION': {'name': '文书生成', 'icon': '📝', 'color': '#eb2f96'},
+        'DOCUMENT_GENERATION': {'name': '文书草稿', 'icon': '📝', 'color': '#eb2f96'},
         'RISK_ASSESSMENT': {'name': '风险评估', 'icon': '⚠️', 'color': '#f5222d'},
         'CASE_STATUS': {'name': '案件状态', 'icon': '📋', 'color': '#13c2c2'},
     }

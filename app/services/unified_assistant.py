@@ -254,7 +254,7 @@ class UnifiedAssistant:
                 "question": "您想了解案件的哪些方面？",
                 "options": [
                     {"value": "situation", "label": "案件基本情况"},
-                    {"value": "risk", "label": "胜诉概率"},
+                    {"value": "risk", "label": "诉讼风险"},
                     {"value": "evidence", "label": "需要什么证据"},
                     {"value": "strategy", "label": "如何应对"}
                 ],
@@ -331,7 +331,7 @@ class UnifiedAssistant:
 ⚠️ 绝对禁止：
 1. 凭空编造法律条文或司法解释
 2. 虚构不存在的案例
-3. 夸大胜诉概率以讨好用户
+3. 作出胜诉承诺或夸大裁判支持度以讨好用户
 4. 浮于表面、不深入分析就给出结论
 5. 用"一般"、"通常"模糊表述掩盖不确定性
 6. 引用法条不说明具体来源和内容

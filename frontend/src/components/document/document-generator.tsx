@@ -9,6 +9,7 @@ import { useGenerateDocument, useDocumentTemplates } from '@/hooks/use-document'
 import { toast } from 'sonner';
 import { Sparkles, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCaseDetail } from '@/hooks/use-case';
+import { LegalDisclaimer } from '@/components/common/legal-disclaimer';
 
 interface Props {
   caseId: string;
@@ -18,7 +19,7 @@ interface Props {
 
 function getErrorMessage(error: unknown): string {
   const response = (error as { response?: { data?: { detail?: string } } }).response;
-  return response?.data?.detail || '文书生成失败';
+  return response?.data?.detail || '文书草稿生成失败';
 }
 
 export function DocumentGenerator({ caseId, onClose, onGenerated }: Props) {
@@ -44,7 +45,7 @@ export function DocumentGenerator({ caseId, onClose, onGenerated }: Props) {
       toast.error('请选择文书类型');
       return;
     }
-    const toastId = toast.loading(`正在由 AI 起草综合关联了案情事实的《${docType}》...`);
+    const toastId = toast.loading(`正在由 AI 起草《${docType}》草稿...`);
     generate.mutate({ 
       caseId, 
       data: { 
@@ -56,7 +57,7 @@ export function DocumentGenerator({ caseId, onClose, onGenerated }: Props) {
       } 
     }, {
       onSuccess: (doc) => {
-        toast.success(`《${docType}》生成成功！可前往列表查看或修改`, { id: toastId });
+        toast.success(`《${docType}》草稿生成成功，请核验后再对外使用`, { id: toastId });
         setCustomReq('');
         setEvidenceStrategy('');
         setClaimStrategy('');
@@ -75,13 +76,14 @@ export function DocumentGenerator({ caseId, onClose, onGenerated }: Props) {
       <CardHeader className="bg-primary/5 pb-4">
         <CardTitle className="text-lg flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          智能法律文书生成
+          法律文书草稿生成
         </CardTitle>
         <CardDescription>
-          系统会自动带入您已填写的案件信息（原被告、诉求、前期 AI 分析的事实等）。您只需补充以下撰写策略。
+          系统会自动带入您已填写的案件信息（原被告、诉求、前期 AI 分析的事实等），用于起草可复核的文书初稿。
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 pt-6">
+        <LegalDisclaimer variant="document" />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>文书分类 <span className="text-destructive">*</span></Label>
@@ -169,7 +171,7 @@ export function DocumentGenerator({ caseId, onClose, onGenerated }: Props) {
 
         <div className="flex justify-end pt-2 border-t">
           <Button onClick={handleGenerate} disabled={generate.isPending} className="w-full sm:w-auto">
-            {generate.isPending ? <><Sparkles className="mr-2 h-4 w-4 animate-spin" />正在深度创作文书...</> : <><FileText className="mr-2 h-4 w-4" />一键生成 {docType}</>}
+            {generate.isPending ? <><Sparkles className="mr-2 h-4 w-4 animate-spin" />正在起草文书草稿...</> : <><FileText className="mr-2 h-4 w-4" />生成 {docType} 草稿</>}
           </Button>
         </div>
       </CardContent>

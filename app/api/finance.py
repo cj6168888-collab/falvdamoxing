@@ -1,5 +1,5 @@
 """
-案件财务 API - 费用记录、成本收益分析、胜诉概率评估
+案件财务 API - 费用记录、成本收益分析、诉讼风险评估
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -141,7 +141,7 @@ def get_cost_analysis(case_id: int, db: Session = Depends(get_db)):
 
 @router.get("/case/{case_id}/win-rate")
 def get_win_rate(case_id: int, db: Session = Depends(get_db)):
-    """获取胜诉概率评估"""
+    """获取诉讼风险评估"""
     try:
         overview = finance_service.get_finance_overview(db, case_id)
         return {
@@ -153,19 +153,19 @@ def get_win_rate(case_id: int, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取胜诉概率失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"获取诉讼风险评估失败: {str(e)}")
 
 
 @router.post("/case/{case_id}/win-rate")
 def assess_win_rate(case_id: int, force: bool = Query(False), db: Session = Depends(get_db)):
-    """重新评估胜诉概率"""
+    """重新评估诉讼风险"""
     try:
         result = finance_service.assess_win_rate(db, case_id, force=force)
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"评估胜诉概率失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"评估诉讼风险失败: {str(e)}")
 
 
 # ============ 统计 ============

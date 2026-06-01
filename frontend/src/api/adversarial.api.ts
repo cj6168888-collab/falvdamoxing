@@ -158,7 +158,7 @@ export interface FullAnalysisResponse {
 }
 
 /**
- * 一键生成完整对抗性分析报告
+ * 生成完整对抗性分析草稿
  * 注意：这是一个同步API调用，会等待LLM完成
  * 设置了5分钟超时，防止浏览器超时
  */

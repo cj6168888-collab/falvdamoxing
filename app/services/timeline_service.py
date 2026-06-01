@@ -268,7 +268,7 @@ class TimelineService:
             priority: 优先级 1-5
             required: 是否必须完成
             is_milestone: 是否是关键节点
-            ai_tip: AI律师提示
+            ai_tip: 法律 AI 助手提示
             checklist: 执行清单
             source: 来源（system/custom）
 

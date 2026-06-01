@@ -135,7 +135,7 @@ export function AdversarialPanel({ caseId }: Props) {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // 一键生成完整分析
+  // 生成完整分析草稿
   const handleGenerateFullAnalysis = async () => {
     if (!caseId || isGeneratingFull) return;
 

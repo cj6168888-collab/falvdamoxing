@@ -60,7 +60,7 @@ export function HearingRecord({ caseId }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-bold">出庭抗辩</h2>
+        <h2 className="text-lg font-bold">庭审辅助</h2>
         <Button size="sm" variant="outline"><Plus className="mr-2 h-4 w-4" />添加开庭记录</Button>
       </div>
 

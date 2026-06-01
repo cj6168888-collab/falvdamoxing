@@ -176,7 +176,7 @@ export function SuggestionCards({ suggestions, onCalculateAmount }: SuggestionCa
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">胜诉概率</span>
+              <span className="text-sm font-medium">裁判支持度参考</span>
               <span className="text-lg font-bold text-red-600">{suggestions.risk_assessment.win_probability}</span>
             </div>
             {suggestions.risk_assessment.key_risks.length > 0 && (

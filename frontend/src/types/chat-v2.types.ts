@@ -3,7 +3,7 @@
 export type IntentType = 
   | 'case_info'           // 案件信息查询
   | 'evidence_help'        // 证据帮助
-  | 'document_generate'    // 文书生成
+  | 'document_generate'    // 文书草稿
   | 'deadline_query'       // 期限查询
   | 'law_search'           // 法律检索
   | 'strategy_advice'      // 策略建议
@@ -84,7 +84,7 @@ export interface ChatTemplate {
 export const INTENT_LABELS: Record<IntentType, string> = {
   case_info: '案件信息',
   evidence_help: '证据帮助',
-  document_generate: '文书生成',
+  document_generate: '文书草稿',
   deadline_query: '期限查询',
   law_search: '法律检索',
   strategy_advice: '策略建议',

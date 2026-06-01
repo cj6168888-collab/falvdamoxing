@@ -8,7 +8,7 @@ export function AppealDocGenerator({ caseId: _caseId, onGenerate }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>上诉文书生成</CardTitle>
+        <CardTitle>上诉文书草稿</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <Button className="w-full" onClick={() => onGenerate('上诉状')}>

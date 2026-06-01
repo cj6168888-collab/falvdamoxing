@@ -226,7 +226,7 @@ export function CaseQuickAccessPanel({
       baseItems.push(
         {
           id: 'case-hearing',
-          label: '出庭抗辩',
+          label: '庭审辅助',
           icon: <Scale className="h-4 w-4" />,
           href: `/cases/${caseId}/hearing`,
         },

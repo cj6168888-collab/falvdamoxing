@@ -42,7 +42,7 @@ export function MobileBottomNav({ onOpenMenu }: MobileBottomNavProps) {
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
       <BottomTab to="/dashboard" icon={LayoutDashboard} label="工作台" />
       <BottomTab to="/cases" icon={Briefcase} label="案件" />
-      <BottomTab to={`/cases/${activeCaseId}/chat`} icon={MessageSquare} label="AI律师" />
+      <BottomTab to={`/cases/${activeCaseId}/chat`} icon={MessageSquare} label="法律 AI 助手" />
       <BottomTab to={`/cases/${activeCaseId}/evidence`} icon={Shield} label="证据" />
       <button
         onClick={onOpenMenu}

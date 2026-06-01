@@ -83,14 +83,14 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
           <div className="space-y-1">
             <MobileNavItem to="/dashboard" icon={LayoutDashboard} label="总览工作台" onClick={onClose} />
             <MobileNavItem to="/cases" icon={Briefcase} label="案件管理" onClick={onClose} />
-            <MobileNavItem to={`/cases/${activeCaseId}/chat`} icon={MessageSquare} label="AI律师" onClick={onClose} />
-            <MobileNavItem to={`/cases/${activeCaseId}/documents`} icon={FileText} label="文书生成" onClick={onClose} />
+            <MobileNavItem to={`/cases/${activeCaseId}/chat`} icon={MessageSquare} label="法律 AI 助手" onClick={onClose} />
+            <MobileNavItem to={`/cases/${activeCaseId}/documents`} icon={FileText} label="文书草稿" onClick={onClose} />
             <MobileNavItem to={`/cases/${activeCaseId}/evidence`} icon={Shield} label="证据管理" onClick={onClose} />
             <MobileNavItem to={`/evidence-graph/${activeCaseId}`} icon={Network} label="证据图谱" onClick={onClose} />
             <MobileNavItem to={`/evidence-guide/${activeCaseId}`} icon={ClipboardCheck} label="证据引导" onClick={onClose} />
-            <MobileNavItem to={`/cases/${activeCaseId}/analysis`} icon={TrendingUp} label="对抗分析" onClick={onClose} />
+            <MobileNavItem to={`/cases/${activeCaseId}/analysis`} icon={TrendingUp} label="诉讼风险分析" onClick={onClose} />
             <MobileNavItem to={`/insight/${activeCaseId}`} icon={BrainCircuit} label="增强分析" onClick={onClose} />
-            <MobileNavItem to={`/hearing/${activeCaseId}`} icon={Scale} label="出庭抗辩" onClick={onClose} />
+            <MobileNavItem to={`/hearing/${activeCaseId}`} icon={Scale} label="庭审辅助" onClick={onClose} />
             <MobileNavItem to={`/timeline/${activeCaseId}`} icon={Clock} label="时间把控" onClick={onClose} />
             <MobileNavItem to={`/appeal/${activeCaseId}`} icon={Gavel} label="上诉追踪" onClick={onClose} />
             <MobileNavItem to={`/execution/${activeCaseId}`} icon={Users} label="执行跟踪" onClick={onClose} />

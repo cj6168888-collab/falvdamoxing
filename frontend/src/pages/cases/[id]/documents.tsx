@@ -195,7 +195,7 @@ export default function CaseDocumentsPage() {
       setViewMode('chat');
       toast.success(`《${selectedTemplate.name}》已生成`);
     } catch (err) {
-      toast.error(getRequestErrorMessage(err, '文书生成失败'));
+      toast.error(getRequestErrorMessage(err, '文书草稿生成失败'));
     } finally {
       setIsGenerating(false);
     }
@@ -367,7 +367,7 @@ export default function CaseDocumentsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold">文书生成</h2>
+          <h2 className="text-xl font-bold">文书草稿</h2>
           <p className="text-sm text-muted-foreground">选择文书类型，AI 将基于案件信息自动生成</p>
         </div>
 

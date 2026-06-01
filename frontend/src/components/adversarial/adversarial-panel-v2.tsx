@@ -16,6 +16,7 @@ import {
   type VoicePrintConfig,
   type EmergencyOverrideConfig,
 } from '@/types/adversarial-v2.types';
+import { LegalDisclaimer } from '@/components/common/legal-disclaimer';
 import { 
   Volume2, 
   Mic, 
@@ -251,7 +252,7 @@ export function CrossExamination({
               {/* Vulnerabilities */}
               {active.vulnerabilities && active.vulnerabilities.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium mb-2 text-red-600">攻击点</h4>
+                  <h4 className="text-sm font-medium mb-2 text-red-600">质证重点</h4>
                   <ul className="space-y-1">
                     {active.vulnerabilities.map((v, i) => (
                       <li key={i} className="text-sm flex items-center gap-2">
@@ -604,7 +605,8 @@ export function AdversarialPanelV2({ caseId: _caseId }: AdversarialPanelV2Props)
     <div className="space-y-6">
       {/* Mode Selection */}
       <div>
-        <h2 className="text-lg font-bold mb-4">出庭抗辩辅助</h2>
+        <h2 className="text-lg font-bold mb-4">庭审辅助</h2>
+        <LegalDisclaimer variant="adversarial" compact />
         <ModeSelector currentMode={activeMode} onModeChange={setActiveMode} />
       </div>
 

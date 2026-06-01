@@ -1,5 +1,5 @@
 """
-案件财务服务 - 费用记录、成本收益分析、胜诉概率评估
+案件财务服务 - 费用记录、成本收益分析、诉讼风险评估
 """
 
 from typing import Dict, List, Optional
@@ -256,7 +256,7 @@ class FinanceService:
         }
 
     def assess_win_rate(self, db: Session, case_id: int, force: bool = False) -> Dict:
-        """AI 评估胜诉概率"""
+        """AI 评估诉讼风险和裁判支持度参考"""
         case = db.query(Case).filter(Case.id == case_id).first()
         if not case:
             raise ValueError("案件不存在")
@@ -281,7 +281,7 @@ class FinanceService:
             for e in evidence_items
         ]) if evidence_items else "暂无证据"
 
-        prompt = f"""请对以下案件进行胜诉概率评估。
+        prompt = f"""请对以下案件进行诉讼风险评估，并给出“裁判支持度参考”。
 
 【案件信息】
 - 案件名称：{case.title}
@@ -308,11 +308,11 @@ class FinanceService:
 
 本接口未接入权威类案检索。评估“判例支持”时只能基于常见裁判规则和待检索方向概括，不得输出具体法院案号、指导案例编号或虚构判例；如需具体类案，请写“需另行检索核验”。
 
-并给出综合胜诉概率（0-100%）和评估置信度（0-100%）。
+并给出综合裁判支持度参考（0-100%，仅为风险分析指标，不构成胜诉承诺）和评估置信度（0-100%）。
 
 请返回JSON格式：
 {{
-  "win_rate": 综合胜诉概率,
+  "win_rate": 综合裁判支持度参考,
   "confidence": 评估置信度,
   "factors": [
     {{"factor": "evidence_strength", "score": 分数, "weight": 权重, "analysis": "分析"}},
@@ -329,7 +329,7 @@ class FinanceService:
 }}"""
 
         result_text = llm_service.chat([
-            {"role": "system", "content": "你是一位资深法官，具有20年审判经验。请客观、公正地评估案件胜诉概率。返回纯JSON格式，不要包含其他文字。当前接口未接入权威类案检索，禁止编造具体法院案号、指导案例编号或判例。"},
+            {"role": "system", "content": "你是一位资深法官，具有20年审判经验。请客观、公正地评估案件诉讼风险和裁判支持度参考，严禁承诺胜诉结果。返回纯JSON格式，不要包含其他文字。当前接口未接入权威类案检索，禁止编造具体法院案号、指导案例编号或判例。"},
             {"role": "user", "content": prompt}
         ], model="qwen-plus")
 

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { MessageBubble, type SuggestionData } from '@/components/smart-chat/message-bubble';
 import { EvidencePanel } from '@/components/smart-chat/evidence-panel';
+import { LegalDisclaimer } from '@/components/common/legal-disclaimer';
 import {
   Loader2, Sparkles, FileText,
   Send, Download, FileDown,
@@ -682,7 +683,7 @@ export default function SmartChatPage() {
       setMessages(prev => prev.map(m => m.id === tempMsgId ? docMsg : m));
       toast.success(`《${docType}》已生成并保存`);
     } catch (err) {
-      const errorMsg = getRequestErrorMessage(err, '文书生成失败');
+      const errorMsg = getRequestErrorMessage(err, '文书草稿生成失败');
       toast.error(errorMsg);
       // Remove the temp message
       setMessages(prev => prev.filter(m => !m.id.startsWith('doc-gen-')));
@@ -750,7 +751,7 @@ export default function SmartChatPage() {
                 <Scale className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-medium text-teal-200">AI 律师工作台</p>
+                <p className="text-xs font-medium text-teal-200">法律工作辅助台</p>
                 <h1 className="text-xl font-bold">全案证据驱动分析</h1>
               </div>
             </div>
@@ -810,13 +811,14 @@ export default function SmartChatPage() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Briefcase className="h-5 w-5 text-teal-700" />
-                启动一次可复核的律师分析
+                启动一次可复核的法律工作分析
               </CardTitle>
               <CardDescription>
-                建议直接写明时间线、交易背景、对方行为、你想达成的结果。系统会结合全部证据链生成意见。
+                建议直接写明时间线、交易背景、对方行为、你想达成的结果。系统会结合全部证据链生成待核验分析。
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <LegalDisclaimer variant="analysis" />
               <div className="grid gap-2 sm:grid-cols-3">
                 {ROLE_OPTIONS.map((option) => (
                   <Button
@@ -969,7 +971,7 @@ export default function SmartChatPage() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <Scale className="h-3.5 w-3.5" />
-              <span>AI 律师 · 全案对话</span>
+              <span>法律 AI 助手 · 全案对话</span>
               <span>·</span>
               <span>{caseInfo?.cause || '待分析案由'}</span>
             </div>
@@ -997,7 +999,7 @@ export default function SmartChatPage() {
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/20 lg:hidden">
           <div className="flex items-center gap-2 text-sm">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="truncate">{caseInfo?.title || 'AI律师'} · {evidenceList.length} 份证据</span>
+            <span className="truncate">{caseInfo?.title || '法律 AI 助手'} · {evidenceList.length} 份证据</span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => setShowEvidenceDrawer(!showEvidenceDrawer)}>
             <Eye className="h-4 w-4 mr-1" />查看证据
@@ -1166,7 +1168,7 @@ export default function SmartChatPage() {
                 <option value="执行异议">执行异议申请书</option>
               </select>
               <Textarea value={followUpInput} onChange={(e) => setFollowUpInput(e.target.value)}
-                placeholder="追问 AI 律师：要求补充证据出处、重新按对方视角反驳、生成证据目录或文书..." className="min-h-[72px] resize-none" rows={2}
+                placeholder="追问法律 AI 助手：要求补充证据出处、重新按对方视角反驳、生成证据目录或文书草稿..." className="min-h-[72px] resize-none" rows={2}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleFollowUp(); } }} />
               <Button onClick={() => handleFollowUp()} disabled={isAnalyzing || isUploading || (!followUpInput.trim() && uploadedFiles.length === 0)} className="self-end bg-teal-700 hover:bg-teal-800">
                 {isAnalyzing || isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

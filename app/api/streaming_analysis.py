@@ -308,7 +308,7 @@ def _analyze_case_overview(task_id, task, case, db, results):
 2. 各方当事人的法律地位
 3. 关键时间节点
 4. 案件复杂程度评估
-5. 初步胜诉概率评估（必须客观，不夸大）"""
+5. 初步诉讼风险与裁判支持度参考（必须客观，不作胜诉承诺）"""
 
     try:
         result = llm_service.chat(prompt)
