@@ -9,18 +9,22 @@ describe('ScenarioPrediction', () => {
     { scenario: '败诉', probability: 10, description: '法院驳回全部诉求' },
   ]
 
-  it('renders scenario names', () => {
+  it('renders reviewable support-reference labels instead of outcome promises', () => {
     render(<ScenarioPrediction scenarios={mockScenarios} />)
-    expect(screen.getByText('胜诉')).toBeInTheDocument()
-    expect(screen.getByText('部分胜诉')).toBeInTheDocument()
-    expect(screen.getByText('败诉')).toBeInTheDocument()
+    expect(screen.getByText('裁判支持度参考')).toBeInTheDocument()
+    expect(screen.getByText('我方主张获较高支持')).toBeInTheDocument()
+    expect(screen.getByText('我方主张获部分支持')).toBeInTheDocument()
+    expect(screen.getByText('我方主张未获支持')).toBeInTheDocument()
+    expect(screen.queryByText('胜诉')).not.toBeInTheDocument()
+    expect(screen.queryByText('部分胜诉')).not.toBeInTheDocument()
+    expect(screen.queryByText('败诉')).not.toBeInTheDocument()
   })
 
-  it('displays probability percentages', () => {
+  it('displays support-reference percentages', () => {
     render(<ScenarioPrediction scenarios={mockScenarios} />)
-    expect(screen.getByText('60%')).toBeInTheDocument()
-    expect(screen.getByText('30%')).toBeInTheDocument()
-    expect(screen.getByText('10%')).toBeInTheDocument()
+    expect(screen.getByText('支持度参考 60%')).toBeInTheDocument()
+    expect(screen.getByText('支持度参考 30%')).toBeInTheDocument()
+    expect(screen.getByText('支持度参考 10%')).toBeInTheDocument()
   })
 
   it('shows scenario descriptions', () => {
@@ -38,11 +42,11 @@ describe('ScenarioPrediction', () => {
 
   it('shows empty state when no scenarios', () => {
     render(<ScenarioPrediction scenarios={[]} />)
-    expect(screen.getByText('暂无预测数据')).toBeInTheDocument()
+    expect(screen.getByText('暂无情景参考数据')).toBeInTheDocument()
   })
 
   it('shows empty state when scenarios is null', () => {
     render(<ScenarioPrediction scenarios={null as unknown as []} />)
-    expect(screen.getByText('暂无预测数据')).toBeInTheDocument()
+    expect(screen.getByText('暂无情景参考数据')).toBeInTheDocument()
   })
 })
