@@ -82,19 +82,19 @@ const enterpriseActions: ActionItem[] = [
   {
     title: '上传合同或函件',
     description: '先把原始材料放进系统，后续再做风险识别。',
-    route: '/cases/new',
+    route: '/cases/new?template=contract_review',
     icon: Upload,
   },
   {
     title: '整理欠款材料',
     description: '从合同、对账、付款和催告记录开始建立回款底稿。',
-    route: '/cases/new',
+    route: '/cases/new?template=debt_collection',
     icon: PiggyBank,
   },
   {
     title: '创建用工风险事项',
     description: '记录员工、时间、决定依据和已沟通内容。',
-    route: '/cases/new',
+    route: '/cases/new?template=labor_employment',
     icon: UsersRound,
   },
   {
@@ -149,13 +149,13 @@ const personalActions: ActionItem[] = [
   {
     title: '描述遇到的事',
     description: '不用专业术语，先把事情原样讲出来。',
-    route: '/cases/new',
+    route: '/cases/new?template=personal_general',
     icon: UserRound,
   },
   {
     title: '列出最担心的问题',
     description: '把害怕、疑问和对方说法拆成可判断的问题。',
-    route: '/cases/new',
+    route: '/cases/new?template=urgent_risk',
     icon: AlertTriangle,
   },
   {
