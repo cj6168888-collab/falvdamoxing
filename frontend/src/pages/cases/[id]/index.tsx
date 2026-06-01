@@ -24,6 +24,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels, type AudienceLabels } from '@/lib/audience-copy';
 
 const CaseOverviewPage = React.lazy(() => import('./overview'));
 const CasePartiesPage = React.lazy(() => import('./parties'));
@@ -41,24 +43,24 @@ const CaseAppealPage = React.lazy(() => import('./appeal'));
 
 const TABS: Array<{
   id: string;
-  label: string;
+  labelKey: keyof AudienceLabels;
   group: string;
   icon: LucideIcon;
   component: React.LazyExoticComponent<React.ComponentType<Record<string, never>>>;
 }> = [
-  { id: 'overview', label: '概览', group: '态势', icon: Briefcase, component: CaseOverviewPage },
-  { id: 'chat', label: '法律 AI 助手', group: '智能', icon: Bot, component: CaseChatPage },
-  { id: 'evidence', label: '证据链', group: '证据', icon: ShieldCheck, component: CaseEvidencePage },
-  { id: 'analysis', label: '诉讼风险分析', group: '策略', icon: LineChart, component: CaseAnalysisPage },
-  { id: 'reports', label: '报告', group: '输出', icon: FileText, component: CaseReportsPage },
-  { id: 'timeline', label: '时间线', group: '时控', icon: CalendarClock, component: CaseTimelinePage },
-  { id: 'letters', label: '函件', group: '沟通', icon: MessageSquareText, component: CaseLettersPage },
-  { id: 'documents', label: '文书', group: '输出', icon: Landmark, component: CaseDocumentsPage },
-  { id: 'parties', label: '当事人', group: '主体', icon: Network, component: CasePartiesPage },
-  { id: 'execution', label: '执行', group: '追踪', icon: Gavel, component: CaseExecutionPage },
-  { id: 'appeal', label: '上诉', group: '追踪', icon: Scale, component: CaseAppealPage },
-  { id: 'profile', label: '画像', group: '智能', icon: AlertTriangle, component: CaseProfilePage },
-  { id: 'folder', label: '文件夹', group: '证据', icon: FolderOpen, component: CaseEvidenceFolderPage },
+  { id: 'overview', labelKey: 'overviewTab', group: '态势', icon: Briefcase, component: CaseOverviewPage },
+  { id: 'chat', labelKey: 'chatTab', group: '智能', icon: Bot, component: CaseChatPage },
+  { id: 'evidence', labelKey: 'evidenceTab', group: '证据', icon: ShieldCheck, component: CaseEvidencePage },
+  { id: 'analysis', labelKey: 'analysisTab', group: '策略', icon: LineChart, component: CaseAnalysisPage },
+  { id: 'reports', labelKey: 'reportsTab', group: '输出', icon: FileText, component: CaseReportsPage },
+  { id: 'timeline', labelKey: 'timelineTab', group: '时控', icon: CalendarClock, component: CaseTimelinePage },
+  { id: 'letters', labelKey: 'lettersTab', group: '沟通', icon: MessageSquareText, component: CaseLettersPage },
+  { id: 'documents', labelKey: 'documentsTab', group: '输出', icon: Landmark, component: CaseDocumentsPage },
+  { id: 'parties', labelKey: 'partiesTab', group: '主体', icon: Network, component: CasePartiesPage },
+  { id: 'execution', labelKey: 'executionTab', group: '追踪', icon: Gavel, component: CaseExecutionPage },
+  { id: 'appeal', labelKey: 'appealTab', group: '追踪', icon: Scale, component: CaseAppealPage },
+  { id: 'profile', labelKey: 'profileTab', group: '智能', icon: AlertTriangle, component: CaseProfilePage },
+  { id: 'folder', labelKey: 'folderTab', group: '证据', icon: FolderOpen, component: CaseEvidenceFolderPage },
 ];
 
 function TabContentFallback() {
@@ -70,6 +72,8 @@ export default function CaseDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: caseData, isLoading } = useCaseDetail(id || '');
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const labels = getAudienceLabels(tenantType);
   const autoGenerate = useAutoGenerateReminders();
 
   useEffect(() => {
@@ -101,9 +105,9 @@ export default function CaseDetailPage() {
     navigate(`/cases/${id}/${value}`, { replace: true });
   };
 
-  const caseTitle = caseData?.title || `案件 #${id}`;
-  const statusLabel = caseData ? statusLabels[caseData.status] || caseData.status : '案件详情';
-  const caseMeta = caseData ? `${caseData.type || '民商事案件'} · ${statusLabel}` : '案件详情';
+  const caseTitle = caseData?.title || `${labels.caseNoun} #${id}`;
+  const statusLabel = caseData ? statusLabels[caseData.status] || caseData.status : `${labels.caseNoun}详情`;
+  const caseMeta = caseData ? `${caseData.type || labels.caseNoun} · ${statusLabel}` : `${labels.caseNoun}详情`;
   const evidenceCount = caseData?.evidenceCount || (caseTitle.includes('博凯升华') ? 177 : 0);
   const documentCount = caseData?.documentCount || 0;
   const deadlineCount = caseData?.deadlineCount || 0;
@@ -127,7 +131,7 @@ export default function CaseDetailPage() {
                   className="h-8 border-white/20 bg-white/10 px-2.5 text-white hover:bg-white/15 hover:text-white"
                 >
                   <ChevronLeft className="mr-1 h-4 w-4" />
-                  返回案件
+                  返回{labels.caseList}
                 </Button>
                 <span className="rounded-md border border-teal-300/30 bg-teal-300/10 px-2.5 py-1 text-xs font-medium text-teal-100">
                   {caseMeta}
@@ -140,15 +144,15 @@ export default function CaseDetailPage() {
                 {caseTitle}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-300">
-                <span>我方：{caseData?.plaintiff?.name || '待录入'}</span>
-                <span>对方：{caseData?.defendant?.name || '待录入'}</span>
-                <span>争议金额：{claimAmount}</span>
+                <span>{labels.plaintiffLabel}：{caseData?.plaintiff?.name || '待录入'}</span>
+                <span>{labels.defendantLabel}：{caseData?.defendant?.name || '待录入'}</span>
+                <span>{labels.amountLabel}：{claimAmount}</span>
               </div>
             </div>
             <div className="grid min-w-full grid-cols-2 gap-2 sm:min-w-[420px] sm:grid-cols-4">
-              <MetricTile label="证据链" value={`${evidenceCount}`} suffix="条" tone="teal" />
-              <MetricTile label="函件/文书" value={`${documentCount}`} suffix="份" tone="slate" />
-              <MetricTile label="期限提醒" value={`${deadlineCount}`} suffix="项" tone="amber" />
+              <MetricTile label={labels.evidenceTab} value={`${evidenceCount}`} suffix="条" tone="teal" />
+              <MetricTile label={labels.documentsTab} value={`${documentCount}`} suffix="份" tone="slate" />
+              <MetricTile label={labels.timelineTab} value={`${deadlineCount}`} suffix="项" tone="amber" />
               <MetricTile label="审计结果" value="0" suffix="缺陷" tone="green" />
             </div>
           </div>
@@ -158,8 +162,8 @@ export default function CaseDetailPage() {
           <aside className="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50 lg:border-b-0 lg:border-r">
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">案件工作流</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">法律 AI 助手协同面板</p>
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">{labels.detailWorkflowTitle}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{labels.chatTab}协同面板</p>
               </div>
               <Button
                 variant="outline"
@@ -182,7 +186,7 @@ export default function CaseDetailPage() {
                       className="h-10 justify-start gap-2 rounded-md border border-transparent px-3 text-left data-[state=active]:border-teal-200 data-[state=active]:bg-white data-[state=active]:text-teal-800 data-[state=active]:shadow-sm dark:data-[state=active]:border-teal-900 dark:data-[state=active]:bg-slate-950 dark:data-[state=active]:text-teal-200"
                     >
                       <Icon className="h-4 w-4 shrink-0" />
-                      <span className="min-w-0 flex-1 truncate">{tab.label}</span>
+                      <span className="min-w-0 flex-1 truncate">{labels[tab.labelKey]}</span>
                       <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                         {tab.group}
                       </span>
@@ -202,10 +206,10 @@ export default function CaseDetailPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">
-                      当前工作区：{TABS.find(t => t.id === activeTab)?.label || '概览'}
+                      当前工作区：{labels[TABS.find(t => t.id === activeTab)?.labelKey || 'overviewTab']}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                      围绕证据目录、时间线、诉讼风险分析和文书草稿组织案件材料，优先输出律师可复核的工作成果。
+                      {labels.detailWorkflowDescription}
                     </p>
                   </div>
                 </div>
@@ -216,7 +220,7 @@ export default function CaseDetailPage() {
                   下一步校验
                 </div>
                 <p className="leading-6">
-                  生成报告或风险推演后，重点检查是否绑定 177 条证据链、主体责任、停业节点、工资社保、保证金和信息服务费。
+                  生成报告或风险推演后，重点检查事实来源、材料依据、金额期限、主体关系和下一步行动是否逐项可复核。
                 </p>
               </div>
             </div>
@@ -226,7 +230,7 @@ export default function CaseDetailPage() {
                 <TabsList className="h-9 w-max justify-start bg-slate-100 p-1 dark:bg-slate-900">
           {TABS.map((tab) => (
                     <TabsTrigger key={tab.id} value={tab.id} className="h-7 px-3 text-xs">
-                      {tab.label}
+                      {labels[tab.labelKey]}
                     </TabsTrigger>
           ))}
         </TabsList>

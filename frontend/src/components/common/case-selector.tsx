@@ -6,6 +6,8 @@ interface CaseListHeaderProps {
   search: string;
   onSearchChange: (value: string) => void;
   onNewCase: () => void;
+  searchPlaceholder?: string;
+  newCaseLabel?: string;
   /** 进入批量操作模式 */
   onBatchMode?: () => void;
 }
@@ -14,6 +16,8 @@ export function CaseListHeader({
   search,
   onSearchChange,
   onNewCase,
+  searchPlaceholder = '搜索案件名称/当事人/案号...',
+  newCaseLabel = '新建案件',
   onBatchMode,
 }: CaseListHeaderProps) {
   return (
@@ -22,7 +26,7 @@ export function CaseListHeader({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="搜索案件名称/当事人/案号..."
+            placeholder={searchPlaceholder}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -47,7 +51,7 @@ export function CaseListHeader({
       </div>
       <Button onClick={onNewCase}>
         <Plus className="mr-2 h-4 w-4" />
-        新建案件
+        {newCaseLabel}
       </Button>
     </div>
   );

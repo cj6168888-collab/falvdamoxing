@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCaseDetail } from '@/hooks/use-case';
 import { useEvidenceCount } from '@/api/evidence.api';
 import { useParams } from 'react-router-dom';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels } from '@/lib/audience-copy';
 
 interface CasePanorama {
   execution_intelligence?: {
@@ -17,29 +19,31 @@ export default function CaseOverviewPage() {
   const { id } = useParams<{ id: string }>();
   const { data } = useCaseDetail(id || '');
   const { data: evidenceCount } = useEvidenceCount(id || '');
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const labels = getAudienceLabels(tenantType);
   const panorama = (data as typeof data & { panorama?: CasePanorama })?.panorama;
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <DataStat label="诉讼金额" value={data?.amount || 0} />
-        <DataStat label="证据项" value={data?.evidenceCount || evidenceCount || 0} />
+        <DataStat label={labels.amountLabel} value={data?.amount || 0} />
+        <DataStat label={labels.evidenceTab} value={data?.evidenceCount || evidenceCount || 0} />
         <DataStat label="财产线索" value={panorama?.execution_intelligence?.assets_discovered?.length || 0} />
         <DataStat label="庭审记录" value={0} />
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader><CardTitle>案件基础信息</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{labels.caseNoun}基础信息</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-sm text-muted-foreground">案件类型</p><p>{data?.type}</p></div>
+              <div><p className="text-sm text-muted-foreground">{labels.caseNoun}类型</p><p>{data?.type}</p></div>
               <div><p className="text-sm text-muted-foreground">当前状态</p><p className="font-medium text-blue-600">{data?.status}</p></div>
-              <div><p className="text-sm text-muted-foreground">原告/申请人</p><p>{data?.plaintiff?.name || '未记录'}</p></div>
-              <div><p className="text-sm text-muted-foreground">被告/被执行人</p><p>{data?.defendant?.name || '未记录'}</p></div>
+              <div><p className="text-sm text-muted-foreground">{labels.plaintiffLabel}</p><p>{data?.plaintiff?.name || '未记录'}</p></div>
+              <div><p className="text-sm text-muted-foreground">{labels.defendantLabel}</p><p>{data?.defendant?.name || '未记录'}</p></div>
             </div>
             {data?.description && (
               <div>
-                <p className="text-sm text-muted-foreground">案件描述</p>
+                <p className="text-sm text-muted-foreground">{labels.caseNoun}描述</p>
                 <p className="text-sm leading-relaxed">{data.description}</p>
               </div>
             )}

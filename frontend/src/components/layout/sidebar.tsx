@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useCurrentCase } from '@/contexts/use-current-case';
 import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels } from '@/lib/audience-copy';
 
 const CASE_ID_FALLBACK = '1';
 
@@ -44,23 +45,25 @@ function useCaseNavItems() {
   const { currentCaseId } = useCurrentCase();
   const activeCaseId = currentCaseId || CASE_ID_FALLBACK;
   const isPlatformAdmin = useAuthStore((s) => s.user?.is_platform_admin);
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const labels = getAudienceLabels(tenantType);
 
   const navItems: NavItem[] = [
     { icon: LayoutDashboard, label: '总览工作台', path: '/dashboard', key: 'dashboard' },
-    { icon: Briefcase, label: '案件管理', path: '/cases', key: 'cases' },
-    { icon: MessageSquare, label: '法律 AI 助手', path: `/cases/${activeCaseId}/chat`, key: 'ai-lawyer' },
-    { icon: FileText, label: '文书草稿', path: `/cases/${activeCaseId}/documents`, key: 'documents' },
-    { icon: Shield, label: '证据管理', path: `/cases/${activeCaseId}/evidence`, key: 'evidence' },
-    { icon: Network, label: '证据图谱', path: `/evidence-graph/${activeCaseId}`, key: 'evidence-graph' },
-    { icon: ClipboardCheck, label: '补证引导', path: `/evidence-guide/${activeCaseId}`, key: 'evidence-guide' },
-    { icon: TrendingUp, label: '诉讼风险分析', path: `/cases/${activeCaseId}/analysis`, key: 'analysis' },
-    { icon: BrainCircuit, label: '增强分析', path: `/insight/${activeCaseId}`, key: 'insight' },
-    { icon: History, label: '流式分析', path: `/analysis-history/${activeCaseId}`, key: 'streaming-analysis' },
-    { icon: Scale, label: '庭审辅助', path: `/hearing/${activeCaseId}`, key: 'hearing' },
-    { icon: Clock, label: '期限管理', path: `/timeline/${activeCaseId}`, key: 'timeline' },
-    { icon: Gavel, label: '进度追踪', path: `/progress/${activeCaseId}`, key: 'progress' },
-    { icon: ScaleIcon, label: '上诉追踪', path: `/appeal/${activeCaseId}`, key: 'appeal' },
-    { icon: Users, label: '执行跟踪', path: `/execution/${activeCaseId}`, key: 'execution' },
+    { icon: Briefcase, label: labels.caseList, path: '/cases', key: 'cases' },
+    { icon: MessageSquare, label: labels.chatTab, path: `/cases/${activeCaseId}/chat`, key: 'ai-lawyer' },
+    { icon: FileText, label: labels.documentsTab, path: `/cases/${activeCaseId}/documents`, key: 'documents' },
+    { icon: Shield, label: labels.evidenceTab, path: `/cases/${activeCaseId}/evidence`, key: 'evidence' },
+    { icon: Network, label: labels.evidenceGraph, path: `/evidence-graph/${activeCaseId}`, key: 'evidence-graph' },
+    { icon: ClipboardCheck, label: labels.evidenceGuide, path: `/evidence-guide/${activeCaseId}`, key: 'evidence-guide' },
+    { icon: TrendingUp, label: labels.analysisTab, path: `/cases/${activeCaseId}/analysis`, key: 'analysis' },
+    { icon: BrainCircuit, label: labels.insight, path: `/insight/${activeCaseId}`, key: 'insight' },
+    { icon: History, label: labels.streamingAnalysis, path: `/analysis-history/${activeCaseId}`, key: 'streaming-analysis' },
+    { icon: Scale, label: labels.hearing, path: `/hearing/${activeCaseId}`, key: 'hearing' },
+    { icon: Clock, label: labels.timelineTab, path: `/timeline/${activeCaseId}`, key: 'timeline' },
+    { icon: Gavel, label: labels.progress, path: `/progress/${activeCaseId}`, key: 'progress' },
+    { icon: ScaleIcon, label: labels.appealTab, path: `/appeal/${activeCaseId}`, key: 'appeal' },
+    { icon: Users, label: labels.executionTab, path: `/execution/${activeCaseId}`, key: 'execution' },
     { icon: Bell, label: '提醒中心', path: '/reminders', key: 'reminders' },
     {
       icon: Settings,
@@ -157,6 +160,8 @@ function NavItemComponent({ item, collapsed, level = 0 }: NavItemProps) {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const navItems = useCaseNavItems();
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const labels = getAudienceLabels(tenantType);
 
   return (
     <aside
@@ -172,7 +177,7 @@ export function Sidebar() {
               法律大模型
             </span>
             <span className="block text-xs text-slate-500 dark:text-slate-400">
-              法律工作辅助系统
+              {labels.workspaceSubtitle}
             </span>
           </div>
         )}

@@ -27,9 +27,13 @@ import {
   Check,
   Loader2,
 } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth.store';
+import { getAudienceLabels } from '@/lib/audience-copy';
 
 export default function CasesListPage() {
   const navigate = useNavigate();
+  const tenantType = useAuthStore((s) => s.tenant?.tenant_type);
+  const labels = getAudienceLabels(tenantType);
   const [search, setSearch] = useState('');
   const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -140,6 +144,8 @@ export default function CasesListPage() {
         search={search}
         onSearchChange={setSearch}
         onNewCase={() => navigate('/cases/new')}
+        searchPlaceholder={labels.searchPlaceholder}
+        newCaseLabel={labels.newCase}
         onBatchMode={() => setBatchMode(true)}
       />
 
@@ -164,7 +170,7 @@ export default function CasesListPage() {
             </div>
             {selectedCount > 0 && (
               <span className="text-sm text-muted-foreground">
-                已选择 {selectedCount} 个案件
+                已选择 {selectedCount} {labels.selectedUnit}
               </span>
             )}
           </div>
@@ -201,7 +207,7 @@ export default function CasesListPage() {
                 </Button>
               </>
             ) : (
-              <span className="text-sm text-muted-foreground">请选择要操作的案件</span>
+              <span className="text-sm text-muted-foreground">请选择要操作的{labels.caseNoun}</span>
             )}
 
             <div className="ml-2 border-l pl-2">
@@ -226,9 +232,9 @@ export default function CasesListPage() {
         )}
         {!isLoading && !isError && filteredCases.length === 0 && (
           <EmptyState
-            title="暂无案件"
-            description="点击新建案件开始"
-            actionLabel="新建案件"
+            title={labels.emptyTitle}
+            description={labels.emptyDescription}
+            actionLabel={labels.newCase}
             onAction={() => navigate('/cases/new')}
           />
         )}
@@ -241,6 +247,14 @@ export default function CasesListPage() {
                 selectable={batchMode}
                 selected={selectedIds.has(c.id)}
                 onSelect={handleSelect}
+                labels={{
+                  plaintiffLabel: labels.plaintiffLabel,
+                  defendantLabel: labels.defendantLabel,
+                  evidenceLabel: labels.evidenceTab,
+                  documentLabel: labels.documentsTab,
+                  deadlineLabel: labels.timelineTab,
+                  selectPrefix: `选择${labels.caseNoun}`,
+                }}
               />
             ))}
           </div>
@@ -253,7 +267,7 @@ export default function CasesListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>确认批量删除</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除选中的 {selectedCount} 个案件吗？此操作不可撤销。
+              确定要删除选中的 {selectedCount} {labels.selectedUnit}吗？此操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -285,7 +299,7 @@ export default function CasesListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>确认批量归档</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要将选中的 {selectedCount} 个案件归档吗？归档后的案件将标记为已关闭状态。
+              {labels.batchArchiveDescription.replace('{count}', String(selectedCount))}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

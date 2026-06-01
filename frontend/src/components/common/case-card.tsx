@@ -11,6 +11,14 @@ interface CaseCardProps {
   caseData: Case;
   urgency?: 'expired' | 'urgent' | 'warning' | 'normal';
   daysRemaining?: number;
+  labels?: {
+    plaintiffLabel: string;
+    defendantLabel: string;
+    evidenceLabel: string;
+    documentLabel: string;
+    deadlineLabel: string;
+    selectPrefix: string;
+  };
   selectable?: boolean;
   selected?: boolean;
   onSelect?: (caseId: string, selected: boolean) => void;
@@ -20,6 +28,14 @@ export function CaseCard({
   caseData,
   urgency = 'normal',
   daysRemaining = 30,
+  labels = {
+    plaintiffLabel: '原告/申请人',
+    defendantLabel: '被告/被执行人',
+    evidenceLabel: '证据',
+    documentLabel: '文书',
+    deadlineLabel: '截止日',
+    selectPrefix: '选择案件',
+  },
   selectable = false,
   selected = false,
   onSelect,
@@ -66,7 +82,7 @@ export function CaseCard({
                 <Checkbox
                   checked={selected}
                   onCheckedChange={handleCheckboxChange}
-                  aria-label={`选择案件 ${caseData.title}`}
+                  aria-label={`${labels.selectPrefix} ${caseData.title}`}
                 />
               </div>
             )}
@@ -79,12 +95,12 @@ export function CaseCard({
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          {caseData.plaintiff?.name} vs {caseData.defendant?.name}
+          {labels.plaintiffLabel}：{caseData.plaintiff?.name || '未记录'} · {labels.defendantLabel}：{caseData.defendant?.name || '未记录'}
         </p>
         <div className="mt-2 flex items-center gap-2">
-          <LinkBadge count={caseData.evidenceCount} label="证据" />
-          <LinkBadge count={caseData.documentCount} label="文书" />
-          <LinkBadge count={caseData.deadlineCount} label="截止日" />
+          <LinkBadge count={caseData.evidenceCount} label={labels.evidenceLabel} />
+          <LinkBadge count={caseData.documentCount} label={labels.documentLabel} />
+          <LinkBadge count={caseData.deadlineCount} label={labels.deadlineLabel} />
         </div>
         {caseData.amount && (
           <p className="mt-2 text-sm font-medium">¥{caseData.amount.toLocaleString()}</p>
