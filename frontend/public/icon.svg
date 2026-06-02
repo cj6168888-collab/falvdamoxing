@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="法律大模型辅助系统">
+  <rect width="512" height="512" rx="112" fill="#162033"/>
+  <path d="M256 96 142 138v96c0 86 48 139 114 178 66-39 114-92 114-178v-96L256 96Z" fill="#0f766e"/>
+  <path d="M256 128 174 158v75c0 63 33 104 82 136 49-32 82-73 82-136v-75l-82-30Z" fill="#f8fafc"/>
+  <path d="M256 173v113" stroke="#162033" stroke-width="22" stroke-linecap="round"/>
+  <path d="M194 216h124" stroke="#162033" stroke-width="22" stroke-linecap="round"/>
+  <path d="M218 216 185 286h66l-33-70Z" fill="#0f766e"/>
+  <path d="M314 216 281 286h66l-33-70Z" fill="#0f766e"/>
+  <path d="M212 334h112" stroke="#b45309" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="410" cy="116" r="34" fill="#f8fafc"/>
+  <path d="M394 116h32M410 100v32" stroke="#0f766e" stroke-width="12" stroke-linecap="round"/>
+</svg>
