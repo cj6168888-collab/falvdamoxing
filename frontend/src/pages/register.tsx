@@ -1,16 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Scale, Eye, EyeOff, ArrowRight, Building2, Briefcase, UserRound, ArrowLeft, MonitorDown, Shield, Zap, HardDrive } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, MonitorDown } from 'lucide-react';
+import { ApiError } from '@/api/client';
+import { authApi } from '@/api/auth.api';
+import { BrandMark, ProductPreview } from '@/components/marketing/brand-mark';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { authApi } from '@/api/auth.api';
+import {
+  audienceFromSlug,
+  audiencePublicCopy,
+  audienceSlugs,
+  type PublicAudience,
+} from '@/lib/public-site-copy';
 import { useAuthStore } from '@/stores/auth.store';
-import { ApiError } from '@/api/client';
-import type { TenantType } from '@/types/auth';
 
 export default function RegisterPage() {
+  const { audienceSlug } = useParams();
+  const initialAudience = audienceFromSlug(audienceSlug) || 'law_firm';
+  const [audience, setAudience] = useState<PublicAudience>(initialAudience);
+  const copy = audiencePublicCopy[audience];
   const [phone, setPhone] = useState('');
   const [smsCode, setSmsCode] = useState('');
   const [username, setUsername] = useState('');
@@ -19,7 +28,6 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [tenantName, setTenantName] = useState('');
-  const [tenantType, setTenantType] = useState<TenantType>('law_firm');
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -28,14 +36,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const register = useAuthStore((s) => s.register);
-  const tenantNameLabel =
-    tenantType === 'law_firm' ? '律所名称' : tenantType === 'enterprise' ? '企业名称' : '个人空间名称';
-  const tenantNamePlaceholder =
-    tenantType === 'law_firm'
-      ? '例如：甲鼎律师事务所'
-      : tenantType === 'enterprise'
-        ? '例如：XX科技有限公司'
-        : '例如：张三的法律后盾';
+
+  useEffect(() => {
+    const nextAudience = audienceFromSlug(audienceSlug);
+    if (nextAudience) setAudience(nextAudience);
+  }, [audienceSlug]);
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -45,29 +50,17 @@ export default function RegisterPage() {
 
   const normalizePhone = () => phone.replace(/[\s\-()]/g, '').replace(/^\+86/, '').replace(/^86(?=1\d{10}$)/, '');
 
-  const validateForm = (): string => {
+  const validateForm = () => {
     const normalizedPhone = normalizePhone();
-    if (!/^1[3-9]\d{9}$/.test(normalizedPhone)) {
-      return '请输入有效的手机号';
-    }
-    if (!/^\d{4,8}$/.test(smsCode.trim())) {
-      return '请输入短信验证码';
-    }
+    if (!/^1[3-9]\d{9}$/.test(normalizedPhone)) return '请输入有效的手机号';
+    if (!/^\d{4,8}$/.test(smsCode.trim())) return '请输入短信验证码';
     if (username.trim() && !/^[a-zA-Z0-9_]{3,100}$/.test(username.trim())) {
-      return '用户名只能包含3-100位字母、数字和下划线';
+      return '用户名只能包含 3-100 位字母、数字和下划线';
     }
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      return '请输入有效的邮箱地址';
-    }
-    if (!password || password.length < 6) {
-      return '密码至少需要6个字符';
-    }
-    if (password !== confirmPassword) {
-      return '两次输入的密码不一致';
-    }
-    if (!tenantName.trim()) {
-      return tenantType === 'personal' ? '请设置个人空间名称' : '请输入组织名称';
-    }
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return '请输入有效的邮箱地址';
+    if (!password || password.length < 6) return '密码至少需要 6 个字符';
+    if (password !== confirmPassword) return '两次输入的密码不一致';
+    if (!tenantName.trim()) return audience === 'personal' ? '请设置个人空间名称' : '请输入组织名称';
     return '';
   };
 
@@ -87,18 +80,14 @@ export default function RegisterPage() {
       setCountdown(Math.max(1, Math.ceil(response.expires_in > 60 ? 60 : response.expires_in)));
       setSmsHint(response.debug_code ? `验证码已发送，开发验证码：${response.debug_code}` : response.message);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message || '验证码发送失败');
-      } else {
-        setError('网络错误，请检查网络连接后重试');
-      }
+      setError(err instanceof ApiError ? err.message || '验证码发送失败' : '网络错误，请检查连接后重试');
     } finally {
       setIsSendingCode(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -107,7 +96,6 @@ export default function RegisterPage() {
 
     setError('');
     setIsLoading(true);
-
     try {
       await register({
         phone: normalizePhone(),
@@ -117,22 +105,18 @@ export default function RegisterPage() {
         password,
         full_name: fullName.trim() || undefined,
         tenant_name: tenantName.trim(),
-        tenant_type: tenantType,
+        tenant_type: audience,
       });
       navigate('/dashboard');
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 400) {
-          const detail =
-            err.details && typeof err.details === 'object' && 'detail' in err.details
-              ? String((err.details as { detail?: unknown }).detail || '')
-              : '';
-          setError(detail || err.message || '注册失败');
-        } else {
-          setError(err.message || '注册失败，请重试');
-        }
+        const detail =
+          err.details && typeof err.details === 'object' && 'detail' in err.details
+            ? String((err.details as { detail?: unknown }).detail || '')
+            : '';
+        setError(detail || err.message || '注册失败，请重试');
       } else {
-        setError('网络错误，请检查网络连接后重试');
+        setError('网络错误，请检查连接后重试');
       }
     } finally {
       setIsLoading(false);
@@ -140,282 +124,126 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-900 dark:to-slate-800">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-              <Scale className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
+    <main className="grid min-h-[100dvh] bg-[#F8FAFC] text-[#162033] lg:grid-cols-[1fr_1fr]">
+      <section className="hidden border-r border-slate-200 bg-white px-10 py-8 lg:flex lg:flex-col">
+        <BrandMark />
+        <div className="my-auto max-w-xl">
+          <span className={`inline-flex rounded-full border px-4 py-2 text-sm font-medium ${copy.accentClass}`}>
+            {copy.eyebrow}
+          </span>
+          <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-normal">{copy.registerTitle}</h1>
+          <p className="mt-4 text-lg leading-8 text-slate-600">{copy.subhead}</p>
+          <div className="mt-8">
+            <ProductPreview title={copy.previewTitle} items={copy.previewItems} />
           </div>
-          <CardTitle className="text-2xl font-bold">创建账号</CardTitle>
-          <CardDescription>使用手机号验证后创建组织账号</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                {error}
-              </div>
-            )}
-            {smsHint && (
-              <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                {smsHint}
-              </div>
-            )}
+        </div>
+      </section>
 
-            <div className="space-y-2">
-              <Label>账户类型</Label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <button
-                  type="button"
-                  onClick={() => setTenantType('law_firm')}
-                  className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
-                    tenantType === 'law_firm'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <Building2
-                    size={24}
-                    className={tenantType === 'law_firm' ? 'text-blue-500' : 'text-gray-400'}
-                  />
-                  <span className="text-sm font-medium">律所</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">诉讼案件管理、证据分析</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTenantType('enterprise')}
-                  className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
-                    tenantType === 'enterprise'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <Briefcase
-                    size={24}
-                    className={tenantType === 'enterprise' ? 'text-blue-500' : 'text-gray-400'}
-                  />
-                  <span className="text-sm font-medium">企业</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">靠谱法律顾问、经营风控</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTenantType('personal')}
-                  className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
-                    tenantType === 'personal'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <UserRound
-                    size={24}
-                    className={tenantType === 'personal' ? 'text-blue-500' : 'text-gray-400'}
-                  />
-                  <span className="text-sm font-medium">个人</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">法律后盾、安心行动</span>
-                </button>
-              </div>
+      <section className="flex items-center justify-center px-4 py-8 sm:px-6">
+        <div className="w-full max-w-lg">
+          <div className="mb-8 lg:hidden">
+            <BrandMark />
+          </div>
+          <Link to={`/${copy.slug}`} className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#0F766E]">
+            <ArrowLeft className="h-4 w-4" />
+            返回{copy.label}入口
+          </Link>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold">{copy.registerTitle}</h2>
+              <p className="mt-2 text-sm text-slate-500">手机号验证后创建空间，后续可继续邀请团队成员。</p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">手机号</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="请输入手机号"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                disabled={isLoading}
-                autoComplete="tel"
-              />
+            <div className="mb-5 grid grid-cols-3 gap-2">
+              {Object.values(audiencePublicCopy).map((item) => {
+                const Icon = item.icon;
+                const active = audience === item.type;
+                return (
+                  <button
+                    key={item.type}
+                    type="button"
+                    onClick={() => setAudience(item.type)}
+                    className={`rounded-xl border p-3 text-left text-sm transition ${
+                      active ? 'border-teal-300 bg-teal-50 text-teal-800' : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                    }`}
+                  >
+                    <Icon className="mb-2 h-4 w-4" />
+                    {item.label}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="smsCode">短信验证码</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="smsCode"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="请输入验证码"
-                  value={smsCode}
-                  onChange={(e) => setSmsCode(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="one-time-code"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleSendCode}
-                  disabled={isSendingCode || countdown > 0 || isLoading}
-                  className="w-32 shrink-0"
-                >
-                  {countdown > 0 ? `${countdown}s` : isSendingCode ? '发送中' : '获取验证码'}
-                </Button>
-              </div>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+              {smsHint && <div className="rounded-lg bg-teal-50 p-3 text-sm text-teal-700">{smsHint}</div>}
 
-            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="username">用户名（选填）</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="字母/数字/下划线"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="username"
-                />
+                <Label htmlFor="phone">手机号</Label>
+                <Input id="phone" type="tel" placeholder="请输入手机号" value={phone} onChange={(event) => setPhone(event.target.value)} disabled={isLoading} autoComplete="tel" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fullName">姓名（选填）</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="您的真实姓名"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  disabled={isLoading}
-                />
+                <Label htmlFor="smsCode">短信验证码</Label>
+                <div className="flex gap-2">
+                  <Input id="smsCode" type="text" inputMode="numeric" placeholder="请输入验证码" value={smsCode} onChange={(event) => setSmsCode(event.target.value)} disabled={isLoading} autoComplete="one-time-code" />
+                  <Button type="button" variant="outline" onClick={handleSendCode} disabled={isSendingCode || countdown > 0 || isLoading} className="w-32 shrink-0">
+                    {countdown > 0 ? `${countdown}s` : isSendingCode ? '发送中' : '获取验证码'}
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">邮箱（选填）</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                autoComplete="email"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tenantName">{tenantNameLabel}</Label>
-              <Input
-                id="tenantName"
-                type="text"
-                placeholder={tenantNamePlaceholder}
-                value={tenantName}
-                onChange={(e) => setTenantName(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">密码</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="至少6个字符"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="username">用户名（选填）</Label>
+                  <Input id="username" type="text" placeholder="字母/数字/下划线" value={username} onChange={(event) => setUsername(event.target.value)} disabled={isLoading} autoComplete="username" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">姓名（选填）</Label>
+                  <Input id="fullName" type="text" placeholder="你的真实姓名" value={fullName} onChange={(event) => setFullName(event.target.value)} disabled={isLoading} />
+                </div>
               </div>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">邮箱（选填）</Label>
+                <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(event) => setEmail(event.target.value)} disabled={isLoading} autoComplete="email" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tenantName">{copy.workspaceLabel}</Label>
+                <Input id="tenantName" type="text" placeholder={copy.workspacePlaceholder} value={tenantName} onChange={(event) => setTenantName(event.target.value)} disabled={isLoading} />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="password">密码</Label>
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="至少 6 个字符" value={password} onChange={(event) => setPassword(event.target.value)} disabled={isLoading} autoComplete="new-password" className="pr-10" />
+                    <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" tabIndex={-1} aria-label={showPassword ? '隐藏密码' : '显示密码'}>
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">确认密码</Label>
+                  <Input id="confirmPassword" type="password" placeholder="再次输入密码" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} disabled={isLoading} autoComplete="new-password" />
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-[#0F766E] hover:bg-[#115E59]" disabled={isLoading}>
+                {isLoading ? '创建账号中...' : copy.registerTitle}
+                {!isLoading && <ArrowRight size={16} className="ml-2" />}
+              </Button>
+            </form>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">确认密码</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="再次输入密码"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
-                autoComplete="new-password"
-              />
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  创建账号中...
-                </>
-              ) : (
-                <>
-                  创建账号
-                  <ArrowRight size={16} className="ml-2" />
-                </>
-              )}
-            </Button>
-
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-6 text-center text-sm text-slate-500">
               已有账号？{' '}
-              <Link
-                to="/login"
-                className="flex items-center justify-center gap-1 font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                <ArrowLeft size={14} />
+              <Link to={`/login/${audienceSlugs[audience]}`} className="font-medium text-[#0F766E] hover:text-[#115E59]">
                 返回登录
               </Link>
             </p>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Windows 客户端下载 */}
-      <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-950/30 dark:to-blue-950/30 dark:border-teal-900">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MonitorDown className="h-5 w-5 text-teal-600" />
-            Windows 桌面客户端
-          </CardTitle>
-          <CardDescription>
-            下载安装到本地，数据更安全，体验更流畅
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-3 mb-4">
-            <div className="flex items-start gap-2 text-sm">
-              <Shield className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">证据本地存储<br />不上传不共享</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Zap className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">内嵌本地AI<br />离线也能分析</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm">
-              <HardDrive className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">单机部署<br />无需服务器</span>
-            </div>
           </div>
-          <div className="flex gap-3 items-center">
-            <a
-              href="/downloads/LegalAI-Windows-Client-v2.1.0.zip"
-              className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
-            >
-              <MonitorDown size={18} />
+
+          <a href="/downloads/LegalAI-Windows-Client-v2.1.0.zip" className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 hover:border-teal-300 hover:text-[#0F766E]">
+            <MonitorDown className="h-4 w-4" />
             下载 Windows 客户端
           </a>
-            <span className="text-xs text-gray-400">v2.1.0 · 安装包+说明书 · Win10/11</span>
-          </div>
-          <p className="mt-2 text-xs text-gray-400">
-            下载后解压 zip，先阅读使用说明书，再双击安装程序安装。
-          </p>
-          <p className="mt-3 text-xs text-gray-400">
-            支持 Windows 10/11。首次安装后，桌面快捷方式一键启动。
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }

@@ -1,10 +1,10 @@
 {
-  "name": "法律案件追踪系统",
+  "name": "法律大模型辅助系统",
   "short_name": "法律大模型",
-  "description": "AI驱动的智能法律案件管理系统",
+  "description": "可复核的法律 AI 工作底稿系统",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#f8fafc",
   "theme_color": "#0f766e",
   "orientation": "portrait-primary",
   "icons": [

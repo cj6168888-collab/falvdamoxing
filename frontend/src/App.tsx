@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { AppShell } from './components/layout/app-shell';
+import LandingPage from './pages/landing';
+import AudienceLandingPage from './pages/audience-landing';
 import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import ForgotPasswordPage from './pages/forgot-password';
@@ -71,6 +73,47 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const protectedRoutes = (
+  <>
+    <Route path="dashboard" element={<Dashboard />} />
+    <Route path="cases" element={<CasesList />} />
+    <Route path="cases/new" element={<CaseNew />} />
+    <Route path="cases/:id" element={<CaseDetail />} />
+    <Route path="cases/:id/overview" element={<CaseDetail />} />
+    <Route path="cases/:id/parties" element={<CaseDetail />} />
+    <Route path="cases/:id/chat" element={<CaseDetail />} />
+    <Route path="cases/:id/evidence" element={<CaseDetail />} />
+    <Route path="cases/:id/documents" element={<CaseDetail />} />
+    <Route path="cases/:id/analysis" element={<CaseDetail />} />
+    <Route path="cases/:id/letters" element={<CaseDetail />} />
+    <Route path="cases/:id/profile" element={<CaseDetail />} />
+    <Route path="cases/:id/reports" element={<CaseDetail />} />
+    <Route path="cases/:id/folder" element={<CaseDetail />} />
+    <Route path="cases/:id/timeline" element={<CaseDetail />} />
+    <Route path="cases/:id/execution" element={<CaseDetail />} />
+    <Route path="cases/:id/appeal" element={<CaseDetail />} />
+    <Route path="evidence-graph/:caseId" element={<EvidenceGraph />} />
+    <Route path="evidence-guide/:caseId" element={<EvidenceGuide />} />
+    <Route path="timeline/:caseId" element={<Timeline />} />
+    <Route path="documents/:caseId" element={<Documents />} />
+    <Route path="adversarial/:caseId" element={<Adversarial />} />
+    <Route path="senior-analysis/:caseId" element={<SeniorAnalysis />} />
+    <Route path="hearing/:caseId" element={<Hearing />} />
+    <Route path="progress/:caseId" element={<Progress />} />
+    <Route path="execution/:caseId" element={<Execution />} />
+    <Route path="appeal/:caseId" element={<Appeal />} />
+    <Route path="qa/:caseId" element={<QA />} />
+    <Route path="meeting/:caseId" element={<Meeting />} />
+    <Route path="reminders" element={<Reminders />} />
+    <Route path="settings/api-keys" element={<ApiKeyConfig />} />
+    <Route path="settings/tenant" element={<TenantPage />} />
+    <Route path="platform" element={<PlatformAdmin />} />
+    <Route path="analysis-history/:caseId" element={<AnalysisHistory />} />
+    <Route path="smart-chat/:caseId" element={<SmartChat />} />
+    <Route path="insight/:caseId" element={<Insight />} />
+  </>
+);
+
 function App() {
   return (
     <>
@@ -78,11 +121,24 @@ function App() {
       <CaseProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/:audienceSlug" element={<AudienceLandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/login/:audienceSlug" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/register/:audienceSlug" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route
-              path="/"
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              {protectedRoutes}
+            </Route>
+            <Route
+              path="/app"
               element={
                 <ProtectedRoute>
                   <AppShell />
@@ -90,44 +146,8 @@ function App() {
               }
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="cases" element={<CasesList />} />
-              <Route path="cases/new" element={<CaseNew />} />
-              <Route path="cases/:id" element={<CaseDetail />} />
-              <Route path="cases/:id/overview" element={<CaseDetail />} />
-              <Route path="cases/:id/parties" element={<CaseDetail />} />
-              <Route path="cases/:id/chat" element={<CaseDetail />} />
-              <Route path="cases/:id/evidence" element={<CaseDetail />} />
-              <Route path="cases/:id/documents" element={<CaseDetail />} />
-              <Route path="cases/:id/analysis" element={<CaseDetail />} />
-              <Route path="cases/:id/letters" element={<CaseDetail />} />
-              <Route path="cases/:id/profile" element={<CaseDetail />} />
-              <Route path="cases/:id/reports" element={<CaseDetail />} />
-              <Route path="cases/:id/folder" element={<CaseDetail />} />
-              <Route path="cases/:id/timeline" element={<CaseDetail />} />
-              <Route path="cases/:id/execution" element={<CaseDetail />} />
-              <Route path="cases/:id/appeal" element={<CaseDetail />} />
-              <Route path="evidence-graph/:caseId" element={<EvidenceGraph />} />
-              <Route path="evidence-guide/:caseId" element={<EvidenceGuide />} />
-              <Route path="timeline/:caseId" element={<Timeline />} />
-              <Route path="documents/:caseId" element={<Documents />} />
-              <Route path="adversarial/:caseId" element={<Adversarial />} />
-              <Route path="senior-analysis/:caseId" element={<SeniorAnalysis />} />
-              <Route path="hearing/:caseId" element={<Hearing />} />
-              <Route path="progress/:caseId" element={<Progress />} />
-              <Route path="execution/:caseId" element={<Execution />} />
-              <Route path="appeal/:caseId" element={<Appeal />} />
-              <Route path="qa/:caseId" element={<QA />} />
-              <Route path="meeting/:caseId" element={<Meeting />} />
-              <Route path="reminders" element={<Reminders />} />
-              <Route path="settings/api-keys" element={<ApiKeyConfig />} />
-              <Route path="settings/tenant" element={<TenantPage />} />
-              <Route path="platform" element={<PlatformAdmin />} />
-              <Route path="analysis-history/:caseId" element={<AnalysisHistory />} />
-              <Route path="smart-chat/:caseId" element={<SmartChat />} />
-              <Route path="insight/:caseId" element={<Insight />} />
             </Route>
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </CaseProvider>

@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Scale, Eye, EyeOff, ArrowRight, MonitorDown, Shield, Zap, HardDrive } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, MonitorDown } from 'lucide-react';
+import { ApiError } from '@/api/client';
+import { BrandMark, ProductPreview } from '@/components/marketing/brand-mark';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { audienceFromSlug, audiencePublicCopy } from '@/lib/public-site-copy';
 import { useAuthStore } from '@/stores/auth.store';
-import { ApiError } from '@/api/client';
 
 export default function LoginPage() {
+  const { audienceSlug } = useParams();
+  const audience = audienceFromSlug(audienceSlug) || 'law_firm';
+  const copy = audiencePublicCopy[audience];
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,23 +21,21 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError('');
+
+    if (!username.trim()) {
+      setError('请输入手机号、用户名或邮箱');
+      return;
+    }
+    if (!password) {
+      setError('请输入密码');
+      return;
+    }
+
     setIsLoading(true);
-
     try {
-      if (!username.trim()) {
-        setError('请输入手机号、用户名或邮箱');
-        setIsLoading(false);
-        return;
-      }
-      if (!password) {
-        setError('请输入密码');
-        setIsLoading(false);
-        return;
-      }
-
       await login(username.trim(), password);
       navigate('/dashboard');
     } catch (err) {
@@ -46,7 +48,7 @@ export default function LoginPage() {
           setError(err.message || '登录失败，请重试');
         }
       } else {
-        setError('网络错误，请检查网络连接后重试');
+        setError('网络错误，请检查连接后重试');
       }
     } finally {
       setIsLoading(false);
@@ -54,137 +56,105 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 dark:from-slate-900 dark:to-slate-800">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-              <Scale className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
+    <main className="grid min-h-[100dvh] bg-[#F8FAFC] text-[#162033] lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="hidden border-r border-slate-200 bg-white px-10 py-8 lg:flex lg:flex-col">
+        <BrandMark />
+        <div className="my-auto max-w-xl">
+          <span className={`inline-flex rounded-full border px-4 py-2 text-sm font-medium ${copy.accentClass}`}>
+            {copy.eyebrow}
+          </span>
+          <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-normal">{copy.loginTitle}</h1>
+          <p className="mt-4 text-lg leading-8 text-slate-600">{copy.subhead}</p>
+          <div className="mt-8">
+            <ProductPreview title={copy.previewTitle} items={copy.previewItems} />
           </div>
-          <CardTitle className="text-2xl font-bold">法律大模型辅助系统</CardTitle>
-          <CardDescription>请输入手机号、用户名或邮箱登录</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="username">手机号 / 用户名 / 邮箱</Label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="请输入手机号、用户名或邮箱"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                disabled={isLoading}
-                autoFocus
-              />
+        </div>
+      </section>
+
+      <section className="flex items-center justify-center px-4 py-8 sm:px-6">
+        <div className="w-full max-w-md">
+          <div className="mb-8 flex items-center justify-between lg:hidden">
+            <BrandMark />
+          </div>
+          <Link to={`/${copy.slug}`} className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#0F766E]">
+            <ArrowLeft className="h-4 w-4" />
+            返回{copy.label}入口
+          </Link>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold">{copy.loginTitle}</h2>
+              <p className="mt-2 text-sm text-slate-500">请输入账号信息，进入你的工作空间。</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">密码</Label>
-              <div className="relative">
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+              <div className="space-y-2">
+                <Label htmlFor="username">手机号 / 用户名 / 邮箱</Label>
                 <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="请输入密码"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="请输入手机号、用户名或邮箱"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  autoComplete="username"
                   disabled={isLoading}
-                  className="pr-10"
+                  autoFocus
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
               </div>
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  登录中...
-                </>
-              ) : (
-                <>
-                  登录
-                  <ArrowRight size={16} className="ml-2" />
-                </>
-              )}
-            </Button>
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-              还没有账号？{' '}
-              <Link
-                to="/register"
-                className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                立即注册
-              </Link>
-            </p>
-            <p className="text-center text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
+              <div className="space-y-2">
+                <Label htmlFor="password">密码</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="请输入密码"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    tabIndex={-1}
+                    aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-[#0F766E] hover:bg-[#115E59]" disabled={isLoading}>
+                {isLoading ? '登录中...' : '登录'}
+                {!isLoading && <ArrowRight size={16} className="ml-2" />}
+              </Button>
+            </form>
+
+            <div className="mt-6 space-y-3 text-center text-sm">
+              <p className="text-slate-500">
+                还没有账号？{' '}
+                <Link to={`/register/${copy.slug}`} className="font-medium text-[#0F766E] hover:text-[#115E59]">
+                  {copy.registerTitle}
+                </Link>
+              </p>
+              <Link to="/forgot-password" className="inline-flex font-medium text-slate-500 hover:text-[#0F766E]">
                 忘记密码？
               </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-950/30 dark:to-blue-950/30 dark:border-teal-900">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MonitorDown className="h-5 w-5 text-teal-600" />
-            Windows 桌面客户端
-          </CardTitle>
-          <CardDescription>
-            下载安装到本地，数据更安全，体验更流畅
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-3 mb-4">
-            <div className="flex items-start gap-2 text-sm">
-              <Shield className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">证据本地存储<br />不上传不共享</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Zap className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">内嵌本地AI<br />离线也能分析</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm">
-              <HardDrive className="h-4 w-4 text-teal-500 mt-0.5 shrink-0" />
-              <span className="text-gray-600 dark:text-gray-400">单机部署<br />无需服务器</span>
             </div>
           </div>
-          <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-            推荐使用网页版，无需安装。如需桌面快捷方式，请下载客户端。
-          </p>
+
           <a
             href="/downloads/LegalAI-Windows-Client-v2.1.0.zip"
-            className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-6 py-3 text-white hover:bg-teal-800 transition-colors font-medium"
+            className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 hover:border-teal-300 hover:text-[#0F766E]"
           >
-            <MonitorDown size={18} />
+            <MonitorDown className="h-4 w-4" />
             下载 Windows 客户端
           </a>
-          <span className="ml-3 text-xs text-gray-400">v2.1.0 · 安装包+说明书 · Win10/11</span>
-          <p className="mt-2 text-xs text-gray-400">
-            下载后解压 zip，先阅读使用说明书，再双击安装程序安装。
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }
