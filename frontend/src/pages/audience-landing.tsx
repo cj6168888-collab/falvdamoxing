@@ -1,7 +1,8 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, MonitorDown } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandMark, ProductPreview } from '@/components/marketing/brand-mark';
+import { ClientDownloadLink } from '@/components/marketing/client-download-link';
 import { audienceFromSlug, audiencePublicCopy } from '@/lib/public-site-copy';
 
 export default function AudienceLandingPage() {
@@ -64,18 +65,12 @@ export default function AudienceLandingPage() {
       <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
-            <h2 className="text-xl font-semibold">也可以使用 Windows 客户端</h2>
-            <p className="mt-2 text-sm text-slate-600">安装程序和使用说明书一起打包，适合固定电脑上的桌面入口。</p>
+            <h2 className="text-xl font-semibold">也可以使用客户端</h2>
+            <p className="mt-2 text-sm text-slate-600">手机访问时下载 Android APK，电脑访问时下载 Windows 客户端。</p>
           </div>
-          <Button asChild variant="outline">
-            <a href="/downloads/LegalAI-Windows-Client-v2.1.0.zip">
-              <MonitorDown className="mr-2 h-4 w-4" />
-              下载 Windows 客户端
-            </a>
-          </Button>
+          <ClientDownloadLink variant="panel" />
         </div>
       </section>
     </main>
   );
 }
-

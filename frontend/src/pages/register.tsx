@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Eye, EyeOff, MonitorDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { ApiError } from '@/api/client';
 import { authApi } from '@/api/auth.api';
 import { BrandMark, ProductPreview } from '@/components/marketing/brand-mark';
+import { ClientDownloadLink } from '@/components/marketing/client-download-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -238,10 +239,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <a href="/downloads/LegalAI-Windows-Client-v2.1.0.zip" className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 hover:border-teal-300 hover:text-[#0F766E]">
-            <MonitorDown className="h-4 w-4" />
-            下载 Windows 客户端
-          </a>
+          <ClientDownloadLink variant="panel" className="mt-5" />
         </div>
       </section>
     </main>

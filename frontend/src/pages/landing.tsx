@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, MonitorDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandMark, ProductPreview } from '@/components/marketing/brand-mark';
+import { ClientDownloadLink } from '@/components/marketing/client-download-link';
 import { audiencePublicCopy, publicSiteHighlights } from '@/lib/public-site-copy';
 
 const audiences = Object.values(audiencePublicCopy);
@@ -15,7 +16,7 @@ export default function LandingPage() {
           <Link to="/law-firm" className="hover:text-[#0F766E]">律所</Link>
           <Link to="/enterprise" className="hover:text-[#0F766E]">企业</Link>
           <Link to="/personal" className="hover:text-[#0F766E]">个人</Link>
-          <a href="/downloads/LegalAI-Windows-Client-v2.1.0.zip" className="hover:text-[#0F766E]">Windows 客户端</a>
+          <a href="#client-download" className="hover:text-[#0F766E]">客户端下载</a>
         </nav>
         <Button asChild className="bg-[#162033] hover:bg-[#22304a]">
           <Link to="/login">登录</Link>
@@ -92,19 +93,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+      <section id="client-download" className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
-          <h2 className="text-2xl font-semibold">Windows 客户端</h2>
-          <p className="mt-2 text-slate-600">安装程序和使用说明书已打包，可用于桌面快捷入口。</p>
+          <h2 className="text-2xl font-semibold">客户端下载</h2>
+          <p className="mt-2 text-slate-600">手机访问时下载 Android APK，电脑访问时下载 Windows 客户端。</p>
         </div>
-        <Button asChild className="bg-[#162033] hover:bg-[#22304a]">
-          <a href="/downloads/LegalAI-Windows-Client-v2.1.0.zip">
-            <MonitorDown className="mr-2 h-4 w-4" />
-            下载 Windows 客户端
-          </a>
-        </Button>
+        <ClientDownloadLink />
       </section>
     </main>
   );
 }
-
