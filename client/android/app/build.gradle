@@ -1,0 +1,22 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.legalai.client"
+    compileSdk 35
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        applicationId "com.legalai.client"
+        minSdk 23
+        targetSdk 35
+        versionCode 210
+        versionName "2.1.0"
+
+        buildConfigField "String", "SERVER_URL", "\"https://fl.jilinpc.com\""
+    }
+}
